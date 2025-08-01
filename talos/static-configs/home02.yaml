@@ -12,11 +12,9 @@ machine:
     - "homeops.hypyr.space"
     - "home01.hypyr.space"
     - "home02.hypyr.space"
-    - "home03.hypyr.space"
     - "home04.hypyr.space"
     - "home01"
     - "home02"
-    - "home03"
     - "home04"
   features:
     rbac: true
@@ -53,7 +51,7 @@ machine:
         wsize=1048576
   install:
     image: factory.talos.dev/metal-installer/b4e204a2932be8827ddf98a9329269723407f77b36a758400506bca4abebc602:v1.10.5
-    disk: /dev/sda
+    disk: /dev/disk/by-id/wwn-0x5001b448b4661686
   kernel:
     modules:
       - name: nbd
@@ -217,6 +215,7 @@ name: EPHEMERAL
 provisioning:
     diskSelector:
         match: system_disk
+    minSize: 50GiB
     maxSize: 100GiB
 ---
 apiVersion: v1alpha1

@@ -53,7 +53,7 @@ machine:
         wsize=1048576
   install:
     image: factory.talos.dev/metal-installer/b4e204a2932be8827ddf98a9329269723407f77b36a758400506bca4abebc602:v1.10.5
-    disk: /dev/sda
+    disk: /dev/disk/by-id/ata-SATA_SSD_19061012002241
     extraKernelArgs: []
   kernel:
     modules:
@@ -213,7 +213,7 @@ name: EPHEMERAL
 provisioning:
     diskSelector:
         match: system_disk
-    maxSize: 25GiB
+    maxSize: 50GiB
 ---
 apiVersion: v1alpha1
 kind: UserVolumeConfig
