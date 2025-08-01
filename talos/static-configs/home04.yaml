@@ -12,11 +12,9 @@ machine:
     - "homeops.hypyr.space"
     - "home01.hypyr.space"
     - "home02.hypyr.space"
-    - "home03.hypyr.space"
     - "home04.hypyr.space"
     - "home01"
     - "home02"
-    - "home03"
     - "home04"
   features:
     rbac: true
@@ -223,23 +221,17 @@ cluster:
     key: op://homelab/talos/CLUSTER_SERVICEACCOUNT_KEY
 ---
 apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+provisioning:
+  diskSelector:
+    match: disk.transport == "sata" && !system_disk
+  minSize: 200GiB
+---
+apiVersion: v1alpha1
 kind: UserVolumeConfig
 name: local-storage
 provisioning:
   diskSelector:
-    match: disk.transport == "sata" && disk.size >= 256GB && !disk.system_disk
-  minSize: 25GiB
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: enp1s0
-rings:
-  rx: 4096
-  tx: 4096
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: enp2s0
-rings:
-  rx: 4096
-  tx: 4096
+    match: disk.model == "MSI M450 1TB"
+  minSize: 200GiB
