@@ -92,7 +92,7 @@ item_exists() {
 safety_check() {
     log_info "Safety check - existing 1Password items in homelab vault:"
     
-    local services=("radarr" "sonarr" "sabnzbd" "grafana")
+    local services=("radarr" "sonarr" "prowlarr" "sabnzbd" "grafana" "atuin")
     local existing_items=()
     
     for service in "${services[@]}"; do
@@ -127,17 +127,34 @@ bootstrap_media_secrets() {
     # Radarr (Movie management)
     if ! item_exists "radarr"; then
         RADARR_API_KEY=$(generate_api_key)
-        create_service_item "radarr" "$RADARR_API_KEY" ""
+        RADARR_DB_USER="radarr"
+        RADARR_DB_PASS=$(generate_password)
+        create_service_item "radarr" "" \
+            "'RADARR_API_KEY[concealed]=$RADARR_API_KEY' 'RADARR_POSTGRES_USER[text]=$RADARR_DB_USER' 'RADARR_POSTGRES_PASS[concealed]=$RADARR_DB_PASS'"
     else
         log_info "Radarr secrets already exist"
     fi
     
-    # Sonarr (TV management)
+    # Sonarr (TV management) 
     if ! item_exists "sonarr"; then
         SONARR_API_KEY=$(generate_api_key)
-        create_service_item "sonarr" "$SONARR_API_KEY" ""
+        SONARR_DB_USER="sonarr"
+        SONARR_DB_PASS=$(generate_password)
+        create_service_item "sonarr" "" \
+            "'SONARR_API_KEY[concealed]=$SONARR_API_KEY' 'SONARR_POSTGRES_USER[text]=$SONARR_DB_USER' 'SONARR_POSTGRES_PASS[concealed]=$SONARR_DB_PASS'"
     else
         log_info "Sonarr secrets already exist"
+    fi
+    
+    # Prowlarr (Indexer management)
+    if ! item_exists "prowlarr"; then
+        PROWLARR_API_KEY=$(generate_api_key)
+        PROWLARR_DB_USER="prowlarr"
+        PROWLARR_DB_PASS=$(generate_password)
+        create_service_item "prowlarr" "" \
+            "'PROWLARR_API_KEY[concealed]=$PROWLARR_API_KEY' 'PROWLARR_POSTGRES_USER[text]=$PROWLARR_DB_USER' 'PROWLARR_POSTGRES_PASS[concealed]=$PROWLARR_DB_PASS'"
+    else
+        log_info "Prowlarr secrets already exist"
     fi
     
     # SABnzbd (Download client)
@@ -158,6 +175,16 @@ bootstrap_media_secrets() {
             "'ADMIN_USER[text]=$GRAFANA_ADMIN_USER' 'ADMIN_PASSWORD[concealed]=$GRAFANA_ADMIN_PASSWORD'"
     else
         log_info "Grafana secrets already exist"
+    fi
+    
+    # Atuin (Shell history)
+    if ! item_exists "atuin"; then
+        ATUIN_DB_USER="atuin"
+        ATUIN_DB_PASS=$(generate_password)
+        create_service_item "atuin" "" \
+            "'ATUIN_POSTGRES_USER[text]=$ATUIN_DB_USER' 'ATUIN_POSTGRES_PASS[concealed]=$ATUIN_DB_PASS'"
+    else
+        log_info "Atuin secrets already exist"
     fi
 }
 
