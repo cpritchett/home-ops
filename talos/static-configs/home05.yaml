@@ -54,7 +54,7 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/954b840045ee3a8785db0c518c98e5d861241e47781d1dd7e2c88d423b51c46e:v1.10.6
+    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
     disk: /dev/sda
   kernel:
     modules:
