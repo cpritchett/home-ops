@@ -169,6 +169,29 @@ kubectl delete pod -l app.kubernetes.io/name=onepassword -n external-secrets
 1. Using Connect server ID instead of server name for token creation
 2. Storing properly formatted credentials in 1Password for automation
 3. Updated secrets.yaml.tpl to use direct field values (no re-encoding)
+4. **Using explicit vault ID instead of vault name in ClusterSecretStore configuration**
+
+**Vault Configuration**: 
+The ClusterSecretStore must use the **vault ID** (`5xbjxjzzgjq75rozxy44jvaooi`) instead of vault name (`homelab`) to avoid authentication errors. This is configured in:
+```yaml
+# kubernetes/apps/external-secrets/onepassword/store/onepassword.yaml
+spec:
+  provider:
+    onepassword:
+      vaults:
+        5xbjxjzzgjq75rozxy44jvaooi: 1  # Use vault ID, not vault name
+```
+
+**Why explicit vault ID is required**:
+- Vault names can be ambiguous or change over time
+- 1Password Connect API requires exact vault identification for security
+- Prevents authentication failures due to vault resolution issues
+
+**Token Management**:
+To avoid creating duplicate tokens on every bootstrap, a stable token is maintained:
+- **Token name**: `k8s-YYYYMMDD` (e.g., `k8s-20250807`)
+- **Storage**: `OP_CONNECT_TOKEN` field in 1Password `1password` item
+- **Automation**: Bootstrap process fetches existing token instead of creating new ones
 
 **For Future Deployments**: 
 - **Automated**: Run `task bootstrap:apps` (incorporates the 1Password fix)

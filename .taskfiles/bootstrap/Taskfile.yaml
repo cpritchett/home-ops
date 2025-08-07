@@ -17,20 +17,6 @@ tasks:
       - test -f {{.CONFIG_FILE}}
       - talosctl config info
 
-  talos:
-    desc: Bootstrap Talos on the current VIP node
-    prompt: Bootstrap Talos on node {{.TARGET_NODE}}...?
-    cmds:
-      - until talosctl --nodes {{.TARGET_NODE}} bootstrap; do sleep 5; done
-      - talosctl kubeconfig --nodes {{.TARGET_NODE}} --force {{.KUBERNETES_DIR}}
-    vars:
-      VIP_HOSTNAME:
-        sh: echo {{.CONTROL_PLANE_ENDPOINT}} | sed -e 's,^https://,,' -e 's,:.*$,,'
-      TARGET_NODE:
-        sh: dig +short {{.VIP_HOSTNAME}} | tail -1
-    preconditions:
-      - talosctl config info
-      - which dig jq talosctl
 
   apps:
     desc: Bootstrap Kubernetes Apps
