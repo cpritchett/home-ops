@@ -599,7 +599,10 @@ tasks:
     requires:
       vars: [NODE]
     cmds:
-      - talosctl --nodes {{.NODE}} bootstrap
+      - until talosctl --nodes {{.NODE}} bootstrap; do echo "Bootstrap failed, retrying in 5s..."; sleep 5; done
+      - echo "Bootstrap successful, generating kubeconfig..."
+      - talosctl kubeconfig --nodes {{.NODE}} --force {{.KUBERNETES_DIR}}
+      - echo "✅ Bootstrap complete! Cluster ready for applications."
     preconditions:
       - op user get --me
       - talosctl --nodes {{.NODE}} get machineconfig
