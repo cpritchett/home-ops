@@ -20,7 +20,7 @@ spec:
     controllers:
       external-dns-unifi:
         annotations:
-          reloader.stakater.com/auto: true
+          reloader.stakater.com/auto: "true"
         initContainers:
           webhook:
             image:

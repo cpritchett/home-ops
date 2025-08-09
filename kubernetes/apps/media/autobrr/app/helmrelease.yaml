@@ -20,7 +20,7 @@ spec:
     controllers:
       autobrr:
         annotations:
-          reloader.stakater.com/auto: true
+          reloader.stakater.com/auto: "true"
         initContainers:
           init-db:
             image:

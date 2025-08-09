@@ -21,7 +21,7 @@ spec:
       onepassword:
         strategy: RollingUpdate
         annotations:
-          reloader.stakater.com/auto: true
+          reloader.stakater.com/auto: "true"
         # WORKAROUND: Temporarily disabled init container to test manual secret fix
         containers:
           api:
