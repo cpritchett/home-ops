@@ -87,11 +87,11 @@ machine:
           # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
           - network: "10.0.48.83/32"
             gateway: "0.0.0.0"
-          - network: "10.0.48.84/30"  # 84-87
+          - network: "10.0.48.84/30" # 84-87
             gateway: "0.0.0.0"
-          - network: "10.0.48.88/29"  # 88-95
+          - network: "10.0.48.88/29" # 88-95
             gateway: "0.0.0.0"
-          - network: "10.0.48.96/27"  # 96-127
+          - network: "10.0.48.96/27" # 96-127
             gateway: "0.0.0.0"
           - network: "10.0.48.128/26" # 128-191
             gateway: "0.0.0.0"
@@ -211,17 +211,17 @@ apiVersion: v1alpha1
 kind: VolumeConfig
 name: EPHEMERAL
 provisioning:
-    diskSelector:
-        match: system_disk
-    maxSize: 25GiB
+  diskSelector:
+    match: system_disk
+  minSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: UserVolumeConfig
 name: local-storage
 provisioning:
-    diskSelector:
-        match: disk.transport == "sata"
-    minSize: 25GiB
+  diskSelector:
+    match: disk.transport == "sata"
+  minSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: EthernetConfig
