@@ -20,7 +20,7 @@ spec:
     controllers:
       radarr:
         annotations:
-          reloader.stakater.com/auto: "true"
+          reloader.stakater.com/auto: true
         initContainers:
           init-db:
             image:
@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/radarr
-              tag: 5.27.1.10122@sha256:e6e4fb8383b9f232a5f7d6d7c1eadd03501685468c382131643ba8aed03098ba
+              tag: 5.27.1.10122@sha256:e6e4fb8383b9f232a5f7d6d7c1eadd03501685468c382131643ba8aed03098ba # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               RADARR__APP__INSTANCENAME: Radarr
               RADARR__APP__THEME: dark
@@ -65,7 +65,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

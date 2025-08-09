@@ -11,7 +11,7 @@ The Kubernetes cluster uses Cilium with BGP to advertise LoadBalancer service IP
 - **Cluster ASN:** 64514
 - **UniFi Router ASN:** 64513
 - **LoadBalancer IP Pool:** 10.0.48.50-10.0.48.200
-- **Node IPs:** 
+- **Node IPs:**
   - home01: 10.0.5.215
   - home02: 10.0.5.220
   - home03: 10.0.5.100
@@ -51,6 +51,7 @@ router bgp 64513
 5. **Traffic Routing:** Router learns how to route LoadBalancer traffic to cluster nodes
 
 ### Benefits of Dynamic Configuration
+
 - **Automatic Node Discovery:** New nodes are automatically accepted without manual configuration
 - **Simplified Management:** No need to manually add/remove individual neighbor entries
 - **Scalability:** Supports cluster expansion without BGP config changes

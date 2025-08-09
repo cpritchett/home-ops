@@ -8,10 +8,10 @@ Maintainers will attempt to respond to/confirm reports within 2-3 days, but if y
 
 When reporting an issue, where possible, please provide at least:
 
-* The project and commit version the issue was identified at
-* A proof of concept (plaintext; no binaries)
-* Steps to reproduce
-* Your recommended remediation(s), if any
+- The project and commit version the issue was identified at
+- A proof of concept (plaintext; no binaries)
+- Steps to reproduce
+- Your recommended remediation(s), if any
 
 ### Report using GitHub issues
 

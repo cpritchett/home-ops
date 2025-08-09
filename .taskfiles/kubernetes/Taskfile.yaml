@@ -1,8 +1,7 @@
 ---
-version: '3'
+version: "3"
 
 tasks:
-
   browse-pvc:
     desc: Mount a PVC to an temp container [NS={{.NS}}] [CLAIM=required]
     interactive: true

@@ -5,6 +5,6 @@ originRequest:
 ingress:
   - hostname: hypyr.space
     service: &service https://cilium-gateway-external.kube-system.svc.cluster.local
-  - hostname: "*.hypyr.space"
+  - hostname: *.hypyr.space
     service: *service
   - service: http_status:404

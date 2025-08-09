@@ -20,12 +20,12 @@ spec:
     controllers:
       unpoller:
         annotations:
-          reloader.stakater.com/auto: "true"
+          reloader.stakater.com/auto: true
         containers:
           app:
             image:
               repository: ghcr.io/unpoller/unpoller
-              tag: v2.15.3@sha256:56069bd90291a7c63e58b594e877c5f868a58f082e20c4c533e4e546ed3b42b3
+              tag: v2.15.3@sha256:56069bd90291a7c63e58b594e877c5f868a58f082e20c4c533e4e546ed3b42b3 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               TZ: America/Chicago
               UP_UNIFI_DEFAULT_ROLE: home-ops
@@ -56,7 +56,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

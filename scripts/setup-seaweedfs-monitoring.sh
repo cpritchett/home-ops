@@ -102,7 +102,7 @@ echo
 echo "4. 🔍 USEFUL QUERIES:"
 echo
 
-cat << 'EOF'
+cat <<'EOF'
    • Backup Success Rate:
      (rate(volsync_replication_source_success_total[5m]) / rate(volsync_replication_source_total[5m])) * 100
 
@@ -120,7 +120,7 @@ echo
 echo "🎯 QUICK MONITORING SETUP:"
 echo "=========================="
 
-cat << 'EOF'
+cat <<'EOF'
 1. Monitor via Web UI:
    • Visit: https://s3-web.hypyr.space
    • Check volume usage and file counts
@@ -145,7 +145,7 @@ echo
 echo "🚨 ALERT RECOMMENDATIONS:"
 echo "========================="
 
-cat << 'EOF'
+cat <<'EOF'
 Critical Alerts:
 • SeaweedFS container down
 • S3 API endpoint unreachable

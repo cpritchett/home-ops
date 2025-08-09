@@ -30,7 +30,7 @@ spec:
       retries: 3
   values:
     githubConfigUrl: https://github.com/cpritchett/home-ops
-    githubConfigSecret: home-ops-runner-secret
+    githubConfigSecret: home-ops-runner-secret # trunk-ignore(checkov/CKV_SECRET_6): Secret name, not actual secret
     minRunners: 1
     maxRunners: 3
     containerMode:
@@ -48,12 +48,12 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/home-operations/actions-runner:2.326.0@sha256:547f2c0253322b518538d3ea4e9fc39c90fbb456f48895c2d6f1dcc3d87f56e5
+            image: ghcr.io/home-operations/actions-runner:2.326.0@sha256:547f2c0253322b518538d3ea4e9fc39c90fbb456f48895c2d6f1dcc3d87f56e5 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             command:
               - /home/runner/run.sh
             env:
               - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
-                value: "false"
+                value: false
               - name: NODE
                 valueFrom:
                   fieldRef:

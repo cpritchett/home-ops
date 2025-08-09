@@ -1,8 +1,8 @@
 ---
-version: '3'
+version: "3"
 
 vars:
-  SYSTEM_UPGRADE_KS: '{{.KUBERNETES_DIR}}/apps/system-upgrade/system-upgrade-controller/ks.yaml'
+  SYSTEM_UPGRADE_KS: "{{.KUBERNETES_DIR}}/apps/system-upgrade/system-upgrade-controller/ks.yaml"
 
 env:
   KUBERNETES_VERSION:
@@ -11,7 +11,6 @@ env:
     sh: yq '.spec.postBuild.substitute.TALOS_VERSION | select(.)' {{.SYSTEM_UPGRADE_KS}}
 
 tasks:
-
   list-node-types:
     desc: List all available node types
     dir: talos
@@ -41,11 +40,11 @@ tasks:
     cmds:
       - |
         echo "Regenerating schematic for {{.NODE_TYPE}}..."
-        
+
         # Generate new schematic ID
         SCHEMATIC_ID=$(curl --silent -X POST --data-binary @schematics/{{.NODE_TYPE}}.yaml https://factory.talos.dev/schematics | jq -r .id)
         echo "New schematic ID: $SCHEMATIC_ID"
-        
+
         # Test if the image URL is valid
         echo "Testing image URL..."
         HTTP_STATUS=$(curl -I "https://factory.talos.dev/image/${SCHEMATIC_ID}/v1.10.6/metal-amd64.iso" 2>/dev/null | head -n 1 | cut -d' ' -f2)
@@ -54,7 +53,7 @@ tasks:
           exit 1
         fi
         echo "Image URL verified (HTTP 200)"
-        
+
         # Find all nodes using this node type and update their configs
         echo "Updating config files for {{.NODE_TYPE}} nodes..."
         for NODE_IP in $(yq e '.nodes | to_entries[] | select(.value == "{{.NODE_TYPE}}") | .key' node-mapping.yaml); do
@@ -71,7 +70,7 @@ tasks:
             fi
           fi
         done
-        
+
         echo "Schematic regeneration complete!"
     preconditions:
       - test -f {{.TALOS_DIR}}/schematics/{{.NODE_TYPE}}.yaml
@@ -131,11 +130,11 @@ tasks:
       - |
         # Generate base config
         talosctl gen config --with-secrets {{.ROOT_DIR}}/secrets.yaml --output-types talosconfig -o talosconfig --force homeops {{.CONTROL_PLANE_ENDPOINT}}
-        
+
         # Set endpoints to all nodes initially for health check
         ENDPOINTS=$(echo "{{.TALOS_ENDPOINTS}}" | tr ',' ' ')
         talosctl config endpoint $ENDPOINTS
-        
+
         # If specific nodes provided, use them; otherwise test all nodes
         if [ -n "{{.HEALTHY_NODES}}" ]; then
           NODES_TO_USE="{{.HEALTHY_NODES}}"
@@ -159,7 +158,7 @@ tasks:
             fi
           done
         fi
-        
+
         # Configure with healthy nodes only
         if [ -n "$NODES_TO_USE" ]; then
           echo "Configuring talosconfig with nodes: $NODES_TO_USE"
@@ -348,7 +347,7 @@ tasks:
         BACKUP_DIR="{{.ROOT_DIR}}/secrets-backups"
         TIMESTAMP=$(date +%Y%m%d-%H%M%S)
         mkdir -p "$BACKUP_DIR"
-        
+
         [ -f {{.ROOT_DIR}}/secrets.yaml ] && cp {{.ROOT_DIR}}/secrets.yaml "$BACKUP_DIR/secrets-$TIMESTAMP.yaml" && echo "Backed up secrets.yaml"
         [ -f {{.TALOS_DIR}}/talosconfig ] && cp {{.TALOS_DIR}}/talosconfig "$BACKUP_DIR/talosconfig-$TIMESTAMP" && echo "Backed up talosconfig"
 
@@ -377,14 +376,14 @@ tasks:
       - op user get --me
       - which op
 
-  push-secrets:  
+  push-secrets:
     desc: Push local secrets to 1Password (updates what nodes will use)
     cmds:
       - task: update-secrets
         vars:
           OP_VAULT: "{{.OP_VAULT}}"
       - echo "Pushed secrets to 1Password"
-    preconditions: 
+    preconditions:
       - sh: test -f {{.ROOT_DIR}}/secrets.yaml
         msg: "No secrets.yaml found"
       - op user get --me

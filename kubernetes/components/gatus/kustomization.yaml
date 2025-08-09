@@ -7,6 +7,6 @@ configMapGenerator:
       - ./config.yaml
     options:
       labels:
-        gatus.io/enabled: "true"
+        gatus.io/enabled: true
 generatorOptions:
   disableNameSuffixHash: true

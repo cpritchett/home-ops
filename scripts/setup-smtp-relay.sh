@@ -23,77 +23,77 @@ echo
 
 read -p "Choose your SMTP provider (1-6): " PROVIDER_CHOICE
 
-case $PROVIDER_CHOICE in
-    1)
-        echo
-        echo "🔧 GMAIL/GOOGLE WORKSPACE SETUP"
-        echo "==============================="
-        echo "Requirements:"
-        echo "1. Enable 2-factor authentication on your Google account"
-        echo "2. Generate an App Password:"
-        echo "   - Go to: https://myaccount.google.com/security"
-        echo "   - Click 'App passwords'"
-        echo "   - Generate password for 'Mail'"
-        echo
-        SMTP_SERVER="smtp.gmail.com"
-        read -p "Enter your Gmail address: " SMTP_USERNAME
-        read -s -p "Enter your Gmail App Password: " SMTP_PASSWORD
-        ;;
-    2)
-        echo
-        echo "🔧 OUTLOOK/OFFICE 365 SETUP"
-        echo "==========================="
-        echo "Use your Outlook/Office 365 credentials"
-        echo
-        SMTP_SERVER="smtp-mail.outlook.com"
-        read -p "Enter your Outlook email address: " SMTP_USERNAME
-        read -s -p "Enter your Outlook password: " SMTP_PASSWORD
-        ;;
-    3)
-        echo
-        echo "🔧 SENDGRID SETUP"
-        echo "================="
-        echo "Requirements:"
-        echo "1. Create SendGrid account at https://sendgrid.com/"
-        echo "2. Generate API key in Settings → API Keys"
-        echo
-        SMTP_SERVER="smtp.sendgrid.net"
-        SMTP_USERNAME="apikey"
-        read -s -p "Enter your SendGrid API key: " SMTP_PASSWORD
-        ;;
-    4)
-        echo
-        echo "🔧 MAILGUN SETUP"
-        echo "================"
-        echo "Requirements:"
-        echo "1. Create Mailgun account at https://mailgun.com/"
-        echo "2. Get SMTP credentials from your domain dashboard"
-        echo
-        SMTP_SERVER="smtp.mailgun.org"
-        read -p "Enter your Mailgun SMTP username: " SMTP_USERNAME
-        read -s -p "Enter your Mailgun SMTP password: " SMTP_PASSWORD
-        ;;
-    5)
-        echo
-        echo "🔧 CUSTOM SMTP SERVER SETUP"
-        echo "============================"
-        read -p "Enter your SMTP server hostname (e.g., mail.example.com): " SMTP_SERVER
-        read -p "Enter your SMTP username: " SMTP_USERNAME
-        read -s -p "Enter your SMTP password: " SMTP_PASSWORD
-        ;;
-    6)
-        echo
-        echo "🔧 OTHER PROVIDER SETUP"
-        echo "======================="
-        echo "Contact your email provider for SMTP settings"
-        read -p "Enter your SMTP server hostname: " SMTP_SERVER
-        read -p "Enter your SMTP username: " SMTP_USERNAME
-        read -s -p "Enter your SMTP password: " SMTP_PASSWORD
-        ;;
-    *)
-        echo "Invalid choice. Exiting."
-        exit 1
-        ;;
+case ${PROVIDER_CHOICE} in
+1)
+    echo
+    echo "🔧 GMAIL/GOOGLE WORKSPACE SETUP"
+    echo "==============================="
+    echo "Requirements:"
+    echo "1. Enable 2-factor authentication on your Google account"
+    echo "2. Generate an App Password:"
+    echo "   - Go to: https://myaccount.google.com/security"
+    echo "   - Click 'App passwords'"
+    echo "   - Generate password for 'Mail'"
+    echo
+    SMTP_SERVER="smtp.gmail.com"
+    read -p "Enter your Gmail address: " SMTP_USERNAME
+    read -s -p "Enter your Gmail App Password: " SMTP_PASSWORD
+    ;;
+2)
+    echo
+    echo "🔧 OUTLOOK/OFFICE 365 SETUP"
+    echo "==========================="
+    echo "Use your Outlook/Office 365 credentials"
+    echo
+    SMTP_SERVER="smtp-mail.outlook.com"
+    read -p "Enter your Outlook email address: " SMTP_USERNAME
+    read -s -p "Enter your Outlook password: " SMTP_PASSWORD
+    ;;
+3)
+    echo
+    echo "🔧 SENDGRID SETUP"
+    echo "================="
+    echo "Requirements:"
+    echo "1. Create SendGrid account at https://sendgrid.com/"
+    echo "2. Generate API key in Settings → API Keys"
+    echo
+    SMTP_SERVER="smtp.sendgrid.net"
+    SMTP_USERNAME="apikey"
+    read -s -p "Enter your SendGrid API key: " SMTP_PASSWORD
+    ;;
+4)
+    echo
+    echo "🔧 MAILGUN SETUP"
+    echo "================"
+    echo "Requirements:"
+    echo "1. Create Mailgun account at https://mailgun.com/"
+    echo "2. Get SMTP credentials from your domain dashboard"
+    echo
+    SMTP_SERVER="smtp.mailgun.org"
+    read -p "Enter your Mailgun SMTP username: " SMTP_USERNAME
+    read -s -p "Enter your Mailgun SMTP password: " SMTP_PASSWORD
+    ;;
+5)
+    echo
+    echo "🔧 CUSTOM SMTP SERVER SETUP"
+    echo "============================"
+    read -p "Enter your SMTP server hostname (e.g., mail.example.com): " SMTP_SERVER
+    read -p "Enter your SMTP username: " SMTP_USERNAME
+    read -s -p "Enter your SMTP password: " SMTP_PASSWORD
+    ;;
+6)
+    echo
+    echo "🔧 OTHER PROVIDER SETUP"
+    echo "======================="
+    echo "Contact your email provider for SMTP settings"
+    read -p "Enter your SMTP server hostname: " SMTP_SERVER
+    read -p "Enter your SMTP username: " SMTP_USERNAME
+    read -s -p "Enter your SMTP password: " SMTP_PASSWORD
+    ;;
+*)
+    echo "Invalid choice. Exiting."
+    exit 1
+    ;;
 esac
 
 echo
@@ -102,23 +102,23 @@ echo "💾 Creating 1Password entry..."
 
 # Create the smtp-relay entry
 op item create \
-  --category="Login" \
-  --title="smtp-relay" \
-  --vault="homelab" \
-  --url="$SMTP_SERVER" \
-  "username[text]=$SMTP_USERNAME" \
-  "password[password]=$SMTP_PASSWORD" \
-  "SMTP_RELAY_SERVER[text]=$SMTP_SERVER" \
-  "SMTP_RELAY_USERNAME[text]=$SMTP_USERNAME" \
-  "SMTP_RELAY_PASSWORD[concealed]=$SMTP_PASSWORD"
+    --category="Login" \
+    --title="smtp-relay" \
+    --vault="homelab" \
+    --url="${SMTP_SERVER}" \
+    "username[text]=${SMTP_USERNAME}" \
+    "password[password]=${SMTP_PASSWORD}" \
+    "SMTP_RELAY_SERVER[text]=${SMTP_SERVER}" \
+    "SMTP_RELAY_USERNAME[text]=${SMTP_USERNAME}" \
+    "SMTP_RELAY_PASSWORD[concealed]=${SMTP_PASSWORD}"
 
 if [[ $? -eq 0 ]]; then
     echo "✅ Successfully created 'smtp-relay' entry in 1Password"
     echo
     echo "📧 SMTP Configuration Summary:"
     echo "=============================="
-    echo "Server: $SMTP_SERVER"
-    echo "Username: $SMTP_USERNAME"
+    echo "Server: ${SMTP_SERVER}"
+    echo "Username: ${SMTP_USERNAME}"
     echo "Password: [stored securely]"
     echo
     echo "🔧 Your cluster can now send email notifications!"

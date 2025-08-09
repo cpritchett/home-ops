@@ -22,10 +22,12 @@ echo "🔧 Setup Steps for Garage (Lightweight S3):"
 echo "============================================="
 echo "1. SSH to your NAS (barbary.hypyr.space)"
 echo "2. Install Garage via Docker:"
-echo "   docker run -d --name garage \\"
-echo "     -p 3900:3900 -p 3901:3901 \\"
-echo "     -v /path/to/garage/meta:/data \\"
-echo "     -v /path/to/garage/data:/data \\"
+cat <<'EOF'
+   docker run -d --name garage \
+     -p 3900:3900 -p 3901:3901 \
+     -v /path/to/garage/meta:/data \
+     -v /path/to/garage/data:/data \
+EOF
 echo "     dxflrs/garage:v1.0.1"
 echo "3. Configure Garage with garage.toml"
 echo "4. Create bucket and keys via garage CLI"
@@ -40,7 +42,7 @@ echo "- S3 Endpoint URL (http://razzia.hypyr.space:3900 or https://s3.hypyr.spac
 echo
 
 read -p "Have you set up Garage and have the credentials? (y/N): " READY
-if [[ $READY != [yY] ]]; then
+if [[ ${READY} != [yY] ]]; then
     echo
     echo "⚠️  Please set up Garage first:"
     echo "1. SSH to your NAS: ssh cpritchett@razzia.hypyr.space"
@@ -51,10 +53,12 @@ if [[ $READY != [yY] ]]; then
     echo "6. Run this script again"
     echo
     echo "📁 Quick Garage setup commands:"
-    echo "docker run -d --name garage \\"
-    echo "  -p 3900:3900 -p 3901:3901 \\"
-    echo "  -v /volume1/docker/garage/meta:/etc/garage.toml \\"
-    echo "  -v /volume1/docker/garage/data:/data \\"
+    cat <<'EOF'
+docker run -d --name garage \
+  -p 3900:3900 -p 3901:3901 \
+  -v /volume1/docker/garage/meta:/etc/garage.toml \
+  -v /volume1/docker/garage/data:/data \
+EOF
     echo "  dxflrs/garage:v1.0.1"
     exit 0
 fi
@@ -79,24 +83,24 @@ op item delete cloudflare --vault homelab
 
 # Create comprehensive cloudflare entry
 op item create \
-  --category="API Credential" \
-  --title="cloudflare" \
-  --vault="homelab" \
-  "CF_API_TOKEN[concealed]=$CF_TOKEN" \
-  "AWS_ACCESS_KEY_ID[concealed]=$S3_ACCESS_KEY" \
-  "AWS_SECRET_ACCESS_KEY[concealed]=$S3_SECRET_KEY" \
-  "CLOUDFLARE_API_TOKEN[concealed]=$CF_TOKEN" \
-  "REPOSITORY_TEMPLATE[text]=$S3_ENDPOINT/$REPO_PATH"
+    --category="API Credential" \
+    --title="cloudflare" \
+    --vault="homelab" \
+    "CF_API_TOKEN[concealed]=${CF_TOKEN}" \
+    "AWS_ACCESS_KEY_ID[concealed]=${S3_ACCESS_KEY}" \
+    "AWS_SECRET_ACCESS_KEY[concealed]=${S3_SECRET_KEY}" \
+    "CLOUDFLARE_API_TOKEN[concealed]=${CF_TOKEN}" \
+    "REPOSITORY_TEMPLATE[text]=${S3_ENDPOINT}/${REPO_PATH}"
 
 if [[ $? -eq 0 ]]; then
     echo "✅ Successfully updated cloudflare entry with S3 credentials"
     echo
     echo "🔧 S3 Configuration Summary:"
     echo "==========================="
-    echo "Endpoint: $S3_ENDPOINT"
-    echo "Bucket: $REPO_PATH"
-    echo "Access Key: $S3_ACCESS_KEY"
-    echo "Repository Template: $S3_ENDPOINT/$REPO_PATH"
+    echo "Endpoint: ${S3_ENDPOINT}"
+    echo "Bucket: ${REPO_PATH}"
+    echo "Access Key: ${S3_ACCESS_KEY}"
+    echo "Repository Template: ${S3_ENDPOINT}/${REPO_PATH}"
     echo
     echo "🎉 Your volsync backups will now use Garage on your Synology NAS!"
     echo

@@ -20,12 +20,12 @@ spec:
     controllers:
       zigbee2mqtt:
         annotations:
-          reloader.stakater.com/auto: "true"
+          reloader.stakater.com/auto: true
         containers:
           app:
             image:
               repository: ghcr.io/koenkk/zigbee2mqtt
-              tag: 2.5.1@sha256:1e639d3144960f246dcecc21d993169fd6844b5817e939bca498b2abf2c23159
+              tag: 2.5.1@sha256:1e639d3144960f246dcecc21d993169fd6844b5817e939bca498b2abf2c23159 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               TZ: America/Chicago
               ZIGBEE2MQTT_DATA: /config
@@ -72,7 +72,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

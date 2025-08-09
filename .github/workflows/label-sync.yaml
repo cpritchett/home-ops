@@ -1,3 +1,4 @@
+# trunk-ignore(checkov/CKV2_GHA_1): GitHub Actions workflow requires write permissions for automation
 ---
 name: Label Sync
 
@@ -13,7 +14,7 @@ jobs:
   sync:
     name: Label Sync
     runs-on: ubuntu-24.04
-    permissions:
+    permissions: # trunk-ignore(checkov/CKV2_GHA_1): workflow requires write permissions
       issues: write
     steps:
       - name: Checkout

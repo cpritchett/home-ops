@@ -21,13 +21,13 @@ spec:
       onepassword:
         strategy: RollingUpdate
         annotations:
-          reloader.stakater.com/auto: "true"
+          reloader.stakater.com/auto: true
         # WORKAROUND: Temporarily disabled init container to test manual secret fix
         containers:
           api:
             image:
               repository: docker.io/1password/connect-api
-              tag: 1.7.3@sha256:0601c7614e102eada268dbda6ba4b5886ce77713be2c332ec6a2fd0f028484ba
+              tag: 1.7.3@sha256:0601c7614e102eada268dbda6ba4b5886ce77713be2c332ec6a2fd0f028484ba # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               XDG_DATA_HOME: &configDir /config
               OP_HTTP_PORT: &apiPort 80
@@ -69,11 +69,11 @@ spec:
             securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
           sync:
             image:
               repository: docker.io/1password/connect-sync
-              tag: 1.7.3@sha256:2f17621c7eb27bbcb1f86bbc5e5a5198bf54ac3b9c2ffac38064d03c932b07d5
+              tag: 1.7.3@sha256:2f17621c7eb27bbcb1f86bbc5e5a5198bf54ac3b9c2ffac38064d03c932b07d5 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               XDG_DATA_HOME: *configDir
               OP_HTTP_PORT: &syncPort 8081

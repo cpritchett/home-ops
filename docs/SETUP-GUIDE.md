@@ -1,12 +1,13 @@
 # Home-Ops Kubernetes Cluster Setup Guide
 
-*For users familiar with Docker but new to Kubernetes*
+_For users familiar with Docker but new to Kubernetes_
 
 ## Overview
 
 This guide helps you deploy a GitOps-managed Kubernetes cluster using:
+
 - **Talos Linux** - Immutable OS for Kubernetes nodes
-- **Flux** - GitOps for automatic application deployment 
+- **Flux** - GitOps for automatic application deployment
 - **1Password** - Secret management
 - **Task** - Automation commands
 
@@ -19,20 +20,23 @@ This guide helps you deploy a GitOps-managed Kubernetes cluster using:
 ## Quick Start
 
 ### 1. Generate Cluster Secrets
+
 ```bash
 # Generate new secrets and store in 1Password
 task talos:gen-secrets
 ```
 
 ### 2. Apply Node Configurations
+
 ```bash
 # Apply configs to each node (use your actual node IPs)
 task talos:apply-config NODE=10.0.5.215 INSECURE=true
-task talos:apply-config NODE=10.0.5.220 INSECURE=true  
+task talos:apply-config NODE=10.0.5.220 INSECURE=true
 task talos:apply-config NODE=10.0.5.100 INSECURE=true
 ```
 
 ### 3. Bootstrap Cluster
+
 ```bash
 # Bootstrap on any control plane node
 task talos:bootstrap NODE=10.0.5.215
@@ -55,11 +59,12 @@ If you're coming from Docker, here's how this relates:
 ## Common Operations
 
 ### Check Cluster Status
+
 ```bash
 # See all nodes
 kubectl get nodes
 
-# See all running applications  
+# See all running applications
 kubectl get pods -A
 
 # Check GitOps status
@@ -67,43 +72,50 @@ flux get kustomizations
 ```
 
 ### Fix Secret Issues
+
 ```bash
 # Auto-fixes 1Password Connect and syncs all secrets
 task kubernetes:sync-secrets
 ```
 
 ### Browse Storage
+
 ```bash
 # Mount a persistent volume to debug storage issues
 task kubernetes:browse-pvc CLAIM=pvc-name
 ```
 
 ### Backup/Restore
+
 ```bash
 # Create snapshot of an application's data
 task volsync:snapshot APP=plex
 
-# Restore from backup  
+# Restore from backup
 task volsync:restore APP=plex PREVIOUS=snapshot-name
 ```
 
-*Note: Backups go to S3-compatible storage (SeaweedFS). You may need to adjust S3 endpoints/credentials for your setup.*
+_Note: Backups go to S3-compatible storage (SeaweedFS). You may need to adjust S3 endpoints/credentials for your setup._
 
 ## Troubleshooting
 
 ### Secrets Not Working
+
 **Symptom**: Apps showing "secret not found" errors
 **Solution**: `task kubernetes:sync-secrets` - This auto-detects and fixes 1Password Connect issues
 
-### Apps Not Deploying  
+### Apps Not Deploying
+
 **Symptom**: Pods stuck in "Pending" or "ImagePullBackOff"
 **Check**: `kubectl describe pod <pod-name> -n <namespace>`
 **Common fixes**:
+
 - Storage issues: `task kubernetes:browse-pvc CLAIM=<name>`
 - Secret issues: `task kubernetes:sync-secrets`
 
 ### Node Issues
-**Symptom**: Node showing "NotReady" 
+
+**Symptom**: Node showing "NotReady"
 **Check**: `kubectl describe node <node-name>`
 **Solution**: Often network or storage related - see CLUSTER-TROUBLESHOOTING.md
 

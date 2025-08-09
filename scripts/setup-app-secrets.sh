@@ -15,13 +15,13 @@ create_op_entry() {
     shift 2
     local fields=("$@")
 
-    echo "Creating 1Password entry: $title"
-    op item create --category="$category" --title="$title" --vault="homelab" "${fields[@]}"
+    echo "Creating 1Password entry: ${title}"
+    op item create --category="${category}" --title="${title}" --vault="homelab" "${fields[@]}"
 
     if [[ $? -eq 0 ]]; then
-        echo "✅ Successfully created '$title' entry"
+        echo "✅ Successfully created '${title}' entry"
     else
-        echo "❌ Failed to create '$title' entry"
+        echo "❌ Failed to create '${title}' entry"
         return 1
     fi
     echo
@@ -40,8 +40,8 @@ echo "  2. Go to Settings → General"
 echo "  3. Copy the API Key"
 echo
 read -p "Enter Radarr API key (or 'skip' to skip): " RADARR_API
-if [[ "$RADARR_API" != "skip" && -n "$RADARR_API" ]]; then
-    create_op_entry "radarr" "API Credential" "RADARR_API_KEY[concealed]=$RADARR_API"
+if [[ ${RADARR_API} != "skip" && -n ${RADARR_API} ]]; then
+    create_op_entry "radarr" "API Credential" "RADARR_API_KEY[concealed]=${RADARR_API}"
 fi
 
 # Sonarr
@@ -52,8 +52,8 @@ echo "  2. Go to Settings → General"
 echo "  3. Copy the API Key"
 echo
 read -p "Enter Sonarr API key (or 'skip' to skip): " SONARR_API
-if [[ "$SONARR_API" != "skip" && -n "$SONARR_API" ]]; then
-    create_op_entry "sonarr" "API Credential" "SONARR_API_KEY[concealed]=$SONARR_API"
+if [[ ${SONARR_API} != "skip" && -n ${SONARR_API} ]]; then
+    create_op_entry "sonarr" "API Credential" "SONARR_API_KEY[concealed]=${SONARR_API}"
 fi
 
 # Prowlarr
@@ -64,8 +64,8 @@ echo "  2. Go to Settings → General"
 echo "  3. Copy the API Key"
 echo
 read -p "Enter Prowlarr API key (or 'skip' to skip): " PROWLARR_API
-if [[ "$PROWLARR_API" != "skip" && -n "$PROWLARR_API" ]]; then
-    create_op_entry "prowlarr" "API Credential" "PROWLARR_API_KEY[concealed]=$PROWLARR_API"
+if [[ ${PROWLARR_API} != "skip" && -n ${PROWLARR_API} ]]; then
+    create_op_entry "prowlarr" "API Credential" "PROWLARR_API_KEY[concealed]=${PROWLARR_API}"
 fi
 
 # SABnzbd
@@ -76,11 +76,11 @@ echo "  2. Go to Config → General"
 echo "  3. Copy both API Key and NZB Key"
 echo
 read -p "Enter SABnzbd API key (or 'skip' to skip): " SABNZBD_API
-if [[ "$SABNZBD_API" != "skip" && -n "$SABNZBD_API" ]]; then
+if [[ ${SABNZBD_API} != "skip" && -n ${SABNZBD_API} ]]; then
     read -p "Enter SABnzbd NZB key: " SABNZBD_NZB
     create_op_entry "sabnzbd" "API Credential" \
-        "SABNZBD_API_KEY[concealed]=$SABNZBD_API" \
-        "SABNZBD_NZB_KEY[concealed]=$SABNZBD_NZB"
+        "SABNZBD_API_KEY[concealed]=${SABNZBD_API}" \
+        "SABNZBD_NZB_KEY[concealed]=${SABNZBD_NZB}"
 fi
 
 # Autobrr
@@ -91,8 +91,8 @@ echo "  2. Go to Settings → API"
 echo "  3. Generate and copy API Key"
 echo
 read -p "Enter Autobrr API key (or 'skip' to skip): " AUTOBRR_API
-if [[ "$AUTOBRR_API" != "skip" && -n "$AUTOBRR_API" ]]; then
-    create_op_entry "autobrr" "API Credential" "AUTOBRR_API_KEY[concealed]=$AUTOBRR_API"
+if [[ ${AUTOBRR_API} != "skip" && -n ${AUTOBRR_API} ]]; then
+    create_op_entry "autobrr" "API Credential" "AUTOBRR_API_KEY[concealed]=${AUTOBRR_API}"
 fi
 
 # Cross-seed
@@ -103,8 +103,8 @@ echo "  2. Go to Settings → API"
 echo "  3. Generate and copy API Key"
 echo
 read -p "Enter Cross-seed API key (or 'skip' to skip): " CROSSSEED_API
-if [[ "$CROSSSEED_API" != "skip" && -n "$CROSSSEED_API" ]]; then
-    create_op_entry "cross-seed" "API Credential" "CROSS_SEED_API_KEY[concealed]=$CROSSSEED_API"
+if [[ ${CROSSSEED_API} != "skip" && -n ${CROSSSEED_API} ]]; then
+    create_op_entry "cross-seed" "API Credential" "CROSS_SEED_API_KEY[concealed]=${CROSSSEED_API}"
 fi
 
 echo
@@ -119,11 +119,11 @@ echo "  2. Login with default admin/admin"
 echo "  3. Set a new admin password when prompted"
 echo
 read -p "Enter Grafana admin password (or 'skip' to skip): " GRAFANA_PASS
-if [[ "$GRAFANA_PASS" != "skip" && -n "$GRAFANA_PASS" ]]; then
+if [[ ${GRAFANA_PASS} != "skip" && -n ${GRAFANA_PASS} ]]; then
     create_op_entry "grafana" "Login" \
         "username[text]=admin" \
-        "password[password]=$GRAFANA_PASS" \
-        "GF_SECURITY_ADMIN_PASSWORD[concealed]=$GRAFANA_PASS"
+        "password[password]=${GRAFANA_PASS}" \
+        "GF_SECURITY_ADMIN_PASSWORD[concealed]=${GRAFANA_PASS}"
 fi
 
 # Gatus
@@ -133,13 +133,13 @@ echo "  1. Access Gatus web UI (usually http://gatus.your-domain.com)"
 echo "  2. Set admin credentials during first access"
 echo
 read -p "Enter Gatus admin username (or 'skip' to skip): " GATUS_USER
-if [[ "$GATUS_USER" != "skip" && -n "$GATUS_USER" ]]; then
+if [[ ${GATUS_USER} != "skip" && -n ${GATUS_USER} ]]; then
     read -p "Enter Gatus admin password: " GATUS_PASS
     create_op_entry "gatus" "Login" \
-        "username[text]=$GATUS_USER" \
-        "password[password]=$GATUS_PASS" \
-        "GATUS_ADMIN_USERNAME[text]=$GATUS_USER" \
-        "GATUS_ADMIN_PASSWORD[concealed]=$GATUS_PASS"
+        "username[text]=${GATUS_USER}" \
+        "password[password]=${GATUS_PASS}" \
+        "GATUS_ADMIN_USERNAME[text]=${GATUS_USER}" \
+        "GATUS_ADMIN_PASSWORD[concealed]=${GATUS_PASS}"
 fi
 
 # Atuin
@@ -149,13 +149,13 @@ echo "  1. Access Atuin web UI (usually http://atuin.your-domain.com)"
 echo "  2. Set admin credentials during first access"
 echo
 read -p "Enter Atuin admin username (or 'skip' to skip): " ATUIN_USER
-if [[ "$ATUIN_USER" != "skip" && -n "$ATUIN_USER" ]]; then
+if [[ ${ATUIN_USER} != "skip" && -n ${ATUIN_USER} ]]; then
     read -p "Enter Atuin admin password: " ATUIN_PASS
     create_op_entry "atuin" "Login" \
-        "username[text]=$ATUIN_USER" \
-        "password[password]=$ATUIN_PASS" \
-        "ATUIN_ADMIN_USERNAME[text]=$ATUIN_USER" \
-        "ATUIN_ADMIN_PASSWORD[concealed]=$ATUIN_PASS"
+        "username[text]=${ATUIN_USER}" \
+        "password[password]=${ATUIN_PASS}" \
+        "ATUIN_ADMIN_USERNAME[text]=${ATUIN_USER}" \
+        "ATUIN_ADMIN_PASSWORD[concealed]=${ATUIN_PASS}"
 fi
 
 echo
@@ -170,11 +170,11 @@ echo "  2. Configure MQTT broker settings"
 echo "  3. Set username and password for MQTT connection"
 echo
 read -p "Enter MQTT username (or 'skip' to skip): " MQTT_USER
-if [[ "$MQTT_USER" != "skip" && -n "$MQTT_USER" ]]; then
+if [[ ${MQTT_USER} != "skip" && -n ${MQTT_USER} ]]; then
     read -p "Enter MQTT password: " MQTT_PASS
     create_op_entry "zigbee2mqtt" "Login" \
-        "MQTT_USER[text]=$MQTT_USER" \
-        "MQTT_PASS[concealed]=$MQTT_PASS"
+        "MQTT_USER[text]=${MQTT_USER}" \
+        "MQTT_PASS[concealed]=${MQTT_PASS}"
 fi
 
 echo
