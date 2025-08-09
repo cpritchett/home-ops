@@ -83,7 +83,7 @@ spec:
       app:
         annotations:
           cnpg.io/pluginClientSecret: *clientCert
-          cnpg.io/pluginPort: 9090
+          cnpg.io/pluginPort: "9090"
           cnpg.io/pluginServerSecret: *serverCert
         labels:
           cnpg.io/pluginName: barman-cloud.cloudnative-pg.io
