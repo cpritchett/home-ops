@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/kashalls/kromgo
-              tag: v0.7.0@sha256:98202ba862023c1f78c6bc227f1de89d7777e5f621333511241a6242a230880e
+              tag: v0.7.0@sha256:98202ba862023c1f78c6bc227f1de89d7777e5f621333511241a6242a230880e # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090
               HEALTH_PORT: &healthPort 8888
@@ -53,7 +53,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

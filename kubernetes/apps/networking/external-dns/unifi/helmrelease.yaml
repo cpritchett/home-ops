@@ -25,10 +25,10 @@ spec:
           webhook:
             image:
               repository: ghcr.io/kashalls/external-dns-unifi-webhook
-              tag: v0.6.0@sha256:dd71adb88b64174b158481fb359dfe985d8bea1cad8cefba36209c8fc9eb03d3
+              tag: v0.6.0@sha256:dd71adb88b64174b158481fb359dfe985d8bea1cad8cefba36209c8fc9eb03d3 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               UNIFI_HOST: https://192.168.1.1
-              UNIFI_SKIP_TLS_VERIFY: "true"
+              UNIFI_SKIP_TLS_VERIFY: true
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
@@ -64,16 +64,16 @@ spec:
             securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
         containers:
           app:
             image:
               repository: registry.k8s.io/external-dns/external-dns
-              tag: v0.18.0@sha256:f90738b35be265d50141d5c21e6f6049c3da7cd761682c40214117a2951b80bc
+              tag: v0.18.0@sha256:f90738b35be265d50141d5c21e6f6049c3da7cd761682c40214117a2951b80bc # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             args:
               - --domain-filter=hypyr.space
               - --events
-              - --interval=1m
+              - --interval=10m
               - --log-format=text
               - --log-level=info
               - --policy=sync

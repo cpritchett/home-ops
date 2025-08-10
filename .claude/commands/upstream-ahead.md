@@ -1,4 +1,4 @@
-# upstream-ahead  
+# upstream-ahead
 
 Compare upstream/main to what you've already reviewed, showing only new commits since last review. Uses a tracking branch `upstream-reviewed` to remember what you've already seen.
 

@@ -52,7 +52,7 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/b4e204a2932be8827ddf98a9329269723407f77b36a758400506bca4abebc602:v1.10.5
+    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
     disk: /dev/sda
     extraKernelArgs: []
   kernel:
@@ -87,11 +87,11 @@ machine:
           # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
           - network: "10.0.48.83/32"
             gateway: "0.0.0.0"
-          - network: "10.0.48.84/30"  # 84-87
+          - network: "10.0.48.84/30" # 84-87
             gateway: "0.0.0.0"
-          - network: "10.0.48.88/29"  # 88-95
+          - network: "10.0.48.88/29" # 88-95
             gateway: "0.0.0.0"
-          - network: "10.0.48.96/27"  # 96-127
+          - network: "10.0.48.96/27" # 96-127
             gateway: "0.0.0.0"
           - network: "10.0.48.128/26" # 128-191
             gateway: "0.0.0.0"
@@ -211,17 +211,17 @@ apiVersion: v1alpha1
 kind: VolumeConfig
 name: EPHEMERAL
 provisioning:
-    diskSelector:
-        match: system_disk
-    maxSize: 25GiB
+  diskSelector:
+    match: system_disk
+  minSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: UserVolumeConfig
 name: local-storage
 provisioning:
-    diskSelector:
-        match: disk.transport == "sata"
-    minSize: 25GiB
+  diskSelector:
+    match: disk.transport == "sata"
+  minSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: EthernetConfig

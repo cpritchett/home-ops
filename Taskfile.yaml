@@ -1,22 +1,23 @@
 ---
-version: '3'
+version: "3"
 
 set: [pipefail]
 shopt: [globstar]
 
 vars:
-  BOOTSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'
-  KUBERNETES_DIR: '{{.ROOT_DIR}}/kubernetes'
-  TALOS_DIR: '{{.ROOT_DIR}}/talos'
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+  TALOS_DIR: "{{.ROOT_DIR}}/talos"
   CONTROL_PLANE_ENDPOINT: "https://homeops.hypyr.space:6443"
   OP_VAULT: "homelab"
-  TALOS_ENDPOINTS: "homeops.hypyr.space"
-  TALOS_NODES: "10.0.5.215,10.0.5.220,10.0.5.100,10.0.5.118"
+  TALOS_ENDPOINTS: "10.0.5.215,10.0.5.220,10.0.5.118"
+  TALOS_NODES:
+    sh: yq '.nodes | keys | join(",")' {{.TALOS_DIR}}/node-mapping.yaml
 
 env:
-  KUBECONFIG: '{{.KUBERNETES_DIR}}/kubeconfig'
-  MINIJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/.minijinja.toml'
-  TALOSCONFIG: '{{.TALOS_DIR}}/talosconfig'
+  KUBECONFIG: "{{.KUBERNETES_DIR}}/kubeconfig"
+  MINIJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/.minijinja.toml"
+  TALOSCONFIG: "{{.TALOS_DIR}}/talosconfig"
 
 includes:
   bootstrap: .taskfiles/bootstrap
@@ -26,7 +27,21 @@ includes:
   workstation: .taskfiles/workstation
 
 tasks:
-
   default:
     cmd: task --list
     silent: true
+
+  setup-cloudflare-tunnel:
+    desc: Set up Cloudflare tunnel for external service access
+    cmd: ./scripts/setup-cloudflare-tunnel.sh
+    preconditions:
+      - op user get --me
+      - which cloudflared
+      - which jq
+
+  bootstrap-media-secrets:
+    desc: Bootstrap API keys for media services (solves chicken/egg problem)
+    cmd: ./scripts/bootstrap-media-secrets.sh
+    preconditions:
+      - op user get --me
+      - kubectl cluster-info

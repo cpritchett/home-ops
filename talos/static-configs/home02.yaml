@@ -52,7 +52,7 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/b4e204a2932be8827ddf98a9329269723407f77b36a758400506bca4abebc602:v1.10.5
+    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
     disk: /dev/sda
   kernel:
     modules:
@@ -77,13 +77,13 @@ machine:
       - interface: bond0
         bond:
           deviceSelectors:
-            - {hardwareAddr: "7c:83:34:*", driver: igc}
+            - { hardwareAddr: "7c:83:34:*", driver: igc }
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
           miimon: 5000
         addresses:
-          - "10.0.5.220/24"
+          - 10.0.5.220/24
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.0.5.1"
@@ -92,11 +92,11 @@ machine:
           # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
           - network: "10.0.48.83/32"
             gateway: "0.0.0.0"
-          - network: "10.0.48.84/30"  # 84-87
+          - network: "10.0.48.84/30" # 84-87
             gateway: "0.0.0.0"
-          - network: "10.0.48.88/29"  # 88-95
+          - network: "10.0.48.88/29" # 88-95
             gateway: "0.0.0.0"
-          - network: "10.0.48.96/27"  # 96-127
+          - network: "10.0.48.96/27" # 96-127
             gateway: "0.0.0.0"
           - network: "10.0.48.128/26" # 128-191
             gateway: "0.0.0.0"
@@ -106,7 +106,7 @@ machine:
             gateway: "0.0.0.0"
         mtu: 1500
         vlans:
-          - {vlanId: 30, dhcp: false, mtu: 1500}
+          - { vlanId: 30, dhcp: false, mtu: 1500 }
           - vlanId: 48
             dhcp: false
             mtu: 1500
@@ -215,17 +215,17 @@ apiVersion: v1alpha1
 kind: VolumeConfig
 name: EPHEMERAL
 provisioning:
-    diskSelector:
-        match: system_disk
-    maxSize: 100GiB
+  diskSelector:
+    match: system_disk
+  maxSize: 200GiB
 ---
 apiVersion: v1alpha1
 kind: UserVolumeConfig
 name: local-storage
 provisioning:
-    diskSelector:
-        match: disk.transport == "sata"
-    minSize: 25GiB
+  diskSelector:
+    match: disk.transport == "sata"
+  minSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: EthernetConfig

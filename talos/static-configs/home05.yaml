@@ -1,0 +1,252 @@
+---
+version: v1alpha1
+debug: false
+persist: true
+machine:
+  type: controlplane
+  token: op://homelab/talos/MACHINE_TOKEN
+  ca:
+    crt: op://homelab/talos/MACHINE_CA_CRT
+    key: op://homelab/talos/MACHINE_CA_KEY
+  certSANs:
+    - "homeops.hypyr.space"
+    - "home01.hypyr.space"
+    - "home02.hypyr.space"
+    - "home03.hypyr.space"
+    - "home04.hypyr.space"
+    - "home05.hypyr.space"
+    - "home01"
+    - "home02"
+    - "home03"
+    - "home04"
+    - "home05"
+  features:
+    rbac: true
+    stableHostname: true
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles: ["os:admin"]
+      allowedKubernetesNamespaces: ["actions-runner-system", "system-upgrade"]
+    apidCheckExtKeyUsage: true
+    diskQuotaSupport: true
+    kubePrism:
+      enabled: true
+      port: 7445
+    hostDNS:
+      enabled: true
+      resolveMemberNames: true
+      forwardKubeDNSToHost: false
+  files:
+    - op: create
+      path: /etc/cri/conf.d/20-customization.part
+      content: |
+        [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
+    - op: overwrite
+      path: /etc/nfsmount.conf
+      permissions: 0o644
+      content: |
+        [ NFSMount_Global_Options ]
+        nfsvers=4.1
+        hard=True
+        nconnect=8
+        noatime=True
+        rsize=1048576
+        wsize=1048576
+  install:
+    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
+    disk: /dev/sda
+  kernel:
+    modules:
+      - name: nbd
+  kubelet:
+    image: ghcr.io/siderolabs/kubelet:v1.33.2
+    extraConfig:
+      featureGates:
+        KubeletSeparateDiskGC: true
+      evictionHard:
+        "imagefs.available": "5%"
+        "nodefs.available": "5%"
+      evictionMinimumReclaim:
+        "imagefs.available": "10%"
+        "nodefs.available": "10%"
+      systemReserved:
+        cpu: "1000m"
+        memory: "4Gi"
+      kubeReserved:
+        cpu: "1000m"
+        memory: "4Gi"
+    defaultRuntimeSeccompProfileEnabled: true
+    nodeIP:
+      validSubnets: ["10.0.5.0/24"]
+    disableManifestsDirectory: true
+  network:
+    interfaces:
+      - interface: bond0
+        bond:
+          deviceSelectors:
+            - hardwareAddr: 70:85:c2:d5:84:*
+          mode: active-backup
+          miimon: 100
+          primary: enp2s0
+        addresses:
+          - 10.0.5.129/24
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "10.0.5.1"
+          # Selective blackhole routes - exclude critical cluster endpoints
+          # Allow: 10.0.48.50-10.0.48.82 (kube-vip: 55, external: 80, internal: 81, qbit: 82)
+          # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
+          - network: "10.0.48.83/32"
+            gateway: "0.0.0.0"
+          - network: "10.0.48.84/30" # 84-87
+            gateway: "0.0.0.0"
+          - network: "10.0.48.88/29" # 88-95
+            gateway: "0.0.0.0"
+          - network: "10.0.48.96/27" # 96-127
+            gateway: "0.0.0.0"
+          - network: "10.0.48.128/26" # 128-191
+            gateway: "0.0.0.0"
+          - network: "10.0.48.192/29" # 192-199
+            gateway: "0.0.0.0"
+          - network: "10.0.48.200/32" # 200
+            gateway: "0.0.0.0"
+        mtu: 1500
+        vlans:
+          - { vlanId: 30, dhcp: false, mtu: 1500 }
+          - vlanId: 48
+            dhcp: false
+            mtu: 1500
+    nameservers: ["10.0.5.1"]
+    disableSearchDomain: true
+    hostname: home05.hypyr.space
+  nodeLabels:
+    topology.kubernetes.io/region: k8s
+    topology.kubernetes.io/zone: main-smc
+    quicksync.generation: "7"
+    node.kubernetes.io/instance-type: itx
+  sysctls:
+    fs.inotify.max_user_watches: 1048576 # Watchdog
+    fs.inotify.max_user_instances: 8192 # Watchdog
+    net.core.rmem_max: 67108864 # 10Gb/s | Cloudflared / QUIC
+    net.core.wmem_max: 67108864 # 10Gb/s | Cloudflared / QUIC
+    net.ipv4.tcp_congestion_control: bbr # 10Gb/s
+    net.ipv4.tcp_fastopen: 3 # Send and accept data in the opening SYN packet
+    sunrpc.tcp_slot_table_entries: 128 # 10Gb/s | NFS
+    sunrpc.tcp_max_slot_table_entries: 128 # 10Gb/s | NFS
+    user.max_user_namespaces: 11255 # User Namespaces
+    vm.nr_hugepages: 4096 # 8GB hugepages for ITX with 64GB RAM
+    vm.max_map_count: 1048576 # Higher for memory-intensive workloads
+    vm.swappiness: 10 # Moderate swap preference with 64GB RAM
+  time:
+    disabled: false
+    servers: ["time.cloudflare.com"]
+cluster:
+  ca:
+    crt: op://homelab/talos/CLUSTER_CA_CRT
+    key: op://homelab/talos/CLUSTER_CA_KEY
+  clusterName: homeops
+  controlPlane:
+    endpoint: https://homeops.hypyr.space:6443
+  discovery:
+    enabled: true
+    registries:
+      kubernetes:
+        disabled: true
+      service:
+        disabled: false
+  id: op://homelab/talos/CLUSTER_ID
+  network:
+    cni:
+      name: none
+    dnsDomain: cluster.local
+    podSubnets: ["10.244.0.0/16"]
+    serviceSubnets: ["10.96.0.0/12"]
+  secret: op://homelab/talos/CLUSTER_SECRET
+  token: op://homelab/talos/CLUSTER_TOKEN
+  aggregatorCA:
+    crt: op://homelab/talos/CLUSTER_AGGREGATORCA_CRT
+    key: op://homelab/talos/CLUSTER_AGGREGATORCA_KEY
+  allowSchedulingOnControlPlanes: true
+  apiServer:
+    image: registry.k8s.io/kube-apiserver:v1.33.2
+    extraArgs:
+      enable-aggregator-routing: true
+      bind-address: 0.0.0.0
+    certSANs: ["homeops.hypyr.space"]
+    disablePodSecurityPolicy: true
+  controllerManager:
+    image: registry.k8s.io/kube-controller-manager:v1.33.2
+    extraArgs:
+      bind-address: 0.0.0.0
+  coreDNS:
+    disabled: true
+  etcd:
+    advertisedSubnets: ["10.0.5.0/24"]
+    ca:
+      crt: op://homelab/talos/CLUSTER_ETCD_CA_CRT
+      key: op://homelab/talos/CLUSTER_ETCD_CA_KEY
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+  extraManifests:
+    # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
+    - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
+    # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+    - https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.84.0/stripped-down-crds.yaml
+  proxy:
+    disabled: true
+    image: registry.k8s.io/kube-proxy:v1.33.2
+  secretboxEncryptionSecret: op://homelab/talos/CLUSTER_SECRETBOXENCRYPTIONSECRET
+  scheduler:
+    image: registry.k8s.io/kube-scheduler:v1.33.2
+    extraArgs:
+      bind-address: 0.0.0.0
+    config:
+      apiVersion: kubescheduler.config.k8s.io/v1
+      kind: KubeSchedulerConfiguration
+      profiles:
+        - schedulerName: default-scheduler
+          plugins:
+            score:
+              disabled:
+                - name: ImageLocality
+          pluginConfig:
+            - name: PodTopologySpread
+              args:
+                defaultingType: List
+                defaultConstraints:
+                  - maxSkew: 1
+                    topologyKey: kubernetes.io/hostname
+                    whenUnsatisfiable: ScheduleAnyway
+  serviceAccount:
+    key: op://homelab/talos/CLUSTER_SERVICEACCOUNT_KEY
+---
+apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+provisioning:
+  diskSelector:
+    match: system_disk
+  maxSize: 100GiB
+---
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: local-storage
+provisioning:
+  diskSelector:
+    match: disk.transport == "sata"
+  minSize: 25GiB
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: eno1
+rings:
+  rx: 4096
+  tx: 4096
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enp2s0
+rings:
+  rx: 4096
+  tx: 4096

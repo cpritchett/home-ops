@@ -8,7 +8,7 @@ clients:
     password: ""
 
 rules:
-  - name: "unregistered"
+  - name: unregistered
     enabled: true
     priority: 10
     match_releases:
@@ -19,7 +19,7 @@ rules:
           - "expired"
         tag_empty: false
     external:
-      - name: "arr"
+      - name: arr
         type: "radarr"
         host: "radarr.media.svc.cluster.local"
         port: 7878
@@ -32,17 +32,17 @@ rules:
       max_ratio: 0
       max_seed_time: "168h"
     actions:
-      - name: "delete"
+      - name: delete
         delete_files: true
 
-  - name: "ratio-limit"
+  - name: ratio-limit
     enabled: true
     priority: 20
     match_releases:
       - status: "StalledUP"
         tag_empty: false
     external:
-      - name: "arr"
+      - name: arr
         type: "radarr"
         host: "radarr.media.svc.cluster.local"
         port: 7878
@@ -53,12 +53,12 @@ rules:
     filter:
       min_seed_time: "168h"
       max_ratio: 2.0
-      max_seed_time: "0"
+      max_seed_time: 0
     actions:
-      - name: "delete"
+      - name: delete
         delete_files: true
 
-  - name: "seed-time"
+  - name: seed-time
     enabled: true
     priority: 30
     match_releases:
@@ -67,7 +67,7 @@ rules:
           - "expired"
         tag_empty: false
     external:
-      - name: "arr"
+      - name: arr
         type: "radarr"
         host: "radarr.media.svc.cluster.local"
         port: 7878
@@ -78,7 +78,7 @@ rules:
     filter:
       min_seed_time: "720h"
       max_ratio: 0
-      max_seed_time: "0"
+      max_seed_time: 0
     actions:
-      - name: "delete"
+      - name: delete
         delete_files: true

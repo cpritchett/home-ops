@@ -25,14 +25,14 @@ spec:
           app:
             image:
               repository: registry.k8s.io/external-dns/external-dns
-              tag: v0.18.0@sha256:f90738b35be265d50141d5c21e6f6049c3da7cd761682c40214117a2951b80bc
+              tag: v0.18.0@sha256:f90738b35be265d50141d5c21e6f6049c3da7cd761682c40214117a2951b80bc # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             args:
               - --cloudflare-dns-records-per-page=1000
               - --cloudflare-proxied
               - --domain-filter=hypyr.space
               - --events
               - --gateway-name=external
-              - --interval=1m
+              - --interval=10m
               - --log-format=text
               - --log-level=info
               - --policy=sync
@@ -66,7 +66,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
         serviceAccount:
           name: *app
     defaultPodOptions:

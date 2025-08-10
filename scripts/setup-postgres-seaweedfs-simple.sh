@@ -6,13 +6,13 @@ echo "Creating postgres-backup bucket for CloudNative-PG backups"
 echo
 
 # Check if 1Password CLI is available
-if ! command -v op &> /dev/null; then
+if ! command -v op &>/dev/null; then
     echo "❌ 1Password CLI not found. Please install it first."
     exit 1
 fi
 
 # Check if we're signed in to 1Password
-if ! op account list &> /dev/null; then
+if ! op account list &>/dev/null; then
     echo "❌ Not signed in to 1Password. Please run 'op signin' first."
     exit 1
 fi
@@ -24,22 +24,22 @@ S3_ACCESS_KEY=$(op item get seaweedfs --vault homelab --field S3_ACCESS_KEY_ID 2
 S3_SECRET_KEY=$(op item get seaweedfs --vault homelab --field S3_SECRET_ACCESS_KEY 2>/dev/null)
 S3_ENDPOINT=$(op item get seaweedfs --vault homelab --field S3_ENDPOINT 2>/dev/null)
 
-if [[ -z "$S3_ACCESS_KEY" || -z "$S3_SECRET_KEY" || -z "$S3_ENDPOINT" ]]; then
+if [[ -z ${S3_ACCESS_KEY} || -z ${S3_SECRET_KEY} || -z ${S3_ENDPOINT} ]]; then
     echo "❌ Could not retrieve SeaweedFS credentials from 1Password"
     echo "Make sure the 'seaweedfs' entry exists in the 'homelab' vault"
     exit 1
 fi
 
 echo "✅ Retrieved SeaweedFS credentials"
-echo "📡 Endpoint: $S3_ENDPOINT"
+echo "📡 Endpoint: ${S3_ENDPOINT}"
 echo
 
 # Test basic connectivity
 echo "🔗 Testing endpoint connectivity..."
-if curl -I "$S3_ENDPOINT" >/dev/null 2>&1; then
+if curl -I "${S3_ENDPOINT}" >/dev/null 2>&1; then
     echo "✅ Endpoint is reachable"
 else
-    echo "❌ Cannot reach endpoint $S3_ENDPOINT"
+    echo "❌ Cannot reach endpoint ${S3_ENDPOINT}"
     exit 1
 fi
 
@@ -56,10 +56,10 @@ echo
 echo "🔧 Option 2: Create manually using kubectl and AWS CLI:"
 echo "   kubectl run aws-cli --rm -it --image=amazon/aws-cli:latest -- sh"
 echo "   # Inside the pod, run:"
-echo "   # export AWS_ACCESS_KEY_ID='$S3_ACCESS_KEY'"
-echo "   # export AWS_SECRET_ACCESS_KEY='$S3_SECRET_KEY'"
-echo "   # aws --endpoint-url=$S3_ENDPOINT s3 mb s3://postgres-backup"
-echo "   # aws --endpoint-url=$S3_ENDPOINT s3 ls"
+echo "   # export AWS_ACCESS_KEY_ID='${S3_ACCESS_KEY}'"
+echo "   # export AWS_SECRET_ACCESS_KEY='${S3_SECRET_KEY}'"
+echo "   # aws --endpoint-url=${S3_ENDPOINT} s3 mb s3://postgres-backup"
+echo "   # aws --endpoint-url=${S3_ENDPOINT} s3 ls"
 echo
 echo "🔧 Option 3: Create via SeaweedFS admin interface"
 echo "   Visit: https://s3-web.hypyr.space"
@@ -69,7 +69,7 @@ echo
 echo "✅ CONFIGURATION SUMMARY:"
 echo "========================="
 echo "✅ Updated CloudNative-PG cluster configuration:"
-echo "   • Endpoint: $S3_ENDPOINT"
+echo "   • Endpoint: ${S3_ENDPOINT}"
 echo "   • Bucket: s3://postgres-backup/"
 echo "   • Server name: postgres-v23 (incremented)"
 echo
@@ -83,7 +83,8 @@ echo "1. Apply the updated configurations:"
 echo "   kubectl apply -k kubernetes/apps/databases/cloudnative-pg/"
 echo
 echo "2. Force refresh external secrets:"
-echo "   kubectl annotate externalsecrets --all external-secrets.io/force-sync=\$(date +%s) -A"
+# shellcheck disable=SC2016
+echo '   kubectl annotate externalsecrets --all external-secrets.io/force-sync=$(date +%s) -A'
 echo
 echo "3. Monitor the PostgreSQL backup:"
 echo "   kubectl logs -n databases -l app.kubernetes.io/name=cloudnative-pg"
@@ -99,4 +100,4 @@ echo "==================="
 echo "• If backup fails due to missing bucket, CloudNative-PG will usually create it"
 echo "• Check SeaweedFS logs: docker logs seaweedfs (on your Synology)"
 echo "• Verify credentials: kubectl get secret cloudnative-pg-secret -n databases -o yaml"
-echo "• Test connectivity from cluster: kubectl run curl --rm -it --image=curlimages/curl -- curl -I $S3_ENDPOINT"
+echo "• Test connectivity from cluster: kubectl run curl --rm -it --image=curlimages/curl -- curl -I ${S3_ENDPOINT}"

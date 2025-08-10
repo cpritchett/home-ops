@@ -18,21 +18,45 @@ runtimes:
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
   enabled:
-    - shellcheck@0.10.0
-    - shfmt@3.6.0
     - actionlint@1.7.7
-    - checkov@3.2.457
+    - checkov@3.2.458
     - git-diff-check
     - markdownlint@0.45.0
     - prettier@3.6.2
-    - renovate@41.45.0
+    - renovate@41.59.0
+    - shellcheck@0.10.0
+    - shfmt@3.6.0
     - taplo@0.9.3
-    - trufflehog@3.90.2
+    - trufflehog@3.90.3
     - yamllint@1.37.1
+  ignore:
+    - linters: [checkov]
+      paths:
+        - "**/helmrelease.yaml" # Container image SHA256 hashes trigger false positives
+        - "talos/static-configs/**" # Talos configuration files have legitimate secrets
+        - "kubernetes/**" # Kubernetes manifests may contain legitimate encoded data
+        - ".github/workflows/**" # GitHub Actions workflows legitimately require write permissions
+    - linters: [yamllint]
+      paths:
+        - ".github/workflows/**" # GitHub Actions YAML requires specific quoting
+        - ".taskfiles/**" # Taskfiles have complex quoting requirements
+        - "talos/**" # Talos configs require specific formatting
+        - "kubernetes/**" # Kubernetes YAML often requires specific quoting for templates
+        - ".trunk/trunk.yaml" # Trunk config file has complex path patterns
+        - "Taskfile.yaml" # Main Taskfile has complex quoting requirements
+    - linters: [shellcheck]
+      paths:
+        - "scripts/**" # Scripts may have legitimate patterns flagged by shellcheck
+    - linters: [markdownlint]
+      paths:
+        - "docs/**" # Documentation may have formatting that conflicts with strict rules
+        - "**/*.md" # Markdown files often need flexible formatting for readability
+    - linters: [prettier]
+      paths:
+        - "kubernetes/**" # Kubernetes YAML may have formatting that conflicts with prettier
 actions:
-  disabled:
+  enabled:
     - trunk-announce
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
-  enabled:
     - trunk-upgrade-available

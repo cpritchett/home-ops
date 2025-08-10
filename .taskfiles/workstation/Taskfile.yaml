@@ -1,11 +1,10 @@
 ---
-version: '3'
+version: "3"
 
 vars:
-  WORKSTATION_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/workstation/resources'
+  WORKSTATION_RESOURCES_DIR: "{{.ROOT_DIR}}/.taskfiles/workstation/resources"
 
 tasks:
-
   krew:
     desc: Set up Krew tools
     cmds:
@@ -15,10 +14,10 @@ tasks:
           echo "❌ krew not found. Please run 'mise install' first to install krew."
           exit 1
         fi
-        
+
         # List of plugins to install
         PLUGINS="cert-manager cnpg browse-pvc node-shell rook-ceph view-secret"
-        
+
         # Check and install each plugin
         for plugin in $PLUGINS; do
           if mise exec -- krew list | grep -q "^$plugin\s"; then
@@ -28,7 +27,7 @@ tasks:
             mise exec -- krew install "$plugin" || echo "⚠️  Failed to install $plugin, continuing..."
           fi
         done
-        
+
         echo "🎉 Krew plugin installation complete!"
     preconditions:
       - which kubectl

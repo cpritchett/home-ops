@@ -23,10 +23,10 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/plex
-              tag: 1.41.9.9961@sha256:6c86319bb3275135f5da5aec71b45e48305669ecbceee0f88d335bebf0d0f218
+              tag: 1.41.9.9961@sha256:6c86319bb3275135f5da5aec71b45e48305669ecbceee0f88d335bebf0d0f218 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               PLEX_ADVERTISE_URL: https://{{ .Release.Name }}.hypyr.space:443
-              PLEX_NO_AUTH_NETWORKS: 192.168.1.0/24
+              PLEX_NO_AUTH_NETWORKS: 192.168.2.0/24
               TZ: America/Chicago
             probes:
               liveness: &probes
@@ -54,16 +54,16 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
     defaultPodOptions:
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            - matchExpressions:
-              - key: quicksync.generation
-                operator: In
-                values: ["9", "10", "11", "12"]
+              - matchExpressions:
+                  - key: quicksync.generation
+                    operator: In
+                    values: ["9", "10", "11", "12"]
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
@@ -109,7 +109,7 @@ spec:
         hostnames:
           - "{{ .Release.Name }}.hypyr.space"
         parentRefs:
-          - name: external
+          - name: internal
             namespace: kube-system
             sectionName: https
         rules:
