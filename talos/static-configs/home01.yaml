@@ -224,7 +224,7 @@ kind: UserVolumeConfig
 name: local-storage
 provisioning:
   diskSelector:
-    match: disk.transport == "sata"
+    match: system_disk
   minSize: 100GiB
 ---
 apiVersion: v1alpha1

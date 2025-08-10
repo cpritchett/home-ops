@@ -339,7 +339,7 @@ flux resume helmrelease <name> -n <namespace>
 
 - **Cluster health**: `talosctl etcd members` and `talosctl etcd status`
 - **Storage management**: `talosctl wipe disk <device>` for cleaning storage devices
-- **Node maintenance**: `talosctl --nodes <node> reset --reboot=false` for maintenance mode
+- **Node maintenance**: `talosctl --nodes <node> reset` for maintenance mode (WARNING: --reboot=false actually shuts down nodes instead of keeping them running)
 - **NEVER use kubectl** for Talos-level operations (node management, etcd, storage)
 
 **Source of Truth**: All node management uses `talos/node-mapping.yaml` as the authoritative node list.

@@ -164,7 +164,7 @@ tasks:
           echo "Configuring talosconfig with nodes: $NODES_TO_USE"
           # Convert comma-separated to space-separated for talosctl commands
           NODES_SPACE_SEP=$(echo "$NODES_TO_USE" | tr ',' ' ')
-          talosctl config nodes "$NODES_TO_USE"
+          talosctl config nodes $NODES_SPACE_SEP
           talosctl config endpoint $NODES_SPACE_SEP
           echo "Successfully configured talosconfig with healthy nodes as both nodes and endpoints"
         else
