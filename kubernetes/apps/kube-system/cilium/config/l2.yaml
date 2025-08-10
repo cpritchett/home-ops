@@ -8,6 +8,7 @@ spec:
   interfaces:
     - bond0.48 # Using VLAN 48 interface for service announcements
     - eno1.48
+    - enp2s0.48 # Added for home05 single interface setup
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
