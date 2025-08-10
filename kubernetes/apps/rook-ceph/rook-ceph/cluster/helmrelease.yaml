@@ -86,8 +86,9 @@ spec:
         connections:
           requireMsgr2: true
       storage:
-        useAllNodes: false
+        useAllNodes: true
         useAllDevices: false
+        devicePathFilter: /dev/disk/by-id/nvme-*
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
@@ -98,7 +99,6 @@ spec:
                       - enabled
         config:
           osdsPerDevice: "1"
-          devicePathFilter: /dev/disk/by-id/nvme-*
     cephBlockPools:
       - name: ceph-blockpool
         spec:
