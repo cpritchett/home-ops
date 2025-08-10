@@ -85,7 +85,8 @@ machine:
       - interface: bond0
         bond:
           deviceSelectors:
-            - hardwareAddr: 70:85:c2:d5:84:*
+            - { hardwareAddr: "70:85:c2:d5:84:9e", driver: igb } # enp2s0
+            - { hardwareAddr: "70:85:c2:d5:84:9c", driver: e1000e } # eno1
           mode: active-backup
           miimon: 100
           primary: enp2s0
