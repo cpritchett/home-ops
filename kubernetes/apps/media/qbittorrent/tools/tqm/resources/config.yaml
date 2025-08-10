@@ -53,7 +53,7 @@ rules:
     filter:
       min_seed_time: "168h"
       max_ratio: 2.0
-      max_seed_time: 0
+      max_seed_time: "0"
     actions:
       - name: delete
         delete_files: true
@@ -78,7 +78,7 @@ rules:
     filter:
       min_seed_time: "720h"
       max_ratio: 0
-      max_seed_time: 0
+      max_seed_time: "0"
     actions:
       - name: delete
         delete_files: true
