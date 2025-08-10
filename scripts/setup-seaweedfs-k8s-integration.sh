@@ -6,13 +6,13 @@ echo "Setting up SeaweedFS S3 credentials for volsync backups"
 echo
 
 # Check if 1Password CLI is available
-if ! command -v op &> /dev/null; then
+if ! command -v op &>/dev/null; then
     echo "❌ 1Password CLI not found. Please install it first."
     exit 1
 fi
 
 # Check if we're signed in to 1Password
-if ! op account list &> /dev/null; then
+if ! op account list &>/dev/null; then
     echo "❌ Not signed in to 1Password. Please run 'op signin' first."
     exit 1
 fi
@@ -28,17 +28,17 @@ echo "- Endpoint: ${CURRENT_ENDPOINT:-'Not set'}"
 echo "- Access Key: ${CURRENT_ACCESS_KEY:-'Not set'}"
 echo
 
-if [[ "$CURRENT_ENDPOINT" == "https://s3.hypyr.space" ]]; then
+if [[ ${CURRENT_ENDPOINT} == "https://s3.hypyr.space" ]]; then
     echo "✅ SeaweedFS is already configured as the S3 endpoint!"
     echo "🔄 Checking if credentials are properly set..."
 
-    if [[ -n "$CURRENT_ACCESS_KEY" ]] && [[ "$CURRENT_ACCESS_KEY" == seaweedfs-* ]]; then
+    if [[ -n ${CURRENT_ACCESS_KEY} ]] && [[ ${CURRENT_ACCESS_KEY} == seaweedfs-* ]]; then
         echo "✅ SeaweedFS credentials are properly configured"
         echo
         echo "📋 Current Setup:"
         echo "================="
-        echo "S3 Endpoint: $CURRENT_ENDPOINT"
-        echo "Access Key: $CURRENT_ACCESS_KEY"
+        echo "S3 Endpoint: ${CURRENT_ENDPOINT}"
+        echo "Access Key: ${CURRENT_ACCESS_KEY}"
         echo "Bucket: volsync"
         echo
         echo "🎉 Your cluster is ready to use SeaweedFS for volsync backups!"
@@ -56,18 +56,18 @@ fi
 echo "🔧 Setting up SeaweedFS integration..."
 
 # Generate secure credentials if not already set
-if [[ -z "$CURRENT_ACCESS_KEY" ]] || [[ "$CURRENT_ACCESS_KEY" != seaweedfs-* ]]; then
+if [[ -z ${CURRENT_ACCESS_KEY} ]] || [[ ${CURRENT_ACCESS_KEY} != seaweedfs-* ]]; then
     echo "🔑 Generating new SeaweedFS credentials..."
     S3_ACCESS_KEY="seaweedfs-$(openssl rand -hex 8)"
     S3_SECRET_KEY=$(openssl rand -base64 32)
 
     echo "Generated credentials:"
-    echo "- Access Key: $S3_ACCESS_KEY"
-    echo "- Secret Key: $S3_SECRET_KEY"
+    echo "- Access Key: ${S3_ACCESS_KEY}"
+    echo "- Secret Key: ${S3_SECRET_KEY}"
     echo
 else
     echo "🔄 Using existing SeaweedFS credentials..."
-    S3_ACCESS_KEY="$CURRENT_ACCESS_KEY"
+    S3_ACCESS_KEY="${CURRENT_ACCESS_KEY}"
     S3_SECRET_KEY=$(op item get seaweedfs --vault homelab --field S3_SECRET_ACCESS_KEY --reveal)
 fi
 
@@ -78,8 +78,8 @@ echo "💾 Creating/updating SeaweedFS 1Password entry..."
 if op item get seaweedfs --vault homelab >/dev/null 2>&1; then
     echo "� Updating existing SeaweedFS entry..."
     op item edit seaweedfs --vault homelab \
-        "S3_ACCESS_KEY_ID[text]=$S3_ACCESS_KEY" \
-        "S3_SECRET_ACCESS_KEY[concealed]=$S3_SECRET_KEY" \
+        "S3_ACCESS_KEY_ID[text]=${S3_ACCESS_KEY}" \
+        "S3_SECRET_ACCESS_KEY[concealed]=${S3_SECRET_KEY}" \
         "S3_ENDPOINT[text]=https://s3.hypyr.space" \
         "S3_REGION[text]=us-east-1" \
         "REPOSITORY_TEMPLATE[text]=s3:https://s3.hypyr.space/volsync" \
@@ -92,9 +92,9 @@ else
         --vault="homelab" \
         --url="https://s3-web.hypyr.space" \
         "username[text]=seaweedfs" \
-        "password[password]=$S3_SECRET_KEY" \
-        "S3_ACCESS_KEY_ID[text]=$S3_ACCESS_KEY" \
-        "S3_SECRET_ACCESS_KEY[concealed]=$S3_SECRET_KEY" \
+        "password[password]=${S3_SECRET_KEY}" \
+        "S3_ACCESS_KEY_ID[text]=${S3_ACCESS_KEY}" \
+        "S3_SECRET_ACCESS_KEY[concealed]=${S3_SECRET_KEY}" \
         "S3_ENDPOINT[text]=https://s3.hypyr.space" \
         "S3_REGION[text]=us-east-1" \
         "REPOSITORY_TEMPLATE[text]=s3:https://s3.hypyr.space/volsync" \
@@ -143,7 +143,7 @@ echo
 echo "📋 SEAWEEDFS INTEGRATION COMPLETE"
 echo "================================="
 echo "S3 Endpoint: https://s3.hypyr.space"
-echo "Access Key: $S3_ACCESS_KEY"
+echo "Access Key: ${S3_ACCESS_KEY}"
 echo "Secret Key: [stored in 1Password]"
 echo "Bucket: volsync"
 echo "Region: us-east-1"
@@ -163,4 +163,5 @@ echo
 echo "🔄 REFRESH EXTERNAL SECRETS:"
 echo "============================"
 echo "If your cluster is already running, refresh the external secrets:"
-echo "kubectl annotate externalsecrets --all external-secrets.io/force-sync=\$(date +%s) -A"
+# shellcheck disable=SC2016
+echo 'kubectl annotate externalsecrets --all external-secrets.io/force-sync=$(date +%s) -A'

@@ -88,41 +88,41 @@ echo "================================"
 
 # Create Cloudflare entry
 op item create \
-  --category="API Credential" \
-  --title="cloudflare" \
-  --vault="homelab" \
-  "CF_API_TOKEN[concealed]=$CLOUDFLARE_TOKEN"
+    --category="API Credential" \
+    --title="cloudflare" \
+    --vault="homelab" \
+    "CF_API_TOKEN[concealed]=${CLOUDFLARE_TOKEN}"
 
 # Create Tailscale entry
 op item create \
-  --category="API Credential" \
-  --title="tailscale" \
-  --vault="homelab" \
-  "TS_AUTH_KEY[concealed]=$TAILSCALE_KEY"
+    --category="API Credential" \
+    --title="tailscale" \
+    --vault="homelab" \
+    "TS_AUTH_KEY[concealed]=${TAILSCALE_KEY}"
 
 # Create UniFi entry
 op item create \
-  --category="Login" \
-  --title="unifi" \
-  --vault="homelab" \
-  --url="$UNIFI_URL" \
-  "username[text]=$UNIFI_USER" \
-  "password[password]=$UNIFI_PASS" \
-  "UNIFI_API_KEY[concealed]=$UNIFI_PASS"
+    --category="Login" \
+    --title="unifi" \
+    --vault="homelab" \
+    --url="${UNIFI_URL}" \
+    "username[text]=${UNIFI_USER}" \
+    "password[password]=${UNIFI_PASS}" \
+    "UNIFI_API_KEY[concealed]=${UNIFI_PASS}"
 
 # Create Alertmanager entry
-ALERTMANAGER_FIELDS="ALERTMANAGER_PUSHOVER_APP_TOKEN[concealed]=$PUSHOVER_TOKEN"
-ALERTMANAGER_FIELDS+=" ALERTMANAGER_PUSHOVER_USER_KEY[concealed]=$PUSHOVER_USER"
+ALERTMANAGER_FIELDS="ALERTMANAGER_PUSHOVER_APP_TOKEN[concealed]=${PUSHOVER_TOKEN}"
+ALERTMANAGER_FIELDS+=" ALERTMANAGER_PUSHOVER_USER_KEY[concealed]=${PUSHOVER_USER}"
 
-if [[ -n "$HEARTBEAT_URL" ]]; then
-    ALERTMANAGER_FIELDS+=" ALERTMANAGER_HEARTBEAT_URL[text]=$HEARTBEAT_URL"
+if [[ -n ${HEARTBEAT_URL} ]]; then
+    ALERTMANAGER_FIELDS+=" ALERTMANAGER_HEARTBEAT_URL[text]=${HEARTBEAT_URL}"
 fi
 
 op item create \
-  --category="Secure Note" \
-  --title="alertmanager" \
-  --vault="homelab" \
-  $ALERTMANAGER_FIELDS
+    --category="Secure Note" \
+    --title="alertmanager" \
+    --vault="homelab" \
+    "${ALERTMANAGER_FIELDS}"
 
 echo
 echo "✅ SUCCESS! Created 1Password entries:"

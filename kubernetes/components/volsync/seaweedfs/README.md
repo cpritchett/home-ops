@@ -42,7 +42,7 @@ patches:
 Applications can override these values:
 
 - `APP`: Application name (used for bucket path)
-- `VOLSYNC_SCHEDULE`: Backup schedule (default: "0 0 * * *" - daily at midnight)
+- `VOLSYNC_SCHEDULE`: Backup schedule (default: "0 0 \* \* \*" - daily at midnight)
 - `VOLSYNC_SNAPSHOTCLASS`: Volume snapshot class (default: "csi-ceph-blockpool")
 - `VOLSYNC_STORAGECLASS`: Storage class (default: "ceph-block")
 - `VOLSYNC_UID`: User ID for mover pod (default: "568")

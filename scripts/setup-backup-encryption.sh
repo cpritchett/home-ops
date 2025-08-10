@@ -12,12 +12,12 @@ echo
 # Generate a strong passphrase
 PASSPHRASE=$(openssl rand -base64 32)
 
-echo "Generated encryption passphrase: $PASSPHRASE"
+echo "Generated encryption passphrase: ${PASSPHRASE}"
 echo
 
 # Confirm with user
 read -p "Use this generated passphrase? (y/N): " confirm
-if [[ $confirm != [yY] ]]; then
+if [[ ${confirm} != [yY] ]]; then
     read -p "Enter your own backup encryption passphrase: " PASSPHRASE
 fi
 
@@ -26,10 +26,10 @@ echo "💾 Creating 1Password entry for backup encryption..."
 
 # Create the volsync-restic-template entry
 op item create \
-  --category="Secure Note" \
-  --title="volsync-restic-template" \
-  --vault="homelab" \
-  "RESTIC_PASSWORD[concealed]=$PASSPHRASE"
+    --category="Secure Note" \
+    --title="volsync-restic-template" \
+    --vault="homelab" \
+    "RESTIC_PASSWORD[concealed]=${PASSPHRASE}"
 
 if [[ $? -eq 0 ]]; then
     echo "✅ Successfully created 'volsync-restic-template' entry in 1Password"

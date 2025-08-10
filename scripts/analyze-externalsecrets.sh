@@ -14,8 +14,8 @@ KEYS=$(find kubernetes -name "externalsecret.yaml" -type f -exec grep -h "key:" 
 echo "🔑 1Password entries referenced in ExternalSecrets:"
 echo "================================================="
 
-for key in $KEYS; do
-    echo "- $key"
+for key in ${KEYS}; do
+    echo "- ${key}"
 done
 
 echo

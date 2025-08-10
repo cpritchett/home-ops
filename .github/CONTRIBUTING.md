@@ -1,8 +1,8 @@
-## Contribution guidelines
+# Contribution guidelines
 
 Welcome to [home-ops](https://github.com/cpritchett/home-ops)! We're thrilled that you'd like to contribute. Your help is essential for making it better.
 
-### Getting Started
+## Getting Started
 
 Before you start contributing, please make sure you have read and understood our [Code of Conduct](CODE_OF_CONDUCT.md).
 
@@ -12,33 +12,33 @@ First, fork the [repository](https://github.com/cpritchett/home-ops) to your own
 
 2. Clone the Repository
 
-    ```sh
-    git clone https://github.com/cpritchett/home-ops
-    ```
+   ```sh
+   git clone https://github.com/cpritchett/home-ops
+   ```
 
 3. Navigate to the project directory 📁
 
-    ```sh
-    cd home-ops
-    ```
+   ```sh
+   cd home-ops
+   ```
 
 4. Create a new branch for your feature or bug fix:
 
-    ```sh
-    git checkout -b feature-branch
-    ```
+   ```sh
+   git checkout -b feature-branch
+   ```
 
 5. Make your changes and commit them:
 
-    ```sh
-    git add .
-    git commit -m "Description of your changes"
-    ```
+   ```sh
+   git add .
+   git commit -m "Description of your changes"
+   ```
 
 6. Push your changes to your fork:
 
-    ```sh
-    git push origin feature-branch
-    ```
+   ```sh
+   git push origin feature-branch
+   ```
 
 7. Finally Click on Create Pull request to contribute on this repository.

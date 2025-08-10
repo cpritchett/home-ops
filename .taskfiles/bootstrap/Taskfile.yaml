@@ -1,8 +1,7 @@
 ---
-version: '3'
+version: "3"
 
 tasks:
-
   apply-config:
     desc: Apply Talos configuration to a specific node
     prompt: Apply {{.CONFIG_FILE}} to node {{.NODE}}...?
@@ -16,7 +15,6 @@ tasks:
       - test -n "{{.CONFIG_FILE}}" || (echo "Usage: task bootstrap:apply-config NODE=<ip> CONFIG_FILE=<path>" && exit 1)
       - test -f {{.CONFIG_FILE}}
       - talosctl config info
-
 
   apps:
     desc: Bootstrap Kubernetes Apps
@@ -39,4 +37,3 @@ tasks:
       - test -f {{.BOOTSTRAP_DIR}}/helmfile.yaml
       - test -f {{.BOOTSTRAP_DIR}}/secrets.yaml.tpl
       - which helmfile jq kubectl op talosctl
-

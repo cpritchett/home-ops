@@ -1,3 +1,4 @@
+# trunk-ignore(checkov/CKV2_GHA_1): GitHub Actions workflow requires write permissions for automation
 ---
 name: Renovate
 

@@ -123,17 +123,17 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
   <img src="https://github.com/user-attachments/assets/43bd0ca8-a1a8-49d5-9b9a-04fbdcecdd3f" align="center" alt="rack"/>
 </details>
 
-| Device                        | Count | OS Disk Size   | Data Disk Size             | Ram   | Operating System | Purpose                 |
-|-------------------------------|-------|---------------|-----------------------------|-------|------------------|-------------------------|
-| Beelink EQ12                  | 2     | 512GB (SSD)   | 512GB (NVME)                | 32GB  | Talos            | Kubernetes              |
-| Intel NUC7                    | 1     | 512GB (SSD)   | 512GB (NVME)                | 32GB  | Talos            | Kubernetes              |
-| 45Drives HL15                 | 1     | 2x512GB (SSD) | 8x14TB HDD                  | 128GB | TrueNAS Scale    | NFS                     |
-| PiKVM (RasPi 4)               | 1     | -             | -                           | 4GB   | PiKVM            | KVM                     |
-| TESmart 8 Port KVM Switch     | 1     | -             | -                           | -     | -                | Network KVM (for PiKVM) |
-| UniFi Gateway Max             | 1     | -             | 512 (NVME)                  | -     | UniFi OS         | Router & NVR            |
-| UniFi USW Enterprise 8 POE    | 1     | -             | -                           | -     | UniFi OS         | 2.5Gb Core Switch       |
-| UniFi USW Pro 8               | 1     | -             | -                           | -     | UniFi OS         | Garage PoE Switch       |
-| Lenovo Thinkstation P520      | 1     | -             | Many Mixed NVME's           | 128GB | UnRAID           | Secondary/Flash NAS     |
+| Device                     | Count | OS Disk Size  | Data Disk Size    | Ram   | Operating System | Purpose                 |
+| -------------------------- | ----- | ------------- | ----------------- | ----- | ---------------- | ----------------------- |
+| Beelink EQ12               | 2     | 512GB (SSD)   | 512GB (NVME)      | 32GB  | Talos            | Kubernetes              |
+| Intel NUC7                 | 1     | 512GB (SSD)   | 512GB (NVME)      | 32GB  | Talos            | Kubernetes              |
+| 45Drives HL15              | 1     | 2x512GB (SSD) | 8x14TB HDD        | 128GB | TrueNAS Scale    | NFS                     |
+| PiKVM (RasPi 4)            | 1     | -             | -                 | 4GB   | PiKVM            | KVM                     |
+| TESmart 8 Port KVM Switch  | 1     | -             | -                 | -     | -                | Network KVM (for PiKVM) |
+| UniFi Gateway Max          | 1     | -             | 512 (NVME)        | -     | UniFi OS         | Router & NVR            |
+| UniFi USW Enterprise 8 POE | 1     | -             | -                 | -     | UniFi OS         | 2.5Gb Core Switch       |
+| UniFi USW Pro 8            | 1     | -             | -                 | -     | UniFi OS         | Garage PoE Switch       |
+| Lenovo Thinkstation P520   | 1     | -             | Many Mixed NVME's | 128GB | UnRAID           | Secondary/Flash NAS     |
 
 ## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f31f/512.gif" alt="🌟" width="20" height="20"> Stargazers
 
@@ -153,7 +153,7 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
 
 ## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" alt="🙏" width="20" height="20"> Gratitude and Thanks
 
-Many thanks to [@onedrop](https://github.com/onedr0p), [@buroa](https://github.com/buroa)  and all the fantastic people who donate their time to the [Home Operations](https://discord.gg/home-operations) Discord community. Be sure to check out [kubesearch.dev](https://kubesearch.dev) for ideas on how to deploy applications or get ideas on what you may deploy.
+Many thanks to [@onedrop](https://github.com/onedr0p), [@buroa](https://github.com/buroa) and all the fantastic people who donate their time to the [Home Operations](https://discord.gg/home-operations) Discord community. Be sure to check out [kubesearch.dev](https://kubesearch.dev) for ideas on how to deploy applications or get ideas on what you may deploy.
 
 ---
 

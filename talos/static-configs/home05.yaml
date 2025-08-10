@@ -90,7 +90,7 @@ machine:
           miimon: 100
           primary: enp2s0
         addresses:
-          - "10.0.5.129/24"
+          - 10.0.5.129/24
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.0.5.1"
@@ -99,11 +99,11 @@ machine:
           # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
           - network: "10.0.48.83/32"
             gateway: "0.0.0.0"
-          - network: "10.0.48.84/30"  # 84-87
+          - network: "10.0.48.84/30" # 84-87
             gateway: "0.0.0.0"
-          - network: "10.0.48.88/29"  # 88-95
+          - network: "10.0.48.88/29" # 88-95
             gateway: "0.0.0.0"
-          - network: "10.0.48.96/27"  # 96-127
+          - network: "10.0.48.96/27" # 96-127
             gateway: "0.0.0.0"
           - network: "10.0.48.128/26" # 128-191
             gateway: "0.0.0.0"
@@ -113,7 +113,7 @@ machine:
             gateway: "0.0.0.0"
         mtu: 1500
         vlans:
-          - {vlanId: 30, dhcp: false, mtu: 1500}
+          - { vlanId: 30, dhcp: false, mtu: 1500 }
           - vlanId: 48
             dhcp: false
             mtu: 1500
@@ -124,7 +124,7 @@ machine:
     topology.kubernetes.io/region: k8s
     topology.kubernetes.io/zone: main-smc
     quicksync.generation: "7"
-    node.kubernetes.io/instance-type: "itx"
+    node.kubernetes.io/instance-type: itx
   sysctls:
     fs.inotify.max_user_watches: 1048576 # Watchdog
     fs.inotify.max_user_instances: 8192 # Watchdog
@@ -225,17 +225,17 @@ apiVersion: v1alpha1
 kind: VolumeConfig
 name: EPHEMERAL
 provisioning:
-    diskSelector:
-        match: system_disk
-    maxSize: 100GiB
+  diskSelector:
+    match: system_disk
+  maxSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: UserVolumeConfig
 name: local-storage
 provisioning:
-    diskSelector:
-        match: disk.transport == "sata"
-    minSize: 25GiB
+  diskSelector:
+    match: disk.transport == "sata"
+  minSize: 25GiB
 ---
 apiVersion: v1alpha1
 kind: EthernetConfig

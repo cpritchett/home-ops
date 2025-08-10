@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: ghcr.io/recyclarr/recyclarr
-              tag: 7.4.1@sha256:759540877f95453eca8a26c1a93593e783a7a824c324fbd57523deffb67f48e1
+              tag: 7.4.1@sha256:759540877f95453eca8a26c1a93593e783a7a824c324fbd57523deffb67f48e1 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             args:
               - sync
             env:
@@ -46,7 +46,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities: { drop: [ALL] }
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true

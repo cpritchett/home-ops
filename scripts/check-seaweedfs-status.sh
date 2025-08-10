@@ -16,19 +16,19 @@ NC='\033[0m' # No Color
 print_status() {
     local status=$1
     local message=$2
-    case $status in
-        "ok")
-            echo -e "${GREEN}✅ $message${NC}"
-            ;;
-        "warn")
-            echo -e "${YELLOW}⚠️  $message${NC}"
-            ;;
-        "error")
-            echo -e "${RED}❌ $message${NC}"
-            ;;
-        "info")
-            echo -e "${BLUE}ℹ️  $message${NC}"
-            ;;
+    case ${status} in
+    "ok")
+        echo -e "${GREEN}✓ ${message}${NC}"
+        ;;
+    "warn")
+        echo -e "${YELLOW}⚠ ${message}${NC}"
+        ;;
+    "error")
+        echo -e "${RED}✗ ${message}${NC}"
+        ;;
+    "info")
+        echo -e "${BLUE}ℹ ${message}${NC}"
+        ;;
     esac
 }
 
@@ -94,13 +94,13 @@ if command -v op >/dev/null 2>&1; then
         S3_ENDPOINT=$(op item get cloudflare --vault homelab --field S3_ENDPOINT 2>/dev/null || echo "")
         S3_ACCESS_KEY=$(op item get cloudflare --vault homelab --field S3_ACCESS_KEY_ID 2>/dev/null || echo "")
 
-        if [[ "$S3_ENDPOINT" == "https://s3.hypyr.space" ]]; then
+        if [[ ${S3_ENDPOINT} == "https://s3.hypyr.space" ]]; then
             print_status "ok" "1Password S3 endpoint correctly set to SeaweedFS"
         else
             print_status "warn" "1Password S3 endpoint: ${S3_ENDPOINT:-'Not set'} (expected: https://s3.hypyr.space)"
         fi
 
-        if [[ "$S3_ACCESS_KEY" == seaweedfs-* ]]; then
+        if [[ ${S3_ACCESS_KEY} == seaweedfs-* ]]; then
             print_status "ok" "1Password has SeaweedFS access key configured"
         else
             print_status "warn" "1Password access key doesn't appear to be for SeaweedFS"
@@ -116,19 +116,19 @@ fi
 echo
 echo "🪣 Testing S3 functionality..."
 
-if command -v s3cmd >/dev/null 2>&1 && [[ -n "$S3_ACCESS_KEY" ]]; then
+if command -v s3cmd >/dev/null 2>&1 && [[ -n ${S3_ACCESS_KEY} ]]; then
     S3_SECRET_KEY=$(op item get cloudflare --vault homelab --field S3_SECRET_ACCESS_KEY --reveal 2>/dev/null || echo "")
 
-    if [[ -n "$S3_SECRET_KEY" ]]; then
+    if [[ -n ${S3_SECRET_KEY} ]]; then
         print_status "info" "Testing bucket listing with credentials..."
 
-        if s3cmd ls --access_key="$S3_ACCESS_KEY" --secret_key="$S3_SECRET_KEY" --host=s3.hypyr.space --host-bucket=s3.hypyr.space 2>/dev/null | grep -q volsync; then
+        if s3cmd ls --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" --host=s3.hypyr.space --host-bucket=s3.hypyr.space 2>/dev/null | grep -q volsync; then
             print_status "ok" "volsync bucket is accessible and functional"
 
             # Show bucket contents
             echo
             echo "📂 Bucket contents:"
-            s3cmd ls s3://volsync/ --access_key="$S3_ACCESS_KEY" --secret_key="$S3_SECRET_KEY" --host=s3.hypyr.space --host-bucket=s3.hypyr.space 2>/dev/null || print_status "info" "Bucket is empty or inaccessible"
+            s3cmd ls s3://volsync/ --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" --host=s3.hypyr.space --host-bucket=s3.hypyr.space 2>/dev/null || print_status "info" "Bucket is empty or inaccessible"
         else
             print_status "warn" "Cannot access volsync bucket (may not exist yet)"
         fi
@@ -153,8 +153,8 @@ if command -v kubectl >/dev/null 2>&1; then
 
             # Check for any replication sources
             RS_COUNT=$(kubectl get replicationsources --all-namespaces --no-headers 2>/dev/null | wc -l)
-            if [[ $RS_COUNT -gt 0 ]]; then
-                print_status "ok" "Found $RS_COUNT replication source(s) configured"
+            if [[ ${RS_COUNT} -gt 0 ]]; then
+                print_status "ok" "Found ${RS_COUNT} replication source(s) configured"
                 echo
                 echo "📊 Replication Sources:"
                 kubectl get replicationsources --all-namespaces -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name,METHOD:.spec.restic.repository,LAST SYNC:.status.lastSyncTime" 2>/dev/null || kubectl get replicationsources --all-namespaces 2>/dev/null
@@ -189,4 +189,5 @@ echo "   • S3 API: https://s3.hypyr.space"
 echo "   • Monitor: kubectl get replicationsources -A"
 echo
 echo "🔄 To refresh external secrets:"
-echo "   kubectl annotate externalsecrets --all external-secrets.io/force-sync=\$(date +%s) -A"
+# shellcheck disable=SC2016
+echo '   kubectl annotate externalsecrets --all external-secrets.io/force-sync=$(date +%s) -A'

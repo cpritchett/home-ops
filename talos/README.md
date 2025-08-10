@@ -34,31 +34,39 @@ talos/
 ## Usage
 
 ### List available node types
+
 ```bash
 task talos:list-node-types
 ```
 
 ### List all nodes and their types
+
 ```bash
 task talos:list-nodes
 ```
 
 ### Apply configuration to a node
+
 ```bash
 task talos:apply-node NODE=10.0.5.123
 ```
+
 The task will automatically:
+
 1. Look up the node type from `node-mapping.yaml`
 2. Use the appropriate template and schematic
 3. Apply the configuration
 
 ### Add a new node type
+
 ```bash
 task talos:add-node-type NODE_TYPE=MyNewHardware
 ```
+
 This creates the folder structure and copies base templates.
 
 ### Regenerate schematic for a node type
+
 ```bash
 task talos:regenerate-schematic NODE_TYPE=NUC7
 ```
@@ -68,6 +76,7 @@ task talos:regenerate-schematic NODE_TYPE=NUC7
 To add a new hardware type:
 
 1. **Create the node type**:
+
    ```bash
    task talos:add-node-type NODE_TYPE=MyHardware
    ```
@@ -93,11 +102,13 @@ To add a new hardware type:
 ## Current Node Types
 
 ### NUC7
+
 - **Hardware**: Intel NUC7 with built-in e1000e ethernet + USB r8152 adapter
 - **Network**: Bond with device selectors for both interfaces
 - **Extensions**: realtek-firmware, i915, intel-ucode, nfsd
 
-### EQ12  
+### EQ12
+
 - **Hardware**: EQ12 with dual Intel i225-V (igc driver)
 - **Network**: Bond with wildcard device selector for igc interfaces
 - **Extensions**: i915, intel-ucode, nfsd

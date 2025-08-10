@@ -77,10 +77,12 @@ EOF
 Once the container is running:
 
 **Check Web UI:**
+
 - Open `http://razzia.hypyr.space:9333` in your browser
 - You should see the SeaweedFS admin interface
 
 **Test S3 API:**
+
 ```bash
 # Test S3 connectivity
 curl -I http://razzia.hypyr.space:8333
@@ -157,7 +159,7 @@ echo "🖥️  Web UI: https://s3-web.hypyr.space"
 
 Update your 1Password entry for volsync:
 
-```bash
+````bash
 ```bash
 # Update the cloudflare entry with SeaweedFS S3 credentials
 op item edit cloudflare --vault homelab \
@@ -165,7 +167,7 @@ op item edit cloudflare --vault homelab \
   "S3_SECRET_ACCESS_KEY[concealed]=seaweedfs-secret" \
   "S3_ENDPOINT[text]=http://razzia.hypyr.space:8333" \
   "S3_REGION[text]=us-east-1"
-```
+````
 
 ## DNS and Network Configuration
 
@@ -190,6 +192,7 @@ To use the clean `https://s3.hypyr.space` endpoint (which matches your existing 
    - **Name**: `s3-admin.hypyr.space` → `razzia.hypyr.space`
 
 **Benefits of using CNAMEs:**
+
 - ✅ If your NAS IP changes, only update razzia.hypyr.space
 - ✅ All service endpoints automatically follow the change
 - ✅ Easier to manage and more flexible
@@ -199,16 +202,19 @@ To use the clean `https://s3.hypyr.space` endpoint (which matches your existing 
 **Setup for SeaweedFS:**
 
 Create **one reverse proxy rule** for your S3 API:
+
 - **Description**: `SeaweedFS S3 API`
 - **Source**: `https://s3.hypyr.space:443`
 - **Destination**: `http://localhost:8333`
 
 **Optional: Add admin access if needed:**
+
 - **Description**: `SeaweedFS Admin UI`
 - **Source**: `https://s3-admin.hypyr.space:443`
 - **Destination**: `http://localhost:9333`
 
 **How to create:**
+
 1. **DSM** → **Control Panel** → **Login Portal** → **Advanced** tab
 2. **Reverse Proxy** section → **Create**
 3. **Fill in the details** for the rule above
@@ -218,6 +224,7 @@ Create **one reverse proxy rule** for your S3 API:
 **Each hostname requires its own reverse proxy rule** - Synology doesn't support multi-hostname routing in a single rule.
 
 **Note**: DSM 7.2+ has reverse proxy settings scattered across multiple locations (typical Synology):
+
 - **Control Panel** → **Login Portal** → **Advanced** tab → **Reverse Proxy** (primary location)
 - **Control Panel** → **Application Portal** → **Reverse Proxy** (legacy/alternative location)
 - **Package Center** → **Web Station** → **General Settings** → **Reverse Proxy** (if Web Station installed)
@@ -266,13 +273,14 @@ kubectl annotate externalsecrets --all external-secrets.io/force-sync=$(date +%s
 
 ### 🌐 **Admin Access:**
 
-- **Web UI**: https://s3-web.hypyr.space
+- **Web UI**: <https://s3-web.hypyr.space>
 - **Direct S3**: Port 8333 on `razzia.hypyr.space`
 - **Direct Admin**: Port 9333 on `razzia.hypyr.space`
 
 ### 📊 **Monitoring:**
 
 Monitor your backups via:
+
 - **VolSync**: `kubectl get replicationsources -A`
 - **Jobs**: `kubectl get jobs -A | grep restic`
 - **Storage**: SeaweedFS Web UI
@@ -287,9 +295,11 @@ The sections below contain the full setup guide and troubleshooting information 
 You can have SeaweedFS running in about 5 minutes! Let's test it immediately:
 
 **1. Open Container Manager**
+
 - **DSM** → **Package Center** → **Container Manager** → **Open**
 
 **2. Create Container (Manual Method)**
+
 - **Container** → **Create**
 - **General Settings**:
   - **Container Name**: `seaweedfs-test`
@@ -302,12 +312,14 @@ You can have SeaweedFS running in about 5 minutes! Let's test it immediately:
 - **Apply** → **Next** → **Done**
 
 **3. Check if it works**
+
 - After creation, check the **Port** column in Container Manager
 - Look for ports like `32768:8333` and `32769:9333`
 - Open `http://razzia.hypyr.space:32769` (the 9333 port) in your browser
 - You should see the SeaweedFS admin UI!
 
 **4. Test S3 API**
+
 ```bash
 # From your computer, test the S3 API (use the port mapped to 8333)
 curl -I http://razzia.hypyr.space:32768
@@ -320,6 +332,7 @@ If this works, we can move to the production setup with proper port mapping and 
 Since Synology doesn't support Cloudflare DNS auth natively, use `acme.sh` for proper Let's Encrypt certificates:
 
 **Setup acme.sh (one-time)**
+
 ```bash
 ssh cpritchett@razzia.hypyr.space
 curl https://get.acme.sh | sh -s email=chad@chadpritchett.com
@@ -327,6 +340,7 @@ source ~/.bashrc
 ```
 
 **Configure Cloudflare DNS API**
+
 ```bash
 # Set your Cloudflare credentials
 export CF_Token="your-cloudflare-api-token"
@@ -338,6 +352,7 @@ export CF_Account_ID="your-cloudflare-account-id"
 ```
 
 **Issue certificates for all Garage domains**
+
 ```bash
 ~/.acme.sh/acme.sh --issue --dns dns_cf \
   -d s3.hypyr.space \
@@ -346,6 +361,7 @@ export CF_Account_ID="your-cloudflare-account-id"
 ```
 
 **Install certificates to Synology**
+
 ```bash
 ~/.acme.sh/acme.sh --deploy -d s3.hypyr.space --deploy-hook synology_dsm \
   --insecure \
@@ -357,15 +373,18 @@ export CF_Account_ID="your-cloudflare-account-id"
 
 **Set up automatic renewal**
 The certificates will auto-renew, but you can also set up a Synology scheduled task:
+
 1. **Control Panel** → **Task Scheduler** → **Create** → **Scheduled Task** → **User-defined script**
 2. **General**: Name it "Renew SSL Certificates"
 3. **Schedule**: Monthly on the 1st at 3:00 AM
 4. **Task Settings** → **Run command**:
+
 ```bash
 /var/services/homes/cpritchett/.acme.sh/acme.sh --cron --home /var/services/homes/cpritchett/.acme.sh
 ```
 
 **Benefits of this approach:**
+
 - ✅ Proper trusted certificates (no browser warnings)
 - ✅ Automatic renewal
 - ✅ Works with Kubernetes without trust store modifications
@@ -373,7 +392,7 @@ The certificates will auto-renew, but you can also set up a Synology scheduled t
 
 ### 4. Test the Setup
 
-```bash
+````bash
 # Test DNS resolution
 nslookup s3.hypyr.space
 
@@ -451,7 +470,7 @@ metrics_token = "7a8f3c2e9b1d4a6e5f8c9e2b4d7a1f3c6e9b2d5a8f1c4e7b0d3a6f9c2e5b8d1
 admin_token = "9e4b7d1a5c8f2e6b9d2a5f8c1e4b7d0a3f6c9e2b5d8a1f4c7e0b3d6a9f2c5e8b1"
 EOF
 exit
-```
+````
 
 ### 3. Deploy Garage via Container Manager (Docker Compose)
 
@@ -499,6 +518,7 @@ exit
 5. **Build and start** the project
 
 **Alternative: Manual upload method**
+
 1. Upload the `docker-compose.yml` file to `/volume1/docker/garage/` via File Station
 2. **Container Manager** → **Project** → **Create**
 3. **Set up project** → **Use existing docker-compose.yml**
@@ -508,12 +528,14 @@ exit
 **If you get "failed to create shim task" errors:**
 
 **Quick Fix #1: Restart Container Manager**
+
 1. **DSM** → **Package Center** → **Installed**
 2. Find **Container Manager** → **Stop**
 3. Wait 30 seconds → **Start**
 4. Try creating the container again
 
 **Quick Fix #2: Clean Docker State**
+
 ```bash
 # Stop all containers and clean Docker
 sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
@@ -552,6 +574,7 @@ If the above doesn't work, create the container manually:
 The most common cause of Garage container failures on Synology is permission mismatches. Your Synology user `cpritchett` has UID 1026, but Docker containers often run as UID 1000. This causes mount permission errors.
 
 **Fix this by:**
+
 1. Setting the container user to match your Synology user (steps above)
 2. OR: Change the directory ownership to match the container's default user:
    ```bash
@@ -560,6 +583,7 @@ The most common cause of Garage container failures on Synology is permission mis
    ```
 
 **For resource-constrained Synology models**:
+
 - Use the CPU priority and memory limit sliders to prevent Garage from overwhelming your NAS
 - SQLite database engine (already configured) is lighter on resources than LMDB
 - Monitor container resource usage in Container Manager's performance tab
@@ -601,6 +625,7 @@ Once you have your S3 credentials from step 3, use this script to integrate with
 ```
 
 This script will:
+
 - Prompt you for the S3 Access Key and Secret Key from Garage
 - Update your `cloudflare` 1Password entry with the new S3 credentials
 - Preserve your existing Cloudflare API token
@@ -651,9 +676,11 @@ s3cmd ls s3://volsync \
 **Important**: Your current 1Password setup expects `https://s3.hypyr.space` as the S3 endpoint. You have two options:
 
 ### Option A: Use Direct IP Access (Simpler)
+
 Update your 1Password entry to use: `http://razzia.hypyr.space:3900`
 
 ### Option B: Set up DNS/Reverse Proxy (Cleaner)
+
 1. **DNS**: Point `s3.hypyr.space` to your NAS IP (10.0.5.x)
 2. **Reverse Proxy**: Configure nginx/traefik to proxy HTTPS to port 3900
 3. **SSL Certificate**: Use Let's Encrypt for HTTPS
@@ -672,11 +699,13 @@ For now, the integration script will use `https://s3.hypyr.space` to match your 
 ## Troubleshooting
 
 **DSM 7.2+ Specific Issues:**
+
 - **Reverse Proxy not found**: Try **Package Center** → Install **Web Station** first
 - **Let's Encrypt fails**: Internal domains always fail LE validation; use self-signed certificates
 - **Certificate not applying**: Go to **Configure** → **Settings** to assign certificates to services
 
 **SSL Certificate Issues:**
+
 - **Certificate renewal fails**: Check Cloudflare API credentials in acme.sh
 - **Certificate not applying to DSM**: Re-run the deploy command with correct SYNO credentials
 - **"Certificate expired" errors**: Ensure the scheduled renewal task is working
@@ -692,6 +721,7 @@ For now, the integration script will use `https://s3.hypyr.space` to match your 
 - **"failed to create shim task"** when volumes are added: Mount path permissions
 
 **Fix mount permissions (try in order):**
+
 ```bash
 # Option 1: Change ownership to match container's default user (UID 1000)
 sudo chown -R 1000:1000 /volume1/docker/garage/
@@ -705,12 +735,14 @@ sudo chown -R 1026:100 /volume1/docker/garage/
 ```
 
 **Check what user the container expects:**
+
 ```bash
 # See what user Garage runs as by default
 sudo docker run --rm dxflrs/garage:v2.0.0 id
 ```
 
 **Verify permissions:**
+
 ```bash
 # Check directory ownership
 ls -la /volume1/docker/garage/
@@ -726,6 +758,7 @@ ls -la /volume1/docker/garage/
 **This is the #1 issue with Synology Docker. Try these in order:**
 
 **First: Test with Hello World container to isolate the issue:**
+
 ```bash
 # Test if Docker works at all
 sudo docker run --rm hello-world
@@ -743,6 +776,7 @@ If hello-world fails too, it's a general Docker problem.
    - **Package Center** → **Container Manager** → **Stop** → **Start**
 
 2. **Clean Docker state**:
+
    ```bash
    sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
    sudo docker system prune -af
@@ -751,6 +785,7 @@ If hello-world fails too, it's a general Docker problem.
    ```
 
 3. **Reset Container Manager completely**:
+
    ```bash
    sudo synopkg stop ContainerManager
    sudo rm -rf /volume1/@docker/containers/*
@@ -766,6 +801,7 @@ If hello-world fails too, it's a general Docker problem.
    ```
 
 **Nuclear option: Manual Docker commands** (bypass Container Manager entirely):
+
 ```bash
 sudo docker run -d --name garage \
   --restart unless-stopped \
@@ -780,6 +816,7 @@ sudo docker run -d --name garage \
 **Other Docker fixes:**
 
 **Synology-Specific Docker Issues:**
+
 - **DSM 7.x Docker breakage**: Container Manager sometimes corrupts after updates
 - **Permission problems**: Ensure user is in `docker` group: `sudo usermod -aG docker $USER`
 - **Storage driver issues**: Synology uses BTRFS which can conflict with overlay2
@@ -788,6 +825,7 @@ sudo docker run -d --name garage \
 - **Volume mount failures**: Path `/volume1/docker/` must exist and be writable
 
 **Nuclear Options (when all else fails):**
+
 - **Reinstall Container Manager**: Package Center → Remove → Reinstall
 - **Manual Docker commands**: Bypass Container Manager entirely:
   ```bash
@@ -804,6 +842,7 @@ sudo docker run -d --name garage \
 - **VM deployment**: Run Garage in a Synology VM with proper Linux instead
 
 **General Issues:**
+
 - **Container not starting**: Check logs in Container Manager
 - **Port conflicts**: Ensure ports 3900-3903 are available
 - **Permission issues**: Verify volume mounts are accessible
@@ -812,6 +851,7 @@ sudo docker run -d --name garage \
 
 **Alternative: Skip HTTPS for Internal Use**
 If SSL proves problematic, consider using `http://s3.hypyr.space` instead:
+
 1. Set up reverse proxy without SSL (HTTP:80 → HTTP:3900)
 2. Update integration script endpoint to use HTTP
 3. Simpler setup, adequate security for internal network
