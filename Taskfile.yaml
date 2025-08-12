@@ -45,3 +45,10 @@ tasks:
     preconditions:
       - op user get --me
       - kubectl cluster-info
+
+  bootstrap:postgres-users:
+    desc: Bootstrap PostgreSQL users for all applications (for cluster resets)
+    cmd: ./scripts/bootstrap-postgres-users.sh
+    preconditions:
+      - kubectl cluster-info
+      - test -n "$(kubectl get cluster postgres -n databases --no-headers 2>/dev/null || echo '')"
