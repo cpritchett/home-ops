@@ -216,7 +216,7 @@ kind: VolumeConfig
 name: EPHEMERAL
 provisioning:
   diskSelector:
-    match: system_disk && deviceType == "sata"
+    match: system_disk && disk.transport == "sata"
   maxSize: 100GiB
 ---
 apiVersion: v1alpha1
@@ -224,7 +224,7 @@ kind: UserVolumeConfig
 name: local-storage
 provisioning:
   diskSelector:
-    match: system_disk && deviceType == "sata"
+    match: system_disk && disk.transport == "sata"
   minSize: 100GiB
 ---
 apiVersion: v1alpha1
