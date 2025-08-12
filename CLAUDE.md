@@ -124,7 +124,7 @@ Applications have explicit dependencies managed by Flux:
 - **home02** (10.0.5.220) - EQ12 with dual Ethernet bond
 - **home04** (10.0.5.118) - P520 workstation with Ethernet bond
 
-**Note**: home03 has been removed from cluster rotation due to hardware issues (NVMe drive failures). Node configuration preserved for potential future reintegration.
+**Note**: home03 hardware issues have been resolved and the node is back in active rotation.
 
 ### Networking
 
