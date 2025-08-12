@@ -31,7 +31,7 @@ spec:
           value: warning
           matchType: =
   receivers:
-    - name: null
+    - name: "null"
     - name: heartbeat
       webhookConfigs:
         - urlSecret:
