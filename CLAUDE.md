@@ -280,6 +280,23 @@ flux resume helmrelease <name> -n <namespace>
 
 ## Development Workflow
 
+### YAML and Helm Templating Standards
+
+**CRITICAL**: Before making changes to HelmReleases or YAML files, review the [YAML and Helm Templating Guide](docs/YAML-HELM-TEMPLATING-GUIDE.md).
+
+**Key Rules**:
+
+- **Always quote Helm template expressions when used as YAML values**: `"{{ .Release.Name }}"` not `{{ .Release.Name }}`
+- **Template concatenation must be quoted**: `"{{ .Release.Name }}-secret"` not `{{ .Release.Name }}-secret`
+- **List items with templates must be quoted**: `- "{{ .Release.Name }}.hypyr.space"` not `- {{ .Release.Name }}.hypyr.space`
+- **Environment variables with templates must be quoted**: `APP_NAME: "{{ .Release.Name }}"` not `APP_NAME: {{ .Release.Name }}`
+
+**Common Error Patterns**:
+
+- `yaml: invalid map key` → Unquoted template expression as YAML value
+- `expected <block end>` → Unquoted template in list item
+- `did not find expected key` → Missing quotes on template concatenation
+
 ### Git Workflow Safety Rules
 
 **CRITICAL: ALWAYS follow these steps before ANY work:**
