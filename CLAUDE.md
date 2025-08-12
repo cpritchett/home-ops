@@ -280,25 +280,80 @@ flux resume helmrelease <name> -n <namespace>
 
 ## Development Workflow
 
-### Feature Branch Strategy
+### Git Workflow Safety Rules
 
-- **Always** create focused feature branches for changes: `git checkout -b feat/description`
-- **Never** commit directly to `main` branch
-- **Create focused PRs** - one feature/fix per PR for easier review and rollback
-- **Branch naming**: `feat/`, `fix/`, `chore/`, `docs/` prefixes
+**CRITICAL: ALWAYS follow these steps before ANY work:**
+
+1. **Check current branch FIRST**: `git branch` - ensure you're NOT on main
+2. **If on main, create branch IMMEDIATELY**: `git checkout -b type/scope-description`
+3. **NEVER stage/commit changes while on main branch**
+4. **Branch naming follows conventional commits**: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`
+5. **Commit messages must include proper scope**: `type(scope): description`
+
+**Safe workflow pattern:**
+
+```bash
+# MANDATORY first step - check where you are
+git branch
+# If on main, create properly named branch immediately
+git checkout -b feat/postgres-bootstrap
+# Make changes, then commit with proper scope
+git commit -m "feat(databases): implement PostgreSQL user bootstrap system"
+```
+
+### Branch and Commit Naming Standards
+
+**Branch naming**: `type/scope-description`
+
+- `feat/postgres-bootstrap`, `fix/flux-reconcile`, `chore/update-docs`
+
+**Commit message format**: `type(scope): description`
+
+- `feat(databases): add automatic user discovery`
+- `fix(networking): resolve cilium gateway timeout`
+- `chore(docs): update setup instructions`
+- `refactor(talos): consolidate node configurations`
+
+**Common scopes**: `databases`, `networking`, `media`, `monitoring`, `security`, `storage`, `flux`, `talos`, `docs`
+
+### Git Workflow Violation Prevention
+
+**BEFORE every session, ALWAYS run:**
+
+```bash
+git branch  # Check current branch - if main, stop immediately
+```
+
+**If you find yourself on main with changes:**
+
+1. DO NOT commit or stage anything to main
+2. **Summarize the changes**: Run `git diff` and present summary to user
+3. **Ask clarifying questions**: About scope and intended purpose of changes
+4. **Create proper branch**: `git checkout -b type/scope-description` based on scope
+5. **Then proceed with normal workflow**: Add, commit with proper message
+
+**Handling unstaged changes on main:**
+
+- **NEVER leave unstaged changes hanging on main**
+- **Always move them to appropriate branch** based on their scope/purpose
+- **If unclear scope**: Ask user for clarification before creating branch
+- **Alternative**: Stash with descriptive message if user prefers: `git stash push -m "description of changes"`
+
+**Remember**: The goal is NEVER to have commits directly on main branch
 
 ### Workflow Steps
 
-1. **Create feature branch** from main: `git checkout -b feat/your-feature`
-2. **Add feature to TODO.md** under "In Progress" section with task breakdown
-3. **Make changes** to YAML files in appropriate directory
-4. **Update TODO.md** as tasks are completed (mark with [x])
-5. **Commit changes** with descriptive messages
-6. **Push branch** and create PR to main
-7. **Move completed feature to "Completed" section** in TODO.md after merge
-8. **Monitor deployment** after merge with `kubectl get pods -A`
-9. **Check logs** if issues occur: `kubectl logs -n <namespace> <pod>`
-10. **Use task commands** for common operations
+1. **MANDATORY: Check branch**: `git branch` - if on main, create branch NOW
+2. **Create properly named branch**: `git checkout -b type/scope-description`
+3. **Add feature to TODO.md** under "In Progress" section with task breakdown
+4. **Make changes** to YAML files in appropriate directory
+5. **Update TODO.md** as tasks are completed (mark with [x])
+6. **Commit with proper scope**: `git commit -m "type(scope): description"`
+7. **Push branch** and create PR to main
+8. **Move completed feature to "Completed" section** in TODO.md after merge
+9. **Monitor deployment** after merge with `kubectl get pods -A`
+10. **Check logs** if issues occur: `kubectl logs -n <namespace> <pod>`
+11. **Use task commands** for common operations
 
 ### Project TODO Management
 
