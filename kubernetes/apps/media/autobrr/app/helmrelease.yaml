@@ -75,13 +75,17 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups: [1702]
     persistence:
+      config:
+        existingClaim: autobrr
+        advancedMounts:
+          autobrr:
+            app:
+              - path: /config
       tmpfs:
         type: emptyDir
         advancedMounts:
           autobrr:
             app:
-              - path: /config/log
-                subPath: log
               - path: /tmp
                 subPath: tmp
     route:
