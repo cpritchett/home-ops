@@ -39,7 +39,7 @@ spec:
               TUNNEL_TRANSPORT_PROTOCOL: quic
             envFrom:
               - secretRef:
-                  name: {{ .Release.Name }}-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness: &probes
                 enabled: true
@@ -70,7 +70,7 @@ spec:
     persistence:
       config:
         type: configMap
-        name: {{ .Release.Name }}-configmap
+        name: "{{ .Release.Name }}-configmap"
         globalMounts:
           - path: /etc/cloudflared/config.yaml
             subPath: config.yaml

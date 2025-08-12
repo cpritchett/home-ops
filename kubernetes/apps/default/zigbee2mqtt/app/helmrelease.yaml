@@ -53,7 +53,7 @@ spec:
               ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: zstack
             envFrom:
               - secretRef:
-                  name: {{ .Release.Name }}-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness:
                 enabled: true
@@ -82,7 +82,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     persistence:
       config:
-        existingClaim: {{ .Release.Name }}
+        existingClaim: "{{ .Release.Name }}"
       config-logs:
         type: emptyDir
         globalMounts:
@@ -90,7 +90,7 @@ spec:
     route:
       app:
         hostnames:
-          - {{ .Release.Name }}.hypyr.space
+          - "{{ .Release.Name }}.hypyr.space"
           - zigbee.hypyr.space
         parentRefs:
           - name: internal

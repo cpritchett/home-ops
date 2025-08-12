@@ -37,7 +37,7 @@ spec:
               TZ: *timeZone
             envFrom:
               - secretRef:
-                  name: {{ .Release.Name }}-secret
+                  name: "{{ .Release.Name }}-secret"
             resources:
               requests:
                 cpu: 10m
@@ -57,10 +57,10 @@ spec:
         supplementalGroups: [1702]
     persistence:
       config:
-        existingClaim: {{ .Release.Name }}
+        existingClaim: "{{ .Release.Name }}"
       config-file:
         type: configMap
-        name: {{ .Release.Name }}-configmap
+        name: "{{ .Release.Name }}-configmap"
         globalMounts:
           - path: /config/recyclarr.yml
             subPath: recyclarr.yml

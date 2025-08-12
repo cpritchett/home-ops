@@ -65,7 +65,7 @@ spec:
         supplementalGroups: [1702, 65536]
     persistence:
       config:
-        existingClaim: {{ .Release.Name }}
+        existingClaim: "{{ .Release.Name }}"
       incomplete:
         type: custom
         volumeSpec:
@@ -89,7 +89,7 @@ spec:
     route:
       app:
         hostnames:
-          - {{ .Release.Name }}.hypyr.space
+          - "{{ .Release.Name }}.hypyr.space"
           - qb.hypyr.space
         parentRefs:
           - name: internal

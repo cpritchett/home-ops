@@ -34,7 +34,7 @@ spec:
               TZ: America/Chicago
             envFrom:
               - secretRef:
-                  name: {{ .Release.Name }}-secret
+                  name: "{{ .Release.Name }}-secret"
             probes:
               liveness: &probes
                 enabled: true
@@ -67,10 +67,10 @@ spec:
         supplementalGroups: [1702, 65536]
     persistence:
       config:
-        existingClaim: {{ .Release.Name }}
+        existingClaim: "{{ .Release.Name }}"
       config-file:
         type: configMap
-        name: {{ .Release.Name }}-configmap
+        name: "{{ .Release.Name }}-configmap"
         globalMounts:
           - path: /config/config.js
             subPath: config.js

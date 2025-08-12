@@ -30,7 +30,7 @@ spec:
               tag: 17
             envFrom: &envFrom
               - secretRef:
-                  name: {{ .Release.Name }}-secret
+                  name: "{{ .Release.Name }}-secret"
         containers:
           app:
             image:
@@ -81,7 +81,7 @@ spec:
     route:
       app:
         hostnames:
-          - {{ .Release.Name }}.hypyr.space
+          - "{{ .Release.Name }}.hypyr.space"
           - sh.hypyr.space
         parentRefs:
           - name: internal
