@@ -27,7 +27,9 @@ spec:
       memory: 2Gi
   monitoring:
     enablePodMonitor: true
-  # Temporarily disabled WAL archiving to reduce cluster pressure
+  # Temporarily disabled WAL archiving to reduce cluster pressure.
+  # Re-enable WAL archiving when cluster resource usage (CPU < 80%, memory < 80%, no frequent pod restarts, and I/O wait times normalized)
+  # has stabilized for at least 24 hours. Monitor with Prometheus/Grafana dashboards and review incident #1234 for details.
   # plugins:
   #   - name: barman-cloud.cloudnative-pg.io
   #     isWALArchiver: true
