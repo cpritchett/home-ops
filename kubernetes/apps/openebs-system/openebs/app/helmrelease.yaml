@@ -34,7 +34,7 @@ spec:
     localpv-provisioner:
       localpv:
         image:
-          registry: quay.io/
+          registry: "quay.io/"
         basePath: &basePath /var/mnt/local-storage
         analytics:
           enabled: false
@@ -46,7 +46,7 @@ spec:
         volumeBindingMode: Immediate
       helperPod:
         image:
-          registry: quay.io/
+          registry: "quay.io/"
     openebs-crds:
       csi:
         volumeSnapshots:

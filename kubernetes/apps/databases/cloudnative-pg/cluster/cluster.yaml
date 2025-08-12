@@ -18,7 +18,7 @@ spec:
   postgresql:
     parameters:
       max_connections: "200"
-      shared_buffers: 256MB
+      shared_buffers: "256MB"
   resources:
     requests:
       cpu: 300m
@@ -32,7 +32,7 @@ spec:
       isWALArchiver: true
       parameters: &parameters
         barmanObjectName: s3
-        serverName: postgres-v23
+        serverName: "postgres-v23"
   # Note: uncomment bootstrap section when recovering from an existing cluster
   # bootstrap:
   #   recovery:

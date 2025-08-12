@@ -74,7 +74,7 @@ spec:
           enabled: true
       dashboard:
         enabled: true
-        urlPrefix: /
+        urlPrefix: "/"
         ssl: false
         prometheusEndpoint: http://prometheus-operated.observability.svc.cluster.local:9090
       mgr:
