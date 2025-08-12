@@ -86,6 +86,8 @@ spec:
         advancedMounts:
           autobrr:
             app:
+              - path: /config/log
+                subPath: log
               - path: /tmp
                 subPath: tmp
     route:
