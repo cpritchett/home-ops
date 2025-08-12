@@ -27,12 +27,13 @@ spec:
       memory: 2Gi
   monitoring:
     enablePodMonitor: true
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters: &parameters
-        barmanObjectName: s3
-        serverName: "postgres-v23"
+  # Temporarily disabled WAL archiving to reduce cluster pressure
+  # plugins:
+  #   - name: barman-cloud.cloudnative-pg.io
+  #     isWALArchiver: true
+  #     parameters: &parameters
+  #       barmanObjectName: s3
+  #       serverName: "postgres-v23"
   # Note: uncomment bootstrap section when recovering from an existing cluster
   # bootstrap:
   #   recovery:
