@@ -75,13 +75,15 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups: [1702]
     persistence:
+      config:
+        existingClaim: "{{ .Release.Name }}"
       tmpfs:
         type: emptyDir
         advancedMounts:
           prowlarr:
             app:
-              - path: /config
-                subPath: config
+              - path: /config/logs
+                subPath: logs
               - path: /tmp
                 subPath: tmp
     route:
