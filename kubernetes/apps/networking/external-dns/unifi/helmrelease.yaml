@@ -31,7 +31,7 @@ spec:
               UNIFI_SKIP_TLS_VERIFY: true
             envFrom:
               - secretRef:
-                  name: "{{ .Release.Name }}-secret"
+                  name: {{ .Release.Name }}-secret
             probes:
               liveness:
                 enabled: true

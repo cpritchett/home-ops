@@ -28,7 +28,7 @@ spec:
               tag: 17
             envFrom: &envFrom
               - secretRef:
-                  name: "{{ .Release.Name }}-secret"
+                  name: {{ .Release.Name }}-secret
           init-config:
             dependsOn: init-db
             image:
@@ -88,7 +88,7 @@ spec:
         type: emptyDir
       config-file:
         type: configMap
-        name: "{{ .Release.Name }}-configmap"
+        name: {{ .Release.Name }}-configmap
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml
@@ -96,7 +96,7 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.hypyr.space"
+          - {{ .Release.Name }}.hypyr.space
           - status.hypyr.space
         parentRefs:
           - name: external

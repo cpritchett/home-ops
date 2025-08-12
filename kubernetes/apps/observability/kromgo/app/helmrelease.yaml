@@ -62,7 +62,7 @@ spec:
     persistence:
       config:
         type: configMap
-        name: "{{ .Release.Name }}-configmap"
+        name: {{ .Release.Name }}-configmap
         globalMounts:
           - path: /kromgo/config.yaml
             subPath: config.yaml
@@ -70,7 +70,7 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.hypyr.space"
+          - {{ .Release.Name }}.hypyr.space
         parentRefs:
           - name: external
             namespace: kube-system

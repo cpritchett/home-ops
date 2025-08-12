@@ -65,7 +65,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     persistence:
       config:
-        existingClaim: "{{ .Release.Name }}"
+        existingClaim: {{ .Release.Name }}
       tmpfs:
         type: emptyDir
         advancedMounts:
@@ -82,7 +82,7 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.hypyr.space"
+          - {{ .Release.Name }}.hypyr.space
           - hass.hypyr.space
         parentRefs:
           - name: internal

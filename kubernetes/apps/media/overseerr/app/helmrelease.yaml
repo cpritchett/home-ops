@@ -60,11 +60,11 @@ spec:
         supplementalGroups: [1702]
     persistence:
       config:
-        existingClaim: "{{ .Release.Name }}"
+        existingClaim: {{ .Release.Name }}
         globalMounts:
           - path: /app/config
       config-cache:
-        existingClaim: "{{ .Release.Name }}-cache"
+        existingClaim: {{ .Release.Name }}-cache
         globalMounts:
           - path: /app/config/cache
       tmpfs:
@@ -79,7 +79,7 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.hypyr.space"
+          - {{ .Release.Name }}.hypyr.space
           - requests.hypyr.space
         parentRefs:
           - name: internal

@@ -28,7 +28,7 @@ spec:
               tag: 17
             envFrom: &envFrom
               - secretRef:
-                  name: "{{ .Release.Name }}-secret"
+                  name: {{ .Release.Name }}-secret
         containers:
           app:
             image:
@@ -76,7 +76,7 @@ spec:
         supplementalGroups: [1702, 65536]
     persistence:
       config:
-        existingClaim: "{{ .Release.Name }}"
+        existingClaim: {{ .Release.Name }}
       media:
         type: nfs
         server: ${NFS_SERVER}
@@ -95,7 +95,7 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.hypyr.space"
+          - {{ .Release.Name }}.hypyr.space
         parentRefs:
           - name: internal
             namespace: kube-system
