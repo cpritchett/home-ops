@@ -76,11 +76,7 @@ spec:
         supplementalGroups: [1702]
     persistence:
       config:
-        existingClaim: autobrr
-        advancedMounts:
-          autobrr:
-            app:
-              - path: /config
+        existingClaim: "{{ .Release.Name }}"
       tmpfs:
         type: emptyDir
         advancedMounts:
