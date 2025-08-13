@@ -5,6 +5,8 @@ metadata:
   name: &app autobrr
   namespace: &namespace media
 spec:
+  # TODO: Remove suspend when VPN configuration is properly set up for torrent client
+  suspend: true
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
