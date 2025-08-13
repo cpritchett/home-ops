@@ -109,3 +109,55 @@ tasks:
     preconditions:
       - test -f {{.VOLSYNC_RESOURCES_DIR}}/unlock.yaml.j2
       - which kubectl minijinja-cli stern
+
+  delete-backups:
+    desc: Delete ALL backups for an app using restic [APP=required]
+    cmds:
+      - |
+        echo "WARNING: This will permanently delete ALL backups for {{.APP}}"
+        echo "Repository: {{.RESTIC_REPOSITORY}}"
+        read -p "Are you sure? (y/N): " confirm
+        if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+          echo "Operation cancelled"
+          exit 1
+        fi
+      - |
+        export RESTIC_REPOSITORY="{{.RESTIC_REPOSITORY}}"
+        export RESTIC_PASSWORD="{{.RESTIC_PASSWORD}}"
+        export AWS_ACCESS_KEY_ID="{{.S3_ACCESS_KEY_ID}}"
+        export AWS_SECRET_ACCESS_KEY="{{.S3_SECRET_ACCESS_KEY}}"
+
+        echo "Listing current snapshots..."
+        restic snapshots --compact || true
+
+        echo "Getting snapshot IDs..."
+        snapshot_ids=$(restic snapshots --json | jq -r '.[].id' 2>/dev/null || echo "")
+
+        if [ -n "$snapshot_ids" ]; then
+          echo "Forgetting all snapshots..."
+          for id in $snapshot_ids; do
+            echo "Forgetting snapshot $id"
+            restic forget --prune "$id"
+          done
+        else
+          echo "No snapshots found to delete"
+        fi
+
+        echo "Verifying repository is empty..."
+        restic snapshots --compact || echo "Repository is now empty"
+
+        echo "Successfully deleted all backups for {{.APP}}"
+    vars:
+      NS: '{{.NS | default "default"}}'
+      RESTIC_REPOSITORY: "s3:https://s3.hypyr.space/volsync/{{.APP}}"
+      RESTIC_PASSWORD:
+        sh: op item get "seaweedfs" --vault homelab --fields RESTIC_PASSWORD --reveal
+      S3_ACCESS_KEY_ID:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_ACCESS_KEY_ID --reveal
+      S3_SECRET_ACCESS_KEY:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_SECRET_ACCESS_KEY --reveal
+    requires:
+      vars: [APP]
+    preconditions:
+      - which restic
+      - which op
