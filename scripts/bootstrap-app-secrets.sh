@@ -97,7 +97,7 @@ item_exists() {
 safety_check() {
     log_info "Safety check - existing 1Password items in homelab vault:"
 
-    local services=("radarr" "sonarr" "prowlarr" "sabnzbd" "grafana" "atuin" "autobrr" "gatus" "zigbee2mqtt")
+    local services=("radarr" "sonarr" "prowlarr" "sabnzbd" "grafana" "atuin" "autobrr" "gatus")
     local existing_items=()
 
     for service in "${services[@]}"; do
@@ -203,17 +203,6 @@ bootstrap_app_secrets() {
         log_info "Atuin secrets already exist"
     fi
 
-    # Prowlarr (indexer manager)
-    if ! item_exists "prowlarr"; then
-        PROWLARR_API_KEY=$(generate_api_key)
-        PROWLARR_POSTGRES_USER="prowlarr"
-        PROWLARR_POSTGRES_PASS=$(generate_password)
-        create_service_item "prowlarr" "" \
-            "'PROWLARR_API_KEY[concealed]=${PROWLARR_API_KEY}' 'PROWLARR_POSTGRES_USER[text]=${PROWLARR_POSTGRES_USER}' 'PROWLARR_POSTGRES_PASS[concealed]=${PROWLARR_POSTGRES_PASS}' 'POSTGRES_SUPER_PASS[concealed]=${POSTGRES_SUPER_PASS}'"
-    else
-        log_info "Prowlarr secrets already exist"
-    fi
-
     # Autobrr (torrent automation)
     if ! item_exists "autobrr"; then
         AUTOBRR_POSTGRES_USER="autobrr"
@@ -237,19 +226,32 @@ bootstrap_app_secrets() {
 
     # Zigbee2MQTT (Zigbee coordinator)
     if ! item_exists "zigbee2mqtt"; then
-        # Generate Zigbee network configuration values
+        log_info "Creating zigbee2mqtt secrets..."
+
+        # Generate Zigbee network configuration values (simplified approach)
         ZIGBEE_CHANNEL="20" # Safe ZLL channel (11, 15, 20, or 25)
         ZIGBEE_PAN_ID=$(printf "0x%04X" $((RANDOM % 65536)))
-        # Generate 8-byte extended PAN ID as comma-separated decimal array
-        ZIGBEE_EXT_PAN_ID="[$(for i in {1..8}; do
-            printf "%d" $((RANDOM % 256))
-            [ $i -lt 8 ] && printf ","
-        done)]"
-        # Generate 16-byte network key as comma-separated decimal array
-        ZIGBEE_NETWORK_KEY="[$(for i in {1..16}; do
-            printf "%d" $((RANDOM % 256))
-            [ $i -lt 16 ] && printf ","
-        done)]"
+
+        # Generate arrays as simple strings to avoid shell complexity
+        local ext_pan_parts=()
+        for i in {1..8}; do
+            ext_pan_parts+=("$((RANDOM % 256))")
+        done
+        ZIGBEE_EXT_PAN_ID="[$(
+            IFS=','
+            echo "${ext_pan_parts[*]}"
+        )]"
+
+        local net_key_parts=()
+        for i in {1..16}; do
+            net_key_parts+=("$((RANDOM % 256))")
+        done
+        ZIGBEE_NETWORK_KEY="[$(
+            IFS=','
+            echo "${net_key_parts[*]}"
+        )]"
+
+        log_info "Generated Zigbee network parameters"
 
         create_service_item "zigbee2mqtt" "" \
             "'ZIGBEE2MQTT_CONFIG_ADVANCED_CHANNEL[text]=${ZIGBEE_CHANNEL}' 'ZIGBEE2MQTT_CONFIG_ADVANCED_PAN_ID[text]=${ZIGBEE_PAN_ID}' 'ZIGBEE2MQTT_CONFIG_ADVANCED_EXT_PAN_ID[text]=${ZIGBEE_EXT_PAN_ID}' 'ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY[concealed]=${ZIGBEE_NETWORK_KEY}'"
@@ -273,7 +275,6 @@ sync_external_secrets() {
         ["grafana"]="observability"
         ["gatus"]="observability"
         ["atuin"]="default"
-        ["zigbee2mqtt"]="default"
     )
 
     for service in "${!service_namespaces[@]}"; do
