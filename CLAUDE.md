@@ -114,7 +114,7 @@ Applications have explicit dependencies managed by Flux:
 ### Key Variables (Taskfile.yaml)
 
 - **CONTROL_PLANE_ENDPOINT**: `https://homeops.hypyr.space:6443` (Points to kube-vip LoadBalancer: 10.0.48.55)
-- **TALOS_ENDPOINTS**: `10.0.5.215,10.0.5.220,10.0.5.118`
+- **TALOS_ENDPOINTS**: `10.0.5.215,10.0.5.220,10.0.5.100`
 - **TALOS_NODES**: Dynamically extracted from `talos/node-mapping.yaml` (currently: 3 nodes)
 - **OP_VAULT**: `homelab` (1Password vault)
 

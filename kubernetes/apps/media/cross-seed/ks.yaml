@@ -5,6 +5,8 @@ metadata:
   name: &app cross-seed
   namespace: &namespace media
 spec:
+  # TODO: Remove suspend when VPN configuration is properly set up for torrent client dependencies
+  suspend: true
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
