@@ -4,4 +4,3 @@ kind: Component
 resources:
   - ./seaweedfs
   - ./pvc.yaml
-  - ./replicationdestination.yaml
