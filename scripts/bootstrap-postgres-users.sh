@@ -193,6 +193,10 @@ create_user_and_database() {
     execute_sql "GRANT ALL PRIVILEGES ON DATABASE \"$username\" TO \"$username\";" \
         "Grant permissions to $username"
 
+    # Grant schema permissions (required for PostgreSQL 15+)
+    execute_sql "GRANT ALL ON SCHEMA public TO \"$username\";" \
+        "Grant schema permissions to $username"
+
     # Set default privileges for future objects
     execute_sql "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"$username\";" \
         "Set default table privileges for $username"
