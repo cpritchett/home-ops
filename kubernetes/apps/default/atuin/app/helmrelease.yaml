@@ -19,32 +19,20 @@ spec:
   values:
     controllers:
       atuin:
-        replicas: 2
-        strategy: RollingUpdate
-        annotations:
-          reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            image:
-              repository: ghcr.io/home-operations/postgres-init
-              tag: 17
-            envFrom: &envFrom
-              - secretRef:
-                  name: "{{ .Release.Name }}-secret"
         containers:
           app:
             image:
               repository: ghcr.io/atuinsh/atuin
-              tag: v18.6.1@sha256:869a85bcc169ae9a3ea65dcf32a99dae982d28d8562172e2712d3313d7349203 # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
+              tag: v18.8.0@sha256:8a8a8ef4eb5865656072bace5cc49390b56caa81360f9f0869054777155b6ef1
             env:
+              ATUIN_DB_URI: sqlite:///config/atuin.db
               ATUIN_HOST: 0.0.0.0
-              ATUIN_PORT: &port 8080
-              ATUIN_OPEN_REGISTRATION: true
               ATUIN_METRICS__ENABLE: true
               ATUIN_METRICS__HOST: 0.0.0.0
               ATUIN_METRICS__PORT: &metricsPort 8081
+              ATUIN_OPEN_REGISTRATION: true
+              ATUIN_PORT: &port 80
               TZ: America/Chicago
-            envFrom: *envFrom
             args:
               - server
               - start
@@ -54,7 +42,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /
+                    path: /healthz
                     port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
@@ -69,15 +57,18 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: [ALL] }
+              capabilities: { drop: ["ALL"] }
     defaultPodOptions:
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
         runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
     persistence:
       config:
-        type: emptyDir
+        existingClaim: "{{ .Release.Name }}"
     route:
       app:
         hostnames:
