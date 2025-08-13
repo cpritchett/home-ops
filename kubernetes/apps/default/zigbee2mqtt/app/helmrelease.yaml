@@ -82,7 +82,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     persistence:
       config:
-        existingClaim: zigbee2mqtt
+        existingClaim: "{{ .Release.Name }}"
       config-logs:
         type: emptyDir
         globalMounts:
