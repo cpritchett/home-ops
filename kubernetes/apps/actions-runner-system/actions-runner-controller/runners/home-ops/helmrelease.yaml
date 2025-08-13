@@ -53,7 +53,7 @@ spec:
               - /home/runner/run.sh
             env:
               - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
-                value: false
+                value: "false"
               - name: NODE
                 valueFrom:
                   fieldRef:
