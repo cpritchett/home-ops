@@ -78,6 +78,13 @@ machine:
     interfaces:
       - interface: eno1
         dhcp: false
+        mtu: 1500
+      - interface: bond0
+        bridge:
+          stp:
+            enabled: false
+          interfaces:
+            - eno1
         addresses: ["10.0.5.100/24"]
         routes:
           - network: "0.0.0.0/0"
