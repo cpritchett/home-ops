@@ -25,10 +25,8 @@ spec:
               repository: ghcr.io/home-operations/home-assistant
               tag: 2025.8.1@sha256:4e59d68e002d84a8e48f77df029ecd629fd444f57601931cca39a4ee08a45eec # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
-              HOME_ASSISTANT_EXTERNAL_URL: https://hass.hypyr.space
-              HOME_ASSISTANT_PURGE_KEEP_DAYS: 30
-              HOME_ASSISTANT_TRUSTED_PROXIES: 10.244.0.0/16
-              HOME_ASSISTANT_UNIT_SYSTEM: us_customary
+              HASS_HTTP_TRUSTED_PROXY_1: 10.244.0.0/16
+              HASS_HTTP_TRUSTED_PROXY_2: 10.0.48.0/24
               TZ: America/Chicago
             probes:
               liveness:
