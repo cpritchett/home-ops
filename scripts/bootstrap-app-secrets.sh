@@ -237,10 +237,22 @@ bootstrap_app_secrets() {
 
     # Zigbee2MQTT (Zigbee coordinator)
     if ! item_exists "zigbee2mqtt"; then
-        ZIGBEE_MQTT_USER="zigbee2mqtt"
-        ZIGBEE_MQTT_PASS=$(generate_password)
+        # Generate Zigbee network configuration values
+        ZIGBEE_CHANNEL="20" # Safe ZLL channel (11, 15, 20, or 25)
+        ZIGBEE_PAN_ID=$(printf "0x%04X" $((RANDOM % 65536)))
+        # Generate 8-byte extended PAN ID as comma-separated decimal array
+        ZIGBEE_EXT_PAN_ID="[$(for i in {1..8}; do
+            printf "%d" $((RANDOM % 256))
+            [ $i -lt 8 ] && printf ","
+        done)]"
+        # Generate 16-byte network key as comma-separated decimal array
+        ZIGBEE_NETWORK_KEY="[$(for i in {1..16}; do
+            printf "%d" $((RANDOM % 256))
+            [ $i -lt 16 ] && printf ","
+        done)]"
+
         create_service_item "zigbee2mqtt" "" \
-            "'MQTT_USER[text]=${ZIGBEE_MQTT_USER}' 'MQTT_PASSWORD[concealed]=${ZIGBEE_MQTT_PASS}'"
+            "'ZIGBEE2MQTT_CONFIG_ADVANCED_CHANNEL[text]=${ZIGBEE_CHANNEL}' 'ZIGBEE2MQTT_CONFIG_ADVANCED_PAN_ID[text]=${ZIGBEE_PAN_ID}' 'ZIGBEE2MQTT_CONFIG_ADVANCED_EXT_PAN_ID[text]=${ZIGBEE_EXT_PAN_ID}' 'ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY[concealed]=${ZIGBEE_NETWORK_KEY}'"
     else
         log_info "Zigbee2MQTT secrets already exist"
     fi
