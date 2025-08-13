@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Media Services API Key Bootstrap Script
-# Handles the chicken/egg problem of media service API keys
+# Application Services API Key Bootstrap Script
+# Handles the chicken/egg problem of application service API keys
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -97,7 +97,7 @@ item_exists() {
 safety_check() {
     log_info "Safety check - existing 1Password items in homelab vault:"
 
-    local services=("radarr" "sonarr" "prowlarr" "sabnzbd" "grafana" "atuin" "autobrr" "gatus")
+    local services=("radarr" "sonarr" "prowlarr" "sabnzbd" "grafana" "atuin" "autobrr" "gatus" "zigbee2mqtt")
     local existing_items=()
 
     for service in "${services[@]}"; do
@@ -125,9 +125,9 @@ safety_check() {
     fi
 }
 
-# Bootstrap media service secrets
-bootstrap_media_secrets() {
-    log_info "Bootstrapping media service secrets..."
+# Bootstrap application service secrets
+bootstrap_app_secrets() {
+    log_info "Bootstrapping application service secrets..."
 
     # Get shared postgres super password for database services
     local POSTGRES_SUPER_PASS=""
@@ -234,22 +234,38 @@ bootstrap_media_secrets() {
     else
         log_info "Gatus secrets already exist"
     fi
+
+    # Zigbee2MQTT (Zigbee coordinator)
+    if ! item_exists "zigbee2mqtt"; then
+        ZIGBEE_MQTT_USER="zigbee2mqtt"
+        ZIGBEE_MQTT_PASS=$(generate_password)
+        create_service_item "zigbee2mqtt" "" \
+            "'MQTT_USER[text]=${ZIGBEE_MQTT_USER}' 'MQTT_PASSWORD[concealed]=${ZIGBEE_MQTT_PASS}'"
+    else
+        log_info "Zigbee2MQTT secrets already exist"
+    fi
 }
 
 # Force sync external secrets after creation
 sync_external_secrets() {
     log_info "Force syncing external secrets..."
 
-    local services=("recyclarr" "sabnzbd" "grafana" "atuin" "prowlarr" "autobrr" "sonarr" "radarr" "gatus")
-    local namespaces=("media media observability default media media media media observability")
+    # Define service-to-namespace mapping
+    declare -A service_namespaces=(
+        ["recyclarr"]="media"
+        ["sabnzbd"]="media"
+        ["sonarr"]="media"
+        ["radarr"]="media"
+        ["prowlarr"]="media"
+        ["autobrr"]="media"
+        ["grafana"]="observability"
+        ["gatus"]="observability"
+        ["atuin"]="default"
+        ["zigbee2mqtt"]="default"
+    )
 
-    # Convert to arrays
-    read -r -a service_array <<<"${services[@]}"
-    read -r -a namespace_array <<<"${namespaces}"
-
-    for i in "${!service_array[@]}"; do
-        local service="${service_array[${i}]}"
-        local namespace="${namespace_array[${i}]}"
+    for service in "${!service_namespaces[@]}"; do
+        local namespace="${service_namespaces[${service}]}"
 
         if kubectl get externalsecret "${service}" -n "${namespace}" &>/dev/null; then
             log_info "Force syncing ${service} external secret..."
@@ -261,7 +277,7 @@ sync_external_secrets() {
 
 # Main execution
 main() {
-    log_info "Starting media services secret bootstrap..."
+    log_info "Starting application services secret bootstrap..."
 
     # Check if logged into 1Password
     if ! op user get --me &>/dev/null; then
@@ -278,13 +294,13 @@ main() {
     # SAFETY: Check existing items before proceeding
     safety_check
 
-    bootstrap_media_secrets
+    bootstrap_app_secrets
     sync_external_secrets
 
-    log_success "Media services secret bootstrap complete!"
+    log_success "Application services secret bootstrap complete!"
     log_info "Next steps:"
     log_info "  1. Wait for external secrets to sync (30-60 seconds)"
-    log_info "  2. Check pod status: kubectl get pods -n media"
+    log_info "  2. Check pod status: kubectl get pods -A"
     log_info "  3. Access services via their web interfaces to complete setup"
 }
 
