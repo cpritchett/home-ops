@@ -32,6 +32,7 @@ kustomize = "latest"
 "ubi:yannh/kubeconform" = "latest"
 "ubi:stern/stern" = "latest"
 "ubi:sachaos/viddy" = "latest"
+restic = "0.18.0"
 
 [hooks]
 # Check for moreutils after install
