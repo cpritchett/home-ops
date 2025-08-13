@@ -5,6 +5,7 @@ metadata:
   name: &app recyclarr
   namespace: &namespace media
 spec:
+  suspend: true # TODO: I may pull this out completely, there are some easier to use alternatives. as it is the config isn't complete and I'll fix it later
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
