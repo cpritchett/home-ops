@@ -65,7 +65,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     persistence:
       config:
-        existingClaim: "{{ .Release.Name }}"
+        existingClaim: home-assistant
       tmpfs:
         type: emptyDir
         advancedMounts:

@@ -61,10 +61,10 @@ spec:
             port: 1883
     persistence:
       data:
-        existingClaim: "{{ .Release.Name }}"
+        existingClaim: mosquitto
       config-file:
         type: configMap
-        name: "{{ .Release.Name }}-configmap"
+        name: mosquitto-configmap
         globalMounts:
           - path: /mosquitto/config/mosquitto.conf
             subPath: mosquitto.conf
