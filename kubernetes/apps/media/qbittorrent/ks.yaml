@@ -5,6 +5,8 @@ metadata:
   name: &app qbittorrent
   namespace: &namespace media
 spec:
+  # TODO: Remove suspend when VPN configuration is properly set up for torrent client
+  suspend: true
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -42,6 +44,8 @@ metadata:
   name: &app qbittorrent-tools
   namespace: &namespace media
 spec:
+  # TODO: Remove suspend when VPN configuration is properly set up for torrent client
+  suspend: true
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
