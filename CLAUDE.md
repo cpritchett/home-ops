@@ -47,7 +47,7 @@ task volsync:restore APP=<name> PREVIOUS=<snapshot>  # Restore from backup
 task setup-cloudflare-tunnel                  # Configure tunnel for external service access
 
 # Secret management
-task bootstrap-media-secrets                  # Bootstrap API keys for media services
+task bootstrap-app-secrets                    # Bootstrap API keys for application services
 ```
 
 ### Development Environment

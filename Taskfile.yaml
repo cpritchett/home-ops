@@ -39,9 +39,9 @@ tasks:
       - which cloudflared
       - which jq
 
-  bootstrap-media-secrets:
-    desc: Bootstrap API keys for media services (solves chicken/egg problem)
-    cmd: ./scripts/bootstrap-media-secrets.sh
+  bootstrap-app-secrets:
+    desc: Bootstrap API keys for application services (solves chicken/egg problem)
+    cmd: ./scripts/bootstrap-app-secrets.sh
     preconditions:
       - op user get --me
       - kubectl cluster-info
