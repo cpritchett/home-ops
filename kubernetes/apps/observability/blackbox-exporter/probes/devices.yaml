@@ -10,9 +10,9 @@ spec:
   targets:
     staticConfig:
       static:
-        - unifi.internal
+        - unifi.hypyr.space
         - barbary.hypyr.space
-        - ups.internal
-        - kvm.internal
-        - pikvm.internal
-        - zigbee-controller.internal
+        # - ups.internal  # TODO: configure UPS monitoring
+        - kvm01.hypyr.space
+        - kvm02.hypyr.space
+        # - zigbee-controller.internal  # TODO: configure Zigbee controller monitoring
