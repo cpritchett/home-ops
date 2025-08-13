@@ -7,3 +7,4 @@ metadata:
 resources:
   - externalsecret.yaml
   - replicationsource.yaml
+  - replicationdestination.yaml
