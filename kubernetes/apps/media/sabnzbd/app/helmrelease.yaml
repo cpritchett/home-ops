@@ -62,6 +62,7 @@ spec:
               requests:
                 cpu: 100m
               limits:
+                cpu: 1000m  # Allow intensive unpacking/processing
                 memory: 32Gi
             securityContext:
               allowPrivilegeEscalation: false
