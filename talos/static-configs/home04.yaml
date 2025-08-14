@@ -172,7 +172,7 @@ cluster:
     key: op://homelab/talos/CLUSTER_AGGREGATORCA_KEY
   allowSchedulingOnControlPlanes: true
   apiServer:
-    image: registry.k8s.io/kube-apiserver:v1.33.2
+    image: registry.k8s.io/kube-apiserver:v1.33.4
     extraArgs:
       enable-aggregator-routing: true
       bind-address: 0.0.0.0
