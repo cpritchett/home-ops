@@ -50,7 +50,7 @@ spec:
             memory: "2Gi"
         osd:
           requests:
-            cpu: "300m"  # TODO: Restore to 500m when cluster resources stabilize
+            cpu: "500m"
             memory: "2Gi"
           limits:
             cpu: "1000m"
