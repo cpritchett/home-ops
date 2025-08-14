@@ -1,4 +1,6 @@
 ---
+# TODO: Switch back to home-operations mirror when 1.18.0 YAML parsing issue is resolved
+# Original: oci://ghcr.io/home-operations/charts-mirror/cilium:1.18.0
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
