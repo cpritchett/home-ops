@@ -28,10 +28,10 @@ spec:
               tag: v1.65.0@sha256:494e821e7a9c9a1279d1541522a65ed06b03d0b66563e827e3d29b9a63e61ddc # trunk-ignore(checkov/CKV_SECRET_6): legitimate container image SHA
             env:
               AUTOBRR__HOST: 0.0.0.0
-              AUTOBRR__PORT: &port 7474
+              AUTOBRR__PORT: &port 80
               AUTOBRR__METRICS_ENABLED: true
               AUTOBRR__METRICS_HOST: 0.0.0.0
-              AUTOBRR__METRICS_PORT: &metricsPort 9094
+              AUTOBRR__METRICS_PORT: &metricsPort 8080
               AUTOBRR__CHECK_FOR_UPDATES: false
               AUTOBRR__LOG_LEVEL: INFO
               TZ: America/Chicago
