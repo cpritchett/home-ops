@@ -44,6 +44,7 @@ spec:
               requests:
                 cpu: 100m
               limits:
+                cpu: 500m  # Allow intensive subtitle processing
                 memory: 4Gi
             securityContext:
               allowPrivilegeEscalation: false
