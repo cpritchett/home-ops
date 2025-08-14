@@ -52,8 +52,8 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/a8a0bd1b02917c873b7ebf1dab863ebb1c0601893eaf0ebddcc64950f9852c18:v1.10.5
-    disk: /dev/sdb
+    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
+    disk: /dev/sda
   kernel:
     modules:
       - name: nbd
@@ -79,17 +79,18 @@ machine:
       validSubnets: [10.0.5.0/24]
     disableManifestsDirectory: true
   network:
+    network:
     interfaces:
+      - interface: eno1
+        dhcp: false
+        mtu: 1500
       - interface: bond0
-        bond:
-          deviceSelectors:
-            hardwareAddr: 70:85:c2:d5:84
-          mode: 802.3ad
-          xmitHashPolicy: layer3+4
-          lacpRate: fast
-          miimon: 5000
-        addresses:
-          - 10.0.5.118/24
+        bridge:
+          stp:
+            enabled: false
+          interfaces:
+            - eno1
+        addresses: ["10.0.5.118/24"]
         routes:
           - network: 0.0.0.0/0
             gateway: 10.0.5.1
@@ -147,7 +148,7 @@ cluster:
     key: op://homelab/talos/CLUSTER_CA_KEY
   clusterName: homeops
   controlPlane:
-    endpoint: https:/ omeops.hypyr.space6443
+    endpoint: https://homeops.hypyr.space:6443
   discovery:
     enabled: true
     registries:
@@ -232,13 +233,6 @@ provisioning:
 apiVersion: v1alpha1
 kind: EthernetConfig
 name: eno1
-rings:
-  rx: 4096
-  tx: 4096
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: enp2s0
 rings:
   rx: 4096
   tx: 4096
