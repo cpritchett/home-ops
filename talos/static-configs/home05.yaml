@@ -82,31 +82,18 @@ machine:
     disableManifestsDirectory: true
   network:
     interfaces:
-      - deviceSelector:
-          hardwareAddr: "70:85:c2:d5:84:9e"
-          driver: igb
+      - interface: bond0
+        bond:
+          interfaces: ["eno1", "enp2s0"]
+          mode: 802.3ad
+          xmitHashPolicy: layer3+4
+          lacpRate: fast
+          miimon: 1000
         addresses:
           - 10.0.5.129/24
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.0.5.1"
-          # Selective blackhole routes - exclude critical cluster endpoints
-          # Allow: 10.0.48.50-10.0.48.82 (kube-vip: 55, external: 80, internal: 81, qbit: 82)
-          # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
-          - network: "10.0.48.83/32"
-            gateway: "0.0.0.0"
-          - network: "10.0.48.84/30" # 84-87
-            gateway: "0.0.0.0"
-          - network: "10.0.48.88/29" # 88-95
-            gateway: "0.0.0.0"
-          - network: "10.0.48.96/27" # 96-127
-            gateway: "0.0.0.0"
-          - network: "10.0.48.128/26" # 128-191
-            gateway: "0.0.0.0"
-          - network: "10.0.48.192/29" # 192-199
-            gateway: "0.0.0.0"
-          - network: "10.0.48.200/32" # 200
-            gateway: "0.0.0.0"
         mtu: 1500
         vlans:
           - { vlanId: 30, dhcp: false, mtu: 1500 }
