@@ -169,9 +169,15 @@ tasks:
         echo "🚨 NUCLEAR OPTION: This will suspend all Kustomizations AND delete all pods in: {{.NAMESPACE}}"
         read -p "Are you absolutely sure? (type 'NUKE' to confirm): " confirm
         if [[ $confirm == "NUKE" ]]; then
-          task kubernetes:suspend-namespace NAMESPACE={{.NAMESPACE}}
+          if ! task kubernetes:suspend-namespace NAMESPACE={{.NAMESPACE}}; then
+            echo "❌ Failed to suspend namespace"
+            exit 1
+          fi
           sleep 2
-          kubectl delete pods -n {{.NAMESPACE}} --all --grace-period=0 --force
+          if ! kubectl delete pods -n {{.NAMESPACE}} --all --grace-period=0 --force; then
+            echo "❌ Failed to delete pods"
+            exit 1
+          fi
           echo "💥 Namespace {{.NAMESPACE}} has been nuked"
         else
           echo "❌ Operation cancelled"
@@ -212,7 +218,8 @@ tasks:
       Check cluster resource pressure and identify pods consuming the most resources.
     cmds:
       - |
-        set +e  # Disable exit on error to handle SIGPIPE gracefully
+        PROBLEMATIC_STATUSES="(Pending|CrashLoopBackOff|Error|ImagePullBackOff)"
+
         echo "📊 Cluster Resource Pressure Analysis"
         echo "======================================"
         echo ""
@@ -225,7 +232,7 @@ tasks:
         echo "🔥 Top 10 CPU Consuming Pods:"
         cpu_output=$(kubectl top pods -A --sort-by=cpu 2>/dev/null)
         if [[ $? -eq 0 && -n "$cpu_output" ]]; then
-          echo "$cpu_output" | head -11
+          echo "$cpu_output" | head -11 || true  # Handle SIGPIPE gracefully
         else
           echo "❌ Failed to get pod CPU metrics"
           exit 1
@@ -234,14 +241,14 @@ tasks:
         echo "💾 Top 10 Memory Consuming Pods:"
         memory_output=$(kubectl top pods -A --sort-by=memory 2>/dev/null)
         if [[ $? -eq 0 && -n "$memory_output" ]]; then
-          echo "$memory_output" | head -11
+          echo "$memory_output" | head -11 || true  # Handle SIGPIPE gracefully
         else
           echo "❌ Failed to get pod memory metrics"
           exit 1
         fi
         echo ""
         echo "⚠️  Problematic Pods:"
-        problematic_pods=$(kubectl get pods -A 2>/dev/null | grep -E "(Pending|CrashLoopBackOff|Error|ImagePullBackOff)" || true)
+        problematic_pods=$(kubectl get pods -A 2>/dev/null | grep -E "$PROBLEMATIC_STATUSES" || true)
         if [[ -n "$problematic_pods" ]]; then
           echo "$problematic_pods"
         else
