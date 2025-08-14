@@ -39,7 +39,7 @@ task talos:apply-config NODE=10.0.5.100 INSECURE=true
 
 ```bash
 # Bootstrap on any control plane node
-task talos:bootstrap NODE=10.0.5.215
+task bootstrap:talos-cluster NODE=10.0.5.215
 
 # Deploy applications with GitOps
 task bootstrap:apps
@@ -75,14 +75,14 @@ flux get kustomizations
 
 ```bash
 # Auto-fixes 1Password Connect and syncs all secrets
-task kubernetes:sync-secrets
+task k8s:sync-secrets
 ```
 
 ### Browse Storage
 
 ```bash
 # Mount a persistent volume to debug storage issues
-task kubernetes:browse-pvc CLAIM=pvc-name
+task k8s:browse-pvc CLAIM=pvc-name
 ```
 
 ### Backup/Restore
@@ -102,7 +102,7 @@ _Note: Backups go to S3-compatible storage (SeaweedFS). You may need to adjust S
 ### Secrets Not Working
 
 **Symptom**: Apps showing "secret not found" errors
-**Solution**: `task kubernetes:sync-secrets` - This auto-detects and fixes 1Password Connect issues
+**Solution**: `task k8s:sync-secrets` - This auto-detects and fixes 1Password Connect issues
 
 ### Apps Not Deploying
 
@@ -110,8 +110,8 @@ _Note: Backups go to S3-compatible storage (SeaweedFS). You may need to adjust S
 **Check**: `kubectl describe pod <pod-name> -n <namespace>`
 **Common fixes**:
 
-- Storage issues: `task kubernetes:browse-pvc CLAIM=<name>`
-- Secret issues: `task kubernetes:sync-secrets`
+- Storage issues: `task k8s:browse-pvc CLAIM=<name>`
+- Secret issues: `task k8s:sync-secrets`
 
 ### Node Issues
 

@@ -1,428 +1,111 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with this home-ops GitOps repository.
 
 ## Repository Overview
 
-This is a home-ops GitOps repository managing a 3-node Talos Linux Kubernetes cluster with Flux CD. The cluster runs media applications, home automation, monitoring, and networking services with secrets managed by 1Password.
+**Type**: Home-ops GitOps repository managing a 3-node Talos Linux Kubernetes cluster with Flux CD
+**Key Technologies**: Talos Linux, Kubernetes, Flux CD, 1Password secrets management
+**Documentation**: See `docs/SETUP-GUIDE.md` for complete setup instructions and `docs/` directory for user-facing documentation
 
-## Essential Commands
+## Essential Task Commands
 
-### Cluster Operations
+**ALWAYS prefer task commands** over raw kubectl/talosctl commands when available. Use `task --list` to discover commands.
 
-```bash
-# List all tasks
-task --list
-
-# Bootstrap the cluster from scratch
-task talos:gen-secrets                       # Generate secrets and push to 1Password
-task talos:apply-config NODE=<ip>            # Apply to all nodes
-task talos:bootstrap NODE=<ip>               # Bootstrap first control plane
-task bootstrap:apps                          # Deploy Kubernetes apps
-
-# Secret management (simplified workflow)
-task talos:pull-secrets                      # Pull secrets from 1Password
-task talos:push-secrets                      # Push local secrets to 1Password
-task talos:backup-secrets                    # Backup current secrets
-task talos:list-backups                      # List available backups
-task talos:restore-secrets BACKUP=<timestamp> # Restore from backup
-
-# Kubernetes operations
-task kubernetes:browse-pvc CLAIM=<pvc-name>    # Debug PVC by mounting to temp pod
-task kubernetes:node-shell NODE=<node>         # Shell into cluster node
-task kubernetes:sync-secrets                   # Force sync all ExternalSecrets
-task kubernetes:cleanse-pods                   # Clean up failed/pending pods
-
-# Node management
-task talos:upgrade-node NODE=<ip>              # Upgrade single Talos node
-task talos:upgrade-k8s                         # Upgrade entire Kubernetes cluster
-task talos:reboot-node NODE=<ip>               # Reboot single node
-task talos:remove-node NODE=<name>              # Remove node from cluster completely
-
-# Backup operations
-task volsync:snapshot APP=<name>               # Create app snapshot
-task volsync:restore APP=<name> PREVIOUS=<snapshot>  # Restore from backup
-
-# External access setup
-task setup-cloudflare-tunnel                  # Configure tunnel for external service access
-
-# Secret management
-task bootstrap-app-secrets                    # Bootstrap API keys for application services
-```
-
-### Development Environment
+### Common Operations
 
 ```bash
-# Install required tools and dependencies
-task workstation:brew                          # Install Homebrew packages
-task workstation:krew                          # Install kubectl plugins
+# Cluster status and troubleshooting
+task k8s:sync-secrets                   # Force sync ExternalSecrets (fixes most issues)
+task k8s:browse-pvc CLAIM=<name>        # Debug storage by mounting PVC
+task k8s:cleanse-pods                   # Clean up failed/pending pods
+
+# Secret management workflow
+task talos:pull-secrets                 # Pull from 1Password (what nodes use)
+task talos:push-secrets                 # Push to 1Password (updates nodes)
+
+# Bootstrap operations (all under bootstrap: prefix)
+task bootstrap:talos-cluster NODE=<ip>  # Bootstrap Talos control plane
+task bootstrap:apps                     # Deploy Kubernetes apps
+task bootstrap:app-secrets              # Bootstrap API keys
+task bootstrap:postgres-users           # Bootstrap PostgreSQL users
+task bootstrap:cloudflare-tunnel        # Setup external access
 ```
 
-## Architecture & Key Concepts
+### Troubleshooting Patterns
 
-### GitOps Structure
+1. **Secret issues**: Always run `task k8s:sync-secrets` first (auto-fixes 1Password Connect)
+2. **Storage issues**: Use `task k8s:browse-pvc CLAIM=<name>` to debug PVCs
+3. **Certificate mismatches**: Run `task talos:pull-secrets` to sync from 1Password
+4. **Full documentation**: See `docs/CLUSTER-TROUBLESHOOTING.md`
 
-- **Flux**: Manages cluster state from Git repository
-- **HelmReleases**: Deploy applications via Helm charts
-- **Kustomizations**: Define dependencies between applications
-- **ExternalSecrets**: Pull secrets from 1Password vault "homelab"
+## Key Configuration Details
 
-### Directory Structure
+### Cluster Variables (Taskfile.yaml)
 
-```
-kubernetes/
-├── apps/           # Applications grouped by namespace
-│   ├── cert-manager/
-│   ├── external-secrets/
-│   ├── flux-system/
-│   ├── kube-system/
-│   ├── media/      # Plex, Sonarr, Radarr, etc.
-│   ├── networking/
-│   └── observability/
-├── components/     # Reusable kustomize components
-└── flux/          # Flux system configuration
-
-bootstrap/         # Initial cluster setup
-talos/
-├── static-configs/ # Node-specific configurations (temporary approach)
-├── node-mapping.yaml # Source of truth for active nodes
-└── talosconfig    # Generated cluster access config
-scripts/          # Automation scripts
-```
-
-**Note**: Currently using static per-node YAML configs due to diverse hardware (EQ12, P520 workstation, etc.). Originally designed with minijinja templates, but mixed hardware made template maintenance complex. **Planning return to template-based approach** once hardware is standardized to reduce maintenance overhead of shared settings updates.
-
-### Application Deployment Pattern
-
-Each app follows this structure:
-
-- `ks.yaml` - Flux Kustomization with dependencies
-- `app/helmrelease.yaml` - Helm chart configuration
-- `app/externalsecret.yaml` - 1Password secret integration
-- `app/kustomization.yaml` - Resource bundling
-
-### Dependencies & Bootstrapping
-
-Applications have explicit dependencies managed by Flux:
-
-1. **Core**: Talos → Cilium → CoreDNS → Spegel
-2. **Security**: cert-manager → external-secrets
-3. **Applications**: Depend on core and security layers
-
-## Cluster Configuration
-
-### Key Variables (Taskfile.yaml)
-
-- **CONTROL_PLANE_ENDPOINT**: `https://homeops.hypyr.space:6443` (Points to kube-vip LoadBalancer: 10.0.48.55)
+- **CONTROL_PLANE_ENDPOINT**: `https://homeops.hypyr.space:6443`
 - **TALOS_ENDPOINTS**: `10.0.5.215,10.0.5.220,10.0.5.100`
-- **TALOS_NODES**: Dynamically extracted from `talos/node-mapping.yaml` (currently: 3 nodes)
 - **OP_VAULT**: `homelab` (1Password vault)
+- **Node mapping**: `talos/node-mapping.yaml` (source of truth)
 
-### Node Mapping
-
-- **home01** (10.0.5.215) - EQ12 with dual Ethernet bond
-- **home02** (10.0.5.220) - EQ12 with dual Ethernet bond
-- **home04** (10.0.5.118) - P520 workstation with Ethernet bond
-
-**Note**: home03 hardware issues have been resolved and the node is back in active rotation.
-
-### Networking
+### Architecture Notes
 
 - **CNI**: Cilium with eBPF
-- **LoadBalancer**: Cilium L2/L3 hybrid mode
-- **DNS**: ExternalDNS syncs to UniFi (internal) and Cloudflare (external)
-- **Ingress**: Cilium Gateway API with internal/external gateways
-- **VPN**: Tailscale for remote access
+- **Storage**: Rook Ceph (distributed) + OpenEBS (local at `/var/mnt/local-storage`)
+- **Secrets**: 1Password Connect with ExternalSecrets
+- **GitOps**: Flux CD manages all applications
 
-## Storage & Backups
+## Development Workflow Rules
 
-### Storage Classes
+### Git Branch Safety (CRITICAL)
 
-- **Rook Ceph**: Distributed block storage for persistent volumes
-- **OpenEBS**: Local hostpath storage using `/var/mnt/local-storage` (actual Talos user volume mount point)
-- **NFS**: External media storage from TrueNAS
-
-**Important**: OpenEBS uses `/var/mnt/local-storage` because Talos UserVolumeConfig mounts user volumes there, but doesn't automatically create the expected bind mount to `/var/local-storage`. All nodes show user volumes mounted at `/var/mnt/local-storage`.
-
-### Backup Strategy
-
-- **VolSync**: Automated PVC backups using Restic
-- **Destinations**: S3-compatible storage (SeaweedFS on Synology NAS)
-- **Encryption**: Restic encryption for all backup data
-
-## Secret Management
-
-### 1Password Integration
-
-- **Vault**: `homelab`
-- **Connect**: OnePassword Connect pods in `external-secrets` namespace
-- **ClusterSecretStore**: `onepassword` store for secret fetching
-- **ExternalSecrets**: Convert 1Password items to Kubernetes secrets
-
-### Talos Secret Workflow
-
-The cluster uses 1Password as the source of truth for Talos certificates and secrets:
-
-```bash
-# Pull secrets from 1Password (matches what nodes are using)
-task talos:pull-secrets
-
-# Push local secrets to 1Password (updates what nodes will use on next apply)
-task talos:push-secrets
-
-# Generate brand new secrets and push to 1Password
-task talos:gen-secrets
-
-# Backup current secrets before making changes
-task talos:backup-secrets
-
-# List available backups
-task talos:list-backups
-
-# Restore from backup
-task talos:restore-secrets BACKUP=20250730-114330
-```
-
-### Secret Troubleshooting
-
-**Certificate Mismatch Issues:**
-
-- If bootstrap fails with certificate errors, local secrets don't match 1Password
-- Solution: `task talos:pull-secrets` to sync from 1Password
-- Or revert 1Password item in GUI, then `task talos:pull-secrets`
-
-**1Password Connect Issues:**
-
-- **ALWAYS use task commands first**: `task kubernetes:sync-secrets` - auto-detects and fixes 1Password Connect issues
-- For manual checking: `kubectl get clustersecretstore onepassword -o yaml`
-- The sync-secrets task automatically recreates the 1Password secret if needed
-
-**Secret Sync Issues:**
-
-```bash
-# Force sync all secrets (preferred method - auto-fixes 1Password Connect)
-task kubernetes:sync-secrets
-
-# Check specific ExternalSecret status
-kubectl describe externalsecret <name> -n <namespace>
-```
-
-## Media Stack
-
-### Core Applications
-
-- **Plex**: Media server
-- **Sonarr/Radarr**: TV/Movie management
-- **qBittorrent**: Download client
-- **Prowlarr**: Indexer aggregation
-- **Overseerr**: Media requests
-
-### Configuration Notes
-
-- All media apps use NFS storage from TrueNAS
-- API keys stored in 1Password and synced via ExternalSecrets
-- Apps communicate via cluster DNS
-
-## Monitoring & Observability
-
-### Stack Components
-
-- **Prometheus**: Metrics collection
-- **Grafana**: Dashboards and visualization
-- **Loki**: Log aggregation
-- **Alloy**: Observability pipeline
-- **Alertmanager**: Alert routing to Pushover
-
-### Health Checks
-
-- Status page: https://status.hypyr.space
-- Badge endpoints via Kromgo
-- Gatus for uptime monitoring
-
-## Common Patterns
-
-- Always check ExternalSecret status when secrets aren't syncing
-- Use `task kubernetes:sync-secrets` to force refresh all secrets
-- Monitor Flux reconciliation with `flux get kustomizations`
-- Check Talos node health with `talosctl get members`
-
-## Flux Git Reconciliation
-
-When you make changes to YAML files in the repository, Flux needs to detect and apply them. Use these commands to force Flux to reconcile from Git:
-
-```bash
-# Force reconcile the Git source (picks up file changes from repository)
-flux reconcile source git flux-system
-
-# Force reconcile specific Kustomizations (applies changes to cluster)
-flux reconcile kustomization cluster-apps
-flux reconcile kustomization cluster-meta
-
-# Force reconcile specific application (useful after changing a single app)
-flux reconcile kustomization <app-name> -n <namespace>
-
-# Check Flux system status
-flux get sources git
-flux get kustomizations
-flux get helmreleases -A
-
-# Resume suspended resources
-flux resume kustomization <name>
-flux resume helmrelease <name> -n <namespace>
-```
-
-**Common workflow after making file changes:**
-
-1. Commit and push changes to Git
-2. `flux reconcile source git flux-system` (force Git sync)
-3. `flux reconcile kustomization cluster-apps` (apply changes)
-4. Check status with `kubectl get pods -A` or `flux get kustomizations`
-
-## Development Workflow
-
-### YAML and Helm Templating Standards
-
-**CRITICAL**: Before making changes to HelmReleases or YAML files, review the [YAML and Helm Templating Guide](docs/YAML-HELM-TEMPLATING-GUIDE.md).
-
-**Key Rules**:
-
-- **Always quote Helm template expressions when used as YAML values**: `"{{ .Release.Name }}"` not `{{ .Release.Name }}`
-- **Template concatenation must be quoted**: `"{{ .Release.Name }}-secret"` not `{{ .Release.Name }}-secret`
-- **List items with templates must be quoted**: `- "{{ .Release.Name }}.hypyr.space"` not `- {{ .Release.Name }}.hypyr.space`
-- **Environment variables with templates must be quoted**: `APP_NAME: "{{ .Release.Name }}"` not `APP_NAME: {{ .Release.Name }}`
-
-**Common Error Patterns**:
-
-- `yaml: invalid map key` → Unquoted template expression as YAML value
-- `expected <block end>` → Unquoted template in list item
-- `did not find expected key` → Missing quotes on template concatenation
-
-### Git Workflow Safety Rules
-
-**CRITICAL: ALWAYS follow these steps before ANY work:**
-
-1. **Check current branch FIRST**: `git branch` - ensure you're NOT on main
+1. **ALWAYS check current branch first**: `git branch`
 2. **If on main, create branch IMMEDIATELY**: `git checkout -b type/scope-description`
-3. **NEVER stage/commit changes while on main branch**
-4. **Branch naming follows conventional commits**: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`
-5. **Commit messages must include proper scope**: `type(scope): description`
+3. **NEVER commit directly to main**
+4. **Branch naming**: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`
+5. **Commit format**: `type(scope): description`
 
-**Safe workflow pattern:**
+### YAML/Helm Standards
 
-```bash
-# MANDATORY first step - check where you are
-git branch
-# If on main, create properly named branch immediately
-git checkout -b feat/postgres-bootstrap
-# Make changes, then commit with proper scope
-git commit -m "feat(databases): implement PostgreSQL user bootstrap system"
+**CRITICAL**: Always quote Helm template expressions in YAML values:
+
+- ✅ `name: "{{ .Release.Name }}"`
+- ❌ `name: {{ .Release.Name }}`
+- ✅ `host: "{{ .Release.Name }}.hypyr.space"`
+- ❌ `host: {{ .Release.Name }}.hypyr.space`
+
+See `docs/YAML-HELM-TEMPLATING-GUIDE.md` for complete rules.
+
+### Task Command Priority
+
+- **Secret sync issues**: `task k8s:sync-secrets`
+- **Storage debugging**: `task k8s:browse-pvc CLAIM=name`
+- **Cluster bootstrap**: Use `bootstrap:*` commands, not individual steps
+- **Node management**: Prefer `talos:*` commands over raw talosctl
+
+## File Organization
+
+```
+kubernetes/apps/        # Applications by namespace
+bootstrap/              # Initial cluster setup scripts
+talos/                  # Node configurations
+docs/                   # User-facing documentation
+scripts/                # Automation scripts
 ```
 
-### Branch and Commit Naming Standards
+## External References
 
-**Branch naming**: `type/scope-description`
+- **Setup Guide**: `docs/SETUP-GUIDE.md`
+- **1Password Setup**: `docs/1PASSWORD-SETUP.md`
+- **Troubleshooting**: `docs/CLUSTER-TROUBLESHOOTING.md`
+- **PostgreSQL Bootstrap**: `docs/POSTGRESQL-BOOTSTRAP.md`
+- **YAML Guidelines**: `docs/YAML-HELM-TEMPLATING-GUIDE.md`
 
-- `feat/postgres-bootstrap`, `fix/flux-reconcile`, `chore/update-docs`
+## When Working on This Repository
 
-**Commit message format**: `type(scope): description`
-
-- `feat(databases): add automatic user discovery`
-- `fix(networking): resolve cilium gateway timeout`
-- `chore(docs): update setup instructions`
-- `refactor(talos): consolidate node configurations`
-
-**Common scopes**: `databases`, `networking`, `media`, `monitoring`, `security`, `storage`, `flux`, `talos`, `docs`
-
-### Git Workflow Violation Prevention
-
-**BEFORE every session, ALWAYS run:**
-
-```bash
-git branch  # Check current branch - if main, stop immediately
-```
-
-**If you find yourself on main with changes:**
-
-1. DO NOT commit or stage anything to main
-2. **Summarize the changes**: Run `git diff` and present summary to user
-3. **Ask clarifying questions**: About scope and intended purpose of changes
-4. **Create proper branch**: `git checkout -b type/scope-description` based on scope
-5. **Then proceed with normal workflow**: Add, commit with proper message
-
-**Handling unstaged changes on main:**
-
-- **NEVER leave unstaged changes hanging on main**
-- **Always move them to appropriate branch** based on their scope/purpose
-- **If unclear scope**: Ask user for clarification before creating branch
-- **Alternative**: Stash with descriptive message if user prefers: `git stash push -m "description of changes"`
-
-**Remember**: The goal is NEVER to have commits directly on main branch
-
-### Workflow Steps
-
-1. **MANDATORY: Check branch**: `git branch` - if on main, create branch NOW
-2. **Create properly named branch**: `git checkout -b type/scope-description`
-3. **Add feature to TODO.md** under "In Progress" section with task breakdown
-4. **Make changes** to YAML files in appropriate directory
-5. **Update TODO.md** as tasks are completed (mark with [x])
-6. **Commit with proper scope**: `git commit -m "type(scope): description"`
-7. **Push branch** and create PR to main
-8. **Move completed feature to "Completed" section** in TODO.md after merge
-9. **Monitor deployment** after merge with `kubectl get pods -A`
-10. **Check logs** if issues occur: `kubectl logs -n <namespace> <pod>`
-11. **Use task commands** for common operations
-
-### Project TODO Management
-
-- **Always maintain** `TODO.md` at project root with current work status
-- **Track features** with task breakdowns under "In Progress"
-- **Move completed work** to "Completed" section after successful deployment
-- **Use checkboxes** `[ ]` and `[x]` to track individual task progress
-
-### Documentation Guidelines
-
-- **Keep troubleshooting logs** in the `docs/` folder for future reference
-- **Target audience**: Users forking this repo for their own homelabs (Docker-familiar, K8s-new)
-- **Document solutions** with context for common issues encountered
-- **Include commands and configuration examples** for reproducibility
-- **Key docs**: `docs/SETUP-GUIDE.md` (main setup), `docs/1PASSWORD-SETUP.md` (secrets), `docs/CLUSTER-TROUBLESHOOTING.md` (issues)
-
-### Task Command Usage
-
-- **ALWAYS prefer task commands** over raw kubectl/talosctl commands when available
-- **Use `task --list`** to discover available commands before writing custom solutions
-- **Task commands handle prerequisites** and provide consistent error handling
-- **Examples of when to use tasks:**
-  - `task kubernetes:sync-secrets` instead of manual ExternalSecret annotations
-  - `task talos:pull-secrets` instead of manual 1Password/secrets.yaml management
-  - `task kubernetes:browse-pvc CLAIM=name` instead of complex kubectl commands
-  - `task volsync:snapshot APP=name` instead of manual VolSync operations
-- **Document new solutions as task commands** when they solve recurring problems
-
-### Talos Cluster Management
-
-**Always prefer task commands for common operations:**
-
-- **Node removal**: `task talos:remove-node NODE=<name>` - Handles Kubernetes, etcd, and config cleanup
-- **Node addition**: Add to `talos/node-mapping.yaml`, then apply configs normally
-- **Cluster health**: `task talos:generate-config-healthy` - Auto-detects healthy nodes
-
-**When no specific task command exists, use proper `talosctl` commands:**
-
-- **Cluster health**: `talosctl etcd members` and `talosctl etcd status`
-- **Storage management**: `talosctl wipe disk <device>` for cleaning storage devices
-- **Node maintenance**: `talosctl --nodes <node> reset` for maintenance mode (WARNING: --reboot=false actually shuts down nodes instead of keeping them running)
-- **NEVER use kubectl** for Talos-level operations (node management, etcd, storage)
-
-**Source of Truth**: All node management uses `talos/node-mapping.yaml` as the authoritative node list.
-
-- **Check available commands**: `talosctl <command> --help` to explore options
-
-## External Dependencies
-
-- **1Password**: Secret management
-- **Cloudflare**: DNS management
-- **GitHub**: Repository hosting and CI/CD
-- **UniFi**: Network infrastructure
-- **Synology NAS**: S3-compatible storage (SeaweedFS) for backups
-- **TrueNAS**: Media file storage
+1. **Check branch status first** (`git branch`)
+2. **Use task commands** when available (`task --list`)
+3. **Check docs/ for detailed procedures** rather than asking
+4. **Follow conventional commits** spec for all changes
+5. **Test with secret sync** after ExternalSecret changes (`task k8s:sync-secrets`)
+6. **Reference relevant docs** when explaining procedures to users

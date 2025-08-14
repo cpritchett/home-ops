@@ -21,7 +21,7 @@ env:
 
 includes:
   bootstrap: .taskfiles/bootstrap
-  kubernetes: .taskfiles/kubernetes
+  k8s: .taskfiles/kubernetes
   talos: .taskfiles/talos
   volsync: .taskfiles/volsync
   workstation: .taskfiles/workstation
@@ -30,25 +30,3 @@ tasks:
   default:
     cmd: task --list
     silent: true
-
-  setup-cloudflare-tunnel:
-    desc: Set up Cloudflare tunnel for external service access
-    cmd: ./scripts/setup-cloudflare-tunnel.sh
-    preconditions:
-      - op user get --me
-      - which cloudflared
-      - which jq
-
-  bootstrap-app-secrets:
-    desc: Bootstrap API keys for application services (solves chicken/egg problem)
-    cmd: ./scripts/bootstrap-app-secrets.sh
-    preconditions:
-      - op user get --me
-      - kubectl cluster-info
-
-  bootstrap:postgres-users:
-    desc: Bootstrap PostgreSQL users for all applications (for cluster resets)
-    cmd: ./scripts/bootstrap-postgres-users.sh
-    preconditions:
-      - kubectl cluster-info
-      - test -n "$(kubectl get cluster postgres -n databases --no-headers 2>/dev/null || echo '')"
