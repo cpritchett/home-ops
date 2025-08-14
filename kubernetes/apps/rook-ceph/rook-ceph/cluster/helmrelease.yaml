@@ -43,7 +43,7 @@ spec:
       resources:
         mon:
           requests:
-            cpu: "200m"  # TODO: Restore to 500m when cluster resources stabilize
+            cpu: "400m"  # Increased from 200m to 400m for cluster stability; consider restoring to 500m when resources allow
             memory: "1Gi"
           limits:
             cpu: "1000m"
