@@ -48,9 +48,10 @@ spec:
             resources:
               requests:
                 cpu: 100m
+                memory: 4Gi
               limits:
                 cpu: 2000m  # Allow transcoding workloads
-                memory: 10Gi
+                memory: 6Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -63,7 +64,7 @@ spec:
               - matchExpressions:
                   - key: quicksync.generation
                     operator: In
-                    values: ["9", "10", "11", "12"]
+                    values: ["7", "9", "10", "11", "12"]
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
