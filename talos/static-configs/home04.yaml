@@ -23,8 +23,8 @@ machine:
     stableHostname: true
     kubernetesTalosAPIAccess:
       enabled: true
-      allowedRoles: [os:admin]
-      allowedKubernetesNamespaces: [actions-runner-system, system-upgrade]
+      allowedRoles: ["os:admin"]
+      allowedKubernetesNamespaces: ["actions-runner-system", "system-upgrade"]
     apidCheckExtKeyUsage: true
     diskQuotaSupport: true
     kubePrism:
@@ -52,8 +52,8 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/a8a0bd1b02917c873b7ebf1dab863ebb1c0601893eaf0ebddcc64950f9852c18:v1.10.5
-    disk: /dev/sdb
+    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
+    disk: /dev/sda
   kernel:
     modules:
       - name: nbd
@@ -63,11 +63,11 @@ machine:
       featureGates:
         KubeletSeparateDiskGC: true
       evictionHard:
-        imagefs.available: 5%
-        nodefs.available": 5%
+        "imagefs.available": "5%"
+        "nodefs.available": "5%"
       evictionMinimumReclaim:
-        imagefs.available: 10%
-        nodefs.available: 10%
+        "imagefs.available": "10%"
+        "nodefs.available": "10%"
       systemReserved:
         cpu: 2000m
         memory: 8Gi
@@ -76,49 +76,52 @@ machine:
         memory: 8Gi
     defaultRuntimeSeccompProfileEnabled: true
     nodeIP:
-      validSubnets: [10.0.5.0/24]
+      validSubnets: ["10.0.5.0/24"]
     disableManifestsDirectory: true
   network:
+    hostname: home04.hypyr.space
     interfaces:
+      - interface: eno1
+        dhcp: false
+        mtu: 1500
       - interface: bond0
-        bond:
-          deviceSelectors:
-            hardwareAddr: 70:85:c2:d5:84
-          mode: 802.3ad
-          xmitHashPolicy: layer3+4
-          lacpRate: fast
-          miimon: 5000
-        addresses:
-          - 10.0.5.118/24
+        bridge:
+          stp:
+            enabled: false
+          interfaces:
+            - eno1
+        addresses: ["10.0.5.118/24"]
         routes:
-          - network: 0.0.0.0/0
-            gateway: 10.0.5.1
+          - network: "0.0.0.0/0"
+            gateway: "10.0.5.1"
           # Selective blackhole routes - exclude critical cluster endpoints
           # Allow: 10.0.48.50-10.0.48.82 (kube-vip: 55, external: 80, internal: 81, qbit: 82)
           # Blackhole: 10.0.48.83-10.0.48.200 (remaining LoadBalancer pool)
-          - network: 10.0.48.83/32
-            gateway: 0.0.0.0
-          - network: 10.0.48.84/30 # 84-87
-            gateway: 0.0.0.0
-          - network: 10.0.48.88/29 # 88-95
-            gateway: 0.0.0.0
-          - network: 10.0.48.96/27 # 96-127
-            gateway: 0.0.0.0
-          - network: 10.0.48.128/26 # 128-191
-            gateway: 0.0.0.0
-          - network: 10.0.48.192/29 # 192-199
-            gateway: 0.0.0.0
-          - network: 10.0.48.200/32 # 200
-            gateway: 0.0.0.0
+          - network: "10.0.48.83/32"
+            gateway: "0.0.0.0"
+          - network: "10.0.48.84/30" # 84-87
+            gateway: "0.0.0.0"
+          - network: "10.0.48.88/29" # 88-95
+            gateway: "0.0.0.0"
+          - network: "10.0.48.96/27" # 96-127
+            gateway: "0.0.0.0"
+          - network: "10.0.48.128/26" # 128-191
+            gateway: "0.0.0.0"
+          - network: "10.0.48.192/29" # 192-199
+            gateway: "0.0.0.0"
+          - network: "10.0.48.200/32" # 200
+            gateway: "0.0.0.0"
         mtu: 1500
         vlans:
-          - { vlanId: 30, dhcp: false, mtu: 1500 }
+          - vlanId: 30
+            dhcp: false
+            mtu: 1500
           - vlanId: 48
             dhcp: false
             mtu: 1500
-    nameservers: [10.0.5.1]
+    nameservers: ["10.0.5.1"]
     disableSearchDomain: true
-    hostname home04.hypyr.space  nodeLabels:
+  nodeLabels:
     topology.kubernetes.io/region: k8s
     topology.kubernetes.io/zone: main-smc
     ceph.rook.io/mgr: true
@@ -140,14 +143,14 @@ machine:
     vm.swappiness: 1 # Prefer RAM over swap with 128GB available
   time:
     disabled: false
-    servers: [time.cloudflare.com]
+    servers: ["time.cloudflare.com"]
 cluster:
   ca:
     crt: op://homelab/talos/CLUSTER_CA_CRT
     key: op://homelab/talos/CLUSTER_CA_KEY
   clusterName: homeops
   controlPlane:
-    endpoint: https:/ omeops.hypyr.space6443
+    endpoint: https://homeops.hypyr.space:6443
   discovery:
     enabled: true
     registries:
@@ -160,9 +163,9 @@ cluster:
     cni:
       name: none
     dnsDomain: cluster.local
-    podSubnets: [10.244.0.0/16]
-    serviceSubnets: [10.96.0.0/12]
-  secret: op://homelab/talos/CLUSTER_SECRET # trunk-ignore(checkov/CKV_SECRET_6): 1Password reference
+    podSubnets: ["10.244.0.0/16"]
+    serviceSubnets: ["10.96.0.0/12"]
+  secret: op://homelab/talos/CLUSTER_SECRET
   token: op://homelab/talos/CLUSTER_TOKEN
   aggregatorCA:
     crt: op://homelab/talos/CLUSTER_AGGREGATORCA_CRT
@@ -173,7 +176,7 @@ cluster:
     extraArgs:
       enable-aggregator-routing: true
       bind-address: 0.0.0.0
-    certSANs: [homeops.hypyr.space]
+    certSANs: ["homeops.hypyr.space"]
     disablePodSecurityPolicy: true
   controllerManager:
     image: registry.k8s.io/kube-controller-manager:v1.33.2
@@ -182,7 +185,7 @@ cluster:
   coreDNS:
     disabled: true
   etcd:
-    advertisedSubnets: [10.0.5.0/24]
+    advertisedSubnets: ["10.0.5.0/24"]
     ca:
       crt: op://homelab/talos/CLUSTER_ETCD_CA_CRT
       key: op://homelab/talos/CLUSTER_ETCD_CA_KEY
@@ -196,7 +199,7 @@ cluster:
   proxy:
     disabled: true
     image: registry.k8s.io/kube-proxy:v1.33.2
-  secretboxEncryptionSecret: op://homelab/talos/CLUSTER_SECRETBOXENCRYPTIONSECRET # trunk-ignore(checkov/CKV_SECRET_6): 1Password reference
+  secretboxEncryptionSecret: op://homelab/talos/CLUSTER_SECRETBOXENCRYPTIONSECRET
   scheduler:
     image: registry.k8s.io/kube-scheduler:v1.33.2
     extraArgs:
@@ -226,19 +229,12 @@ kind: UserVolumeConfig
 name: local-storage
 provisioning:
   diskSelector:
-    match: disk.transport == "sata" && disk.size >= 256GB && !disk.system_disk
+    match: disk.transport == "sata" && !system_disk
   minSize: 25GiB
 ---
 apiVersion: v1alpha1
 kind: EthernetConfig
 name: eno1
-rings:
-  rx: 4096
-  tx: 4096
----
-apiVersion: v1alpha1
-kind: EthernetConfig
-name: enp2s0
 rings:
   rx: 4096
   tx: 4096
