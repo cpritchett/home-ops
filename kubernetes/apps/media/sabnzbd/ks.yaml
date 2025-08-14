@@ -28,6 +28,7 @@ spec:
       NFS_SERVER: barbary.hypyr.space
       NFS_PATH: /mnt/data01/data
       VOLSYNC_CAPACITY: 2Gi
+      VOLSYNC_SCHEDULE: "15 6/14/22 * * *"
   prune: true
   retryInterval: 2m
   sourceRef:

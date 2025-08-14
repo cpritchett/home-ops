@@ -23,6 +23,7 @@ spec:
       APP: *app
       GATUS_PATH: /api/v1/status
       VOLSYNC_CAPACITY: 5Gi
+      VOLSYNC_SCHEDULE: "15 2/10/18 * * *"
   prune: true
   retryInterval: 2m
   sourceRef:
