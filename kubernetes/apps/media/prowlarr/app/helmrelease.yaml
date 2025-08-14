@@ -60,6 +60,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 256Mi
               limits:
                 cpu: 200m  # Prevent runaway CPU usage
                 memory: 512Mi

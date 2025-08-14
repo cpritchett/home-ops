@@ -61,9 +61,10 @@ spec:
             resources:
               requests:
                 cpu: 100m
+                memory: 1Gi
               limits:
                 cpu: 1000m  # Allow intensive unpacking/processing
-                memory: 32Gi
+                memory: 4Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
