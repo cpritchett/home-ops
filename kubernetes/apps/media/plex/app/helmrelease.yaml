@@ -65,6 +65,7 @@ spec:
                   - key: quicksync.generation
                     operator: In
                     values: ["7", "9", "10", "11", "12"]
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
