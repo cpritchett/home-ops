@@ -49,6 +49,7 @@ spec:
         pod:
           restartPolicy: OnFailure
     defaultPodOptions:
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
