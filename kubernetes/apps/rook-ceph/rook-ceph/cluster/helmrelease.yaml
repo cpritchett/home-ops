@@ -43,14 +43,14 @@ spec:
       resources:
         mon:
           requests:
-            cpu: "500m"
+            cpu: "200m"  # TODO: Restore to 500m when cluster resources stabilize
             memory: "1Gi"
           limits:
             cpu: "1000m"
             memory: "2Gi"
         osd:
           requests:
-            cpu: "500m"
+            cpu: "300m"  # TODO: Restore to 500m when cluster resources stabilize
             memory: "2Gi"
           limits:
             cpu: "1000m"
