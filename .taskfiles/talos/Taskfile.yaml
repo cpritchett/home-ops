@@ -592,17 +592,3 @@ tasks:
       - echo "✅ Node {{.NODE}} removed from cluster and static configs updated"
     preconditions:
       - which kubectl talosctl
-
-  bootstrap:
-    desc: Bootstrap Talos controlplane nodes. [NODE=required]
-    requires:
-      vars: [NODE]
-    cmds:
-      - until talosctl --nodes {{.NODE}} bootstrap; do echo "Bootstrap failed, retrying in 5s..."; sleep 5; done
-      - echo "Bootstrap successful, generating kubeconfig..."
-      - talosctl kubeconfig --nodes {{.NODE}} --force {{.KUBERNETES_DIR}}
-      - echo "✅ Bootstrap complete! Cluster ready for applications."
-    preconditions:
-      - op user get --me
-      - talosctl --nodes {{.NODE}} get machineconfig
-      - which talosctl

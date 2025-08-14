@@ -2,20 +2,6 @@
 version: "3"
 
 tasks:
-  apply-config:
-    desc: Apply Talos configuration to a specific node
-    prompt: Apply {{.CONFIG_FILE}} to node {{.NODE}}...?
-    cmds:
-      - talosctl -n {{.NODE}} apply-config --file {{.CONFIG_FILE}}
-    vars:
-      NODE: '{{.NODE | default ""}}'
-      CONFIG_FILE: '{{.CONFIG_FILE | default ""}}'
-    preconditions:
-      - test -n "{{.NODE}}" || (echo "Usage: task bootstrap:apply-config NODE=<ip> CONFIG_FILE=<path>" && exit 1)
-      - test -n "{{.CONFIG_FILE}}" || (echo "Usage: task bootstrap:apply-config NODE=<ip> CONFIG_FILE=<path>" && exit 1)
-      - test -f {{.CONFIG_FILE}}
-      - talosctl config info
-
   apps:
     desc: Bootstrap Kubernetes Apps
     prompt: Bootstrap Kubernetes Apps ...?
@@ -37,3 +23,38 @@ tasks:
       - test -f {{.BOOTSTRAP_DIR}}/helmfile.yaml
       - test -f {{.BOOTSTRAP_DIR}}/secrets.yaml.tpl
       - which helmfile jq kubectl op talosctl
+
+  app-secrets:
+    desc: Bootstrap API keys for application services (solves chicken/egg problem)
+    cmd: ./scripts/bootstrap-app-secrets.sh
+    preconditions:
+      - op user get --me
+      - kubectl cluster-info
+
+  postgres-users:
+    desc: Bootstrap PostgreSQL users for all applications (for cluster resets)
+    cmd: ./scripts/bootstrap-postgres-users.sh
+    preconditions:
+      - kubectl cluster-info
+      - test -n "$(kubectl get cluster postgres -n databases --no-headers 2>/dev/null || echo '')"
+
+  cloudflare-tunnel:
+    desc: Set up Cloudflare tunnel for external service access
+    cmd: ./scripts/setup-cloudflare-tunnel.sh
+    preconditions:
+      - op user get --me
+      - which cloudflared
+      - which jq
+
+  talos-cluster:
+    desc: Bootstrap Talos controlplane nodes. [NODE=required]
+    requires:
+      vars: [NODE]
+    cmds:
+      - until talosctl --nodes {{.NODE}} bootstrap; do echo "Bootstrap failed, retrying in 5s..."; sleep 5; done
+      - echo "Bootstrap successful, generating kubeconfig..."
+      - talosctl kubeconfig --nodes {{.NODE}} --force {{.KUBERNETES_DIR}}
+      - echo "✅ Bootstrap complete! Cluster ready for applications."
+    preconditions:
+      - op user get --me
+      - talosctl config info

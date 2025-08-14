@@ -128,7 +128,7 @@ kubectl get pods -A | grep -v Running
 kubectl get helmreleases -A
 
 # Fix 1Password Connect and ExternalSecrets
-task kubernetes:sync-secrets  # Auto-detects and fixes 1Password issues
+task k8s:sync-secrets  # Auto-detects and fixes 1Password issues
 ```
 
 ---
@@ -226,7 +226,7 @@ To avoid creating duplicate tokens on every bootstrap, a stable token is maintai
 
 - **Automated**: Run `task bootstrap:apps` (incorporates the 1Password fix)
 - **Manual**: Run `cat bootstrap/secrets.yaml.tpl | op inject | kubectl apply -f -`
-- **Troubleshooting**: Run `task kubernetes:sync-secrets` (auto-detects and fixes issues) ✅
+- **Troubleshooting**: Run `task k8s:sync-secrets` (auto-detects and fixes issues) ✅
 
 ---
 
