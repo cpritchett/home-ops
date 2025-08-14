@@ -27,6 +27,7 @@ spec:
             env:
               TZ: America/Chicago
               UI_PORT: &port 80
+              BASE_PATH: "/"
             resources:
               requests:
                 cpu: 10m
