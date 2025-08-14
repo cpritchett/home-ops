@@ -83,17 +83,11 @@ if [[ ${SABNZBD_API} != "skip" && -n ${SABNZBD_API} ]]; then
         "SABNZBD_NZB_KEY[concealed]=${SABNZBD_NZB}"
 fi
 
-# Autobrr
-echo "5️⃣  AUTOBRR (Release Automation)"
-echo "How to get API key:"
-echo "  1. Access Autobrr web UI (usually http://autobrr.your-domain.com)"
-echo "  2. Go to Settings → API"
-echo "  3. Generate and copy API Key"
+# Autobrr - now uses SQLite, no additional secrets needed beyond session secret from bootstrap
+echo "5️⃣  AUTOBRR (Release Automation) - SKIPPED"
+echo "Autobrr now uses SQLite and only requires session secret from bootstrap script."
+echo "No manual API key setup needed."
 echo
-read -p "Enter Autobrr API key (or 'skip' to skip): " AUTOBRR_API
-if [[ ${AUTOBRR_API} != "skip" && -n ${AUTOBRR_API} ]]; then
-    create_op_entry "autobrr" "API Credential" "AUTOBRR_API_KEY[concealed]=${AUTOBRR_API}"
-fi
 
 # Cross-seed
 echo "6️⃣  CROSS-SEED (Cross-seeding)"

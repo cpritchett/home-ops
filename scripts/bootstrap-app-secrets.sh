@@ -203,13 +203,11 @@ bootstrap_app_secrets() {
         log_info "Atuin secrets already exist"
     fi
 
-    # Autobrr (torrent automation)
+    # Autobrr (torrent automation) - uses SQLite, only needs session secret
     if ! item_exists "autobrr"; then
-        AUTOBRR_POSTGRES_USER="autobrr"
-        AUTOBRR_POSTGRES_PASS=$(generate_password)
         AUTOBRR_SESSION_SECRET=$(generate_session_secret)
         create_service_item "autobrr" "" \
-            "'AUTOBRR_API_KEY[concealed]=$(generate_api_key)' 'AUTOBRR_POSTGRES_USER[text]=${AUTOBRR_POSTGRES_USER}' 'AUTOBRR_POSTGRES_PASS[concealed]=${AUTOBRR_POSTGRES_PASS}' 'AUTOBRR_SESSION_SECRET[concealed]=${AUTOBRR_SESSION_SECRET}' 'POSTGRES_SUPER_PASS[concealed]=${POSTGRES_SUPER_PASS}'"
+            "'AUTOBRR_SESSION_SECRET[concealed]=${AUTOBRR_SESSION_SECRET}'"
     else
         log_info "Autobrr secrets already exist"
     fi
