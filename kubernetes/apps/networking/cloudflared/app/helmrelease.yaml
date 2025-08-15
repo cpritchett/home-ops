@@ -28,7 +28,7 @@ spec:
         initContainers:
           generate-config:
             image:
-              repository: ghcr.io/home-operations/kubectl
+              repository: docker.io/bitnami/kubectl
               tag: 1.31.4
             command:
               - /scripts/generate-config.sh
