@@ -97,6 +97,7 @@ machine:
     hostname: home04.hypyr.space
   nodeLabels:
     topology.kubernetes.io/region: k8s
+    ceph-storage: enabled
     topology.kubernetes.io/zone: main-smc
     ceph.rook.io/mgr: true
     ollama.ai/inference: cpu
