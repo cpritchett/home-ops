@@ -23,6 +23,19 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          name: cloudflared
+        initContainers:
+          generate-config:
+            image:
+              repository: ghcr.io/home-operations/kubectl
+              tag: 1.31.4@sha256:8da088399f96c65ab0e2c87edc9a5f5e99c699f3f1a1f8e1e0efe659e2a91f723
+            command:
+              - /scripts/generate-config.sh
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: [ALL] }
         containers:
           app:
             image:
@@ -70,12 +83,23 @@ spec:
         runAsGroup: 568
     persistence:
       config:
+        type: emptyDir
+        advancedMounts:
+          cloudflared:
+            generate-config:
+              - path: /etc/cloudflared
+            app:
+              - path: /etc/cloudflared
+      scripts:
         type: configMap
-        name: "{{ .Release.Name }}-configmap"
-        globalMounts:
-          - path: /etc/cloudflared/config.yaml
-            subPath: config.yaml
-            readOnly: true
+        name: "{{ .Release.Name }}-scripts"
+        defaultMode: 0755
+        advancedMounts:
+          cloudflared:
+            generate-config:
+              - path: /scripts/generate-config.sh
+                subPath: generate-config.sh
+                readOnly: true
     service:
       app:
         ports:

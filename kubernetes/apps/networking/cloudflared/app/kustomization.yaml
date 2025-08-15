@@ -4,9 +4,10 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
+  - ./rbac.yaml
 configMapGenerator:
-  - name: cloudflared-configmap
+  - name: cloudflared-scripts
     files:
-      - ./resources/config.yaml
+      - generate-config.sh=./init-container/generate-config.sh
 generatorOptions:
   disableNameSuffixHash: true
