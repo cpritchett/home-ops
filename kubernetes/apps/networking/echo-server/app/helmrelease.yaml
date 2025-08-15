@@ -61,6 +61,9 @@ spec:
         runAsGroup: 568
     route:
       app:
+        annotations:
+          # Testing endpoint - tunnel access but no public DNS needed
+          external-dns.alpha.kubernetes.io/exclude: "true"
         hostnames:
           - "{{ .Release.Name }}.hypyr.space"
         parentRefs:
