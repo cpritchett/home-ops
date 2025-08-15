@@ -52,8 +52,8 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/b12c79d1a286654d04583aa9fd9bde4324d1fd5bc694071397a62cb58deafb1c:v1.10.6
-    disk: /dev/sda
+    image: factory.talos.dev/metal-installer/d38be64a0b19b7e98c10e4374e55ea1720b4edea1b95d45c3dc170986ad33082:v1.10.6
+    disk: /dev/disk/by-id/ata-WDC_WDS500G2B0A_20096X468305
   kernel:
     modules:
       - name: nbd
@@ -68,48 +68,38 @@ machine:
       evictionMinimumReclaim:
         "imagefs.available": "10%"
         "nodefs.available": "10%"
-      systemReserved:
-        cpu: 2000m
-        memory: 8Gi
-      kubeReserved:
-        cpu: 2000m
-        memory: 8Gi
     defaultRuntimeSeccompProfileEnabled: true
     nodeIP:
       validSubnets: ["10.0.5.0/24"]
     disableManifestsDirectory: true
   network:
-    hostname: home04.hypyr.space
     interfaces:
-      - interface: eno1
-        dhcp: false
-        mtu: 1500
       - interface: bond0
-        bridge:
-          stp:
-            enabled: false
-          interfaces:
-            - eno1
-        addresses: ["10.0.5.118/24"]
+        bond:
+          interfaces: ["enp23s0f1np1", "enp23s0f0np0"]
+          mode: 802.3ad
+          xmitHashPolicy: layer3+4
+          lacpRate: fast
+          miimon: 1000
+        addresses:
+          - 10.0.5.92/24
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.0.5.1"
         mtu: 1500
         vlans:
-          - vlanId: 30
-            dhcp: false
-            mtu: 1500
+          - { vlanId: 30, dhcp: false, mtu: 1500 }
           - vlanId: 48
             dhcp: false
             mtu: 1500
     nameservers: ["10.0.5.1"]
     disableSearchDomain: true
+    hostname: home04.hypyr.space
   nodeLabels:
     topology.kubernetes.io/region: k8s
     topology.kubernetes.io/zone: main-smc
     ceph.rook.io/mgr: true
     ollama.ai/inference: cpu
-    node.kubernetes.io/instance-type: workstation
   sysctls:
     fs.inotify.max_user_watches: 1048576 # Watchdog
     fs.inotify.max_user_instances: 8192 # Watchdog
@@ -208,16 +198,31 @@ cluster:
     key: op://homelab/talos/CLUSTER_SERVICEACCOUNT_KEY
 ---
 apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+provisioning:
+  diskSelector:
+    match: system_disk && disk.transport == "sata"
+  maxSize: 100GiB
+---
+apiVersion: v1alpha1
 kind: UserVolumeConfig
 name: local-storage
 provisioning:
   diskSelector:
-    match: disk.transport == "sata" && !system_disk
-  minSize: 25GiB
+    match: disk.wwid == "naa.5001b444a74ca49f"
+  minSize: 100GiB
 ---
 apiVersion: v1alpha1
 kind: EthernetConfig
-name: eno1
+name: enp23s0f1np1
+rings:
+  rx: 4096
+  tx: 4096
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enp23s0f0np0
 rings:
   rx: 4096
   tx: 4096

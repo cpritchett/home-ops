@@ -81,7 +81,7 @@ machine:
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
-          miimon: 5000
+          miimon: 1000
         addresses:
           - 10.0.5.215/24
         routes:
