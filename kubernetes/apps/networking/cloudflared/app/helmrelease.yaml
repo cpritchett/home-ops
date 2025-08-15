@@ -29,7 +29,7 @@ spec:
           generate-config:
             image:
               repository: ghcr.io/home-operations/kubectl
-              tag: 1.31.4@sha256:8da088399f96c65ab0e2c87edc9a5f5e99c699f3f1a1f8e1e0efe659e2a91f723
+              tag: 1.31.4
             command:
               - /scripts/generate-config.sh
             securityContext:
