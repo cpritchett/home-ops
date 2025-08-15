@@ -26,7 +26,7 @@
       depNameTemplate: "siderolabs/talos",
     },
     {
-      customType: "regex", 
+      customType: "regex",
       description: "Process mise.toml Kubernetes version variables",
       managerFilePatterns: ["\\.mise\\.toml$"],
       matchStrings: [
