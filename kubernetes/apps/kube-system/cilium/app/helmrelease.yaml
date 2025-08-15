@@ -20,7 +20,13 @@ spec:
   interval: 1h
   chartRef:
     kind: OCIRepository
-    name: cilium
+  chart:
+    spec:
+      chart: cilium
+      sourceRef:
+        kind: OCIRepository
+        name: cilium
+      version: 1.18.1
   install:
     remediation:
       retries: -1
