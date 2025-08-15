@@ -22,15 +22,32 @@ EOF
 echo "  # External gateway services (from HTTPRoutes)" >>"$CONFIG_FILE"
 
 # Get all HTTPRoutes across all namespaces that reference external gateway
+# Skip routes with tunnel.cloudflare.io/exclude: "true" annotation
 kubectl get httproute -A -o json | jq -r '
   .items[] | 
   select(.spec.parentRefs[]?.name == "external") |
+  select(.metadata.annotations["tunnel.cloudflare.io/exclude"] != "true") |
   .spec.hostnames[]? // empty
 ' | while read -r hostname; do
     if [ -n "$hostname" ]; then
         echo "  - hostname: $hostname" >>"$CONFIG_FILE"
         echo "    service: $EXTERNAL_GATEWAY" >>"$CONFIG_FILE"
         echo "Found external route: $hostname"
+    fi
+done
+
+# Add routes that explicitly want tunnel routing even if on internal gateway
+# Look for tunnel.cloudflare.io/route: "external" annotation
+kubectl get httproute -A -o json | jq -r '
+  .items[] |
+  select(.metadata.annotations["tunnel.cloudflare.io/route"] == "external") |
+  select(.spec.parentRefs[]?.name != "external") |
+  .spec.hostnames[]? // empty
+' | while read -r hostname; do
+    if [ -n "$hostname" ]; then
+        echo "  - hostname: $hostname" >>"$CONFIG_FILE"
+        echo "    service: $EXTERNAL_GATEWAY" >>"$CONFIG_FILE"
+        echo "Found annotated external route: $hostname"
     fi
 done
 

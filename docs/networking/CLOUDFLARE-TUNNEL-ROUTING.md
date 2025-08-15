@@ -20,20 +20,65 @@ Internet -> Cloudflare Tunnel -> Dynamic Routing Decision
 
 ## Service Configuration
 
-To make a service accessible via the external gateway through the tunnel:
+### Default Behavior
 
-1. Set the service's HTTPRoute to use the external gateway:
+Services with `parentRefs: external` are automatically routed through the external gateway.
 
-   ```yaml
-   route:
-     app:
-       parentRefs:
-         - name: external
-           namespace: kube-system
-           sectionName: https
-   ```
+```yaml
+route:
+  app:
+    parentRefs:
+      - name: external
+        namespace: kube-system
+        sectionName: https
+```
 
-2. The cloudflared init container will automatically detect this and route traffic accordingly
+### Advanced Scenarios
+
+#### Webhook-Only (No Public DNS)
+
+For services that need tunnel access but should not have public DNS records:
+
+```yaml
+route:
+  app:
+    annotations:
+      # Tunnel routing but external-dns should skip this
+      external-dns.alpha.kubernetes.io/exclude: "true"
+    parentRefs:
+      - name: external
+        namespace: kube-system
+```
+
+#### External Gateway but No Tunnel
+
+For services on external gateway that should NOT be accessible via tunnel:
+
+```yaml
+route:
+  app:
+    annotations:
+      # Skip tunnel routing entirely
+      tunnel.cloudflare.io/exclude: "true"
+    parentRefs:
+      - name: external
+        namespace: kube-system
+```
+
+#### Force External Routing
+
+For internal services that temporarily need external tunnel routing:
+
+```yaml
+route:
+  app:
+    annotations:
+      # Force tunnel to route to external gateway
+      tunnel.cloudflare.io/route: "external"
+    parentRefs:
+      - name: internal # Still on internal gateway
+        namespace: kube-system
+```
 
 ## Implementation Details
 

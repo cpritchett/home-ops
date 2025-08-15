@@ -84,11 +84,15 @@ machine:
     interfaces:
       - interface: bond0
         bond:
-          interfaces: ["eno1", "enp2s0"]
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
           miimon: 1000
+          deviceSelectors:
+            - driver: e1000e
+              pciID: "8086:15bc"
+            - driver: igb
+              pciID: "8086:1539"
         addresses:
           - 10.0.5.129/24
         routes:
