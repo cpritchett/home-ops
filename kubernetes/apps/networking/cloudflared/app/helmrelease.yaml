@@ -17,15 +17,14 @@ spec:
     remediation:
       retries: 3
   values:
-    serviceAccount:
-      create: false
-      name: cloudflared
     controllers:
       cloudflared:
         replicas: 2
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          name: cloudflared
         initContainers:
           generate-config:
             image:
