@@ -17,14 +17,15 @@ spec:
     remediation:
       retries: 3
   values:
+    serviceAccount:
+      create: false
+      name: cloudflared
     controllers:
       cloudflared:
         replicas: 2
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        serviceAccount:
-          name: cloudflared
         initContainers:
           generate-config:
             image:
@@ -32,11 +33,6 @@ spec:
               tag: 1.31.4@sha256:8da088399f96c65ab0e2c87edc9a5f5e99c699f3f1a1f8e1e0efe659e2a91f723
             command:
               - /scripts/generate-config.sh
-            volumeMounts:
-              - name: config
-                mountPath: /etc/cloudflared
-              - name: scripts
-                mountPath: /scripts
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
