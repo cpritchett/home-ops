@@ -85,16 +85,22 @@ spec:
     persistence:
       config:
         type: emptyDir
-        globalMounts:
-          - path: /etc/cloudflared
+        advancedMounts:
+          cloudflared:
+            generate-config:
+              - path: /etc/cloudflared
+            app:
+              - path: /etc/cloudflared
       scripts:
         type: configMap
         name: "{{ .Release.Name }}-scripts"
         defaultMode: 0755
-        globalMounts:
-          - path: /scripts/generate-config.sh
-            subPath: generate-config.sh
-            readOnly: true
+        advancedMounts:
+          cloudflared:
+            generate-config:
+              - path: /scripts/generate-config.sh
+                subPath: generate-config.sh
+                readOnly: true
     service:
       app:
         ports:
