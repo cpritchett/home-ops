@@ -101,6 +101,7 @@ machine:
     disableSearchDomain: true
   nodeLabels:
     topology.kubernetes.io/region: k8s
+    ceph-storage: enabled
     topology.kubernetes.io/zone: garage-smc
     quicksync.generation: "7"
   sysctls:

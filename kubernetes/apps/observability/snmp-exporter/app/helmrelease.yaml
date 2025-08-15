@@ -46,14 +46,18 @@ spec:
     serviceMonitor:
       enabled: true
       params:
-        - name: nas
+        - name: truenas
           auth: [truenas_v3]
           module: [if_mib]
           target: barbary.hypyr.space
-        - name: ups
+        - name: synology
           auth: [public_v2]
-          module: [apcups]
-          target: ups.internal
+          module: [synology]
+          target: razzia.hypyr.space
+        - name: unifi
+          auth: [public_v2]
+          module: [unifi]
+          target: unifi.hypyr.space
       relabelings:
         - sourceLabels: [__param_target]
           targetLabel: instance

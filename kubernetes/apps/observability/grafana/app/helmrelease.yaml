@@ -193,6 +193,11 @@ spec:
           gnetId: 18643
           revision: 1
           datasource: [{ name: DS_PROMETHEUS, value: Prometheus }]
+        truenas-snmp:
+          # renovate: depName="TrueNAS SNMP"
+          gnetId: 14857
+          revision: 1
+          datasource: [{ name: DS_PROMETHEUS, value: Prometheus }]
         unifi-insights:
           # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
           gnetId: 11315

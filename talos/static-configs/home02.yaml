@@ -81,7 +81,7 @@ machine:
           mode: 802.3ad
           xmitHashPolicy: layer3+4
           lacpRate: fast
-          miimon: 5000
+          miimon: 1000
         addresses:
           - 10.0.5.220/24
         routes:
@@ -98,6 +98,7 @@ machine:
     hostname: home02.hypyr.space
   nodeLabels:
     topology.kubernetes.io/region: k8s
+    ceph-storage: enabled
     topology.kubernetes.io/zone: main-smc
     quicksync.generation: "12"
   sysctls:

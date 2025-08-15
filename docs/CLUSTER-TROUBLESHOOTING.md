@@ -49,7 +49,7 @@ rpc error: code = Unavailable desc = name resolver error: produced zero addresse
 
 ```yaml
 vars:
-  TALOS_ENDPOINTS: "10.0.5.215,10.0.5.220,10.0.5.118" # Individual node IPs
+  TALOS_ENDPOINTS: "10.0.5.215,10.0.5.220,10.0.5.92" # Individual node IPs
   CONTROL_PLANE_ENDPOINT: "https://homeops.hypyr.space:6443" # VIP for Kubernetes API
 ```
 
@@ -70,10 +70,10 @@ Test endpoint connectivity:
 
 ```bash
 # Should work with individual node IPs
-talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.118 version
+talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.92 version
 
 # Verify nodes are reachable
-talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.118 get members
+talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.92 get members
 ```
 
 ### Root Cause Identified ✅
@@ -135,7 +135,7 @@ task k8s:sync-secrets  # Auto-detects and fixes 1Password issues
 
 ## Issue: 1Password Connect Authentication Failure
 
-**Date**: 2025-07-31  
+**Date**: 2025-07-31
 **Status**: Active Issue
 
 ### Problem

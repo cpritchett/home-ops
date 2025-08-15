@@ -105,6 +105,7 @@ machine:
     hostname: home05.hypyr.space
   nodeLabels:
     topology.kubernetes.io/region: k8s
+    ceph-storage: enabled
     topology.kubernetes.io/zone: main-smc
     quicksync.generation: "7"
     node.kubernetes.io/instance-type: itx
