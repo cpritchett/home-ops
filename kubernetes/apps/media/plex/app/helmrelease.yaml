@@ -10,9 +10,11 @@ spec:
     name: app-template
     namespace: flux-system
   install:
+    timeout: 15m
     remediation:
       retries: -1
   upgrade:
+    timeout: 15m
     cleanupOnFail: true
     remediation:
       retries: 3
