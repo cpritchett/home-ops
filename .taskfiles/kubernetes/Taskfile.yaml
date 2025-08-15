@@ -273,3 +273,85 @@ tasks:
         echo "Force deleting pod: {{.POD}} in namespace: {{.NAMESPACE}}"
         kubectl delete pod {{.POD}} -n {{.NAMESPACE}} --grace-period=0 --force
         echo "✅ Pod {{.POD}} force deleted"
+
+  nuke-app:
+    desc: Nuclear option - completely purge an app and let Flux rebuild [APP=required NAMESPACE=required]
+    summary: |
+      Nuclear option: Completely destroy an app including Helm releases, secrets, 
+      configmaps, volumes, and all Kubernetes resources, then let Flux rebuild.
+
+      Usage: task k8s:nuke-app APP=cloudflared NAMESPACE=networking
+
+      This will:
+      1. Suspend the Flux HelmRelease to stop reconciliation
+      2. Delete the Helm release completely
+      3. Delete all app-related secrets (including Helm release secrets)
+      4. Delete all app-related configmaps
+      5. Delete all app-related PVCs/volumes
+      6. Force delete all pods/deployments/replicasets
+      7. Resume Flux reconciliation to rebuild everything clean
+
+      Warning: This completely destroys the app and rebuilds from Git.
+    requires:
+      vars: [APP, NAMESPACE]
+    cmds:
+      - |
+        echo "🚨 NUCLEAR APP DESTRUCTION: {{.APP}} in namespace {{.NAMESPACE}}"
+        echo "This will completely destroy and rebuild the application!"
+        read -p "Type 'NUKE {{.APP}}' to confirm: " confirm
+        if [[ $confirm != "NUKE {{.APP}}" ]]; then
+          echo "❌ Operation cancelled"
+          exit 1
+        fi
+
+        echo "🔄 Step 1: Suspending Flux HelmRelease..."
+        if kubectl get helmrelease {{.APP}} -n {{.NAMESPACE}} >/dev/null 2>&1; then
+          flux suspend helmrelease {{.APP}} -n {{.NAMESPACE}}
+          echo "✅ HelmRelease {{.APP}} suspended"
+        else
+          echo "⚠️  No HelmRelease found for {{.APP}}"
+        fi
+
+        echo "🗑️  Step 2: Deleting Helm release..."
+        if helm list -n {{.NAMESPACE}} | grep -q {{.APP}}; then
+          helm uninstall {{.APP}} -n {{.NAMESPACE}}
+          echo "✅ Helm release {{.APP}} deleted"
+        else
+          echo "⚠️  No Helm release found for {{.APP}}"
+        fi
+
+        echo "🔑 Step 3: Deleting app-related secrets..."
+        kubectl delete secrets -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
+        kubectl delete secrets -n {{.NAMESPACE}} | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete secret -n {{.NAMESPACE}}
+        echo "✅ App secrets deleted"
+
+        echo "📋 Step 4: Deleting app-related configmaps..."
+        kubectl delete configmaps -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
+        kubectl delete configmaps -n {{.NAMESPACE}} | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete configmap -n {{.NAMESPACE}}
+        echo "✅ App configmaps deleted"
+
+        echo "💾 Step 5: Deleting app-related PVCs..."
+        kubectl delete pvc -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
+        kubectl get pvc -n {{.NAMESPACE}} | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete pvc -n {{.NAMESPACE}}
+        echo "✅ App PVCs deleted"
+
+        echo "☠️  Step 6: Force deleting all app resources..."
+        kubectl delete pods -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true
+        kubectl delete replicasets -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true
+        kubectl delete deployments -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true
+        echo "✅ All app resources deleted"
+
+        echo "⏳ Step 7: Waiting for cleanup..."
+        sleep 5
+
+        echo "🔄 Step 8: Resuming Flux HelmRelease for clean rebuild..."
+        if kubectl get helmrelease {{.APP}} -n {{.NAMESPACE}} >/dev/null 2>&1; then
+          flux resume helmrelease {{.APP}} -n {{.NAMESPACE}}
+          flux reconcile helmrelease {{.APP}} -n {{.NAMESPACE}}
+          echo "✅ Flux reconciliation resumed"
+        else
+          echo "⚠️  No HelmRelease to resume - check Git configuration"
+        fi
+
+        echo "💥 App {{.APP}} has been completely nuked and rebuild initiated"
+        echo "Monitor with: kubectl get pods -n {{.NAMESPACE}} -w"
