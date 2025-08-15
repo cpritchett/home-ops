@@ -61,7 +61,7 @@ spec:
           http:
             port: 1883
     persistence:
-      data:
+      config:
         existingClaim: "{{ .Release.Name }}"
       config-file:
         type: configMap
