@@ -20,6 +20,7 @@ spec:
   interval: 1h
   chartRef:
     kind: OCIRepository
+    name: cilium
   chart:
     spec:
       chart: cilium
