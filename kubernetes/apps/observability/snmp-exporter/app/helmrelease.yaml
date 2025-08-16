@@ -40,84 +40,21 @@ spec:
         public_v2:
           community: public
           security_level: noAuthNoPriv
-          auth_protocol: MD5
-          priv_protocol: DES
           version: 2
-        truenas_v3:
-          username: "${TRUENAS_SNMP_V3_USERNAME}"
-          password: "${TRUENAS_SNMP_V3_PASSWORD}"
-          auth_protocol: SHA
-          priv_protocol: AES
-          priv_password: "${TRUENAS_SNMP_V3_PRIV_PASSWORD}"
-          security_level: authPriv
-          version: 3
       
       modules:
         if_mib:
           walk:
             - 1.3.6.1.2.1.2.2         # Interface table
-            - 1.3.6.1.2.1.31.1.1      # IF-MIB::ifXTable
-          lookups:
-            - source_indexes: [ifIndex]
-              lookup: ifDescr
-          overrides:
-            ifType:
-              type: EnumAsInfo
-        
-        synology:
-          walk:
-            - 1.3.6.1.2.1.1           # System
-            - 1.3.6.1.2.1.25.1        # Host Resources System
-            - 1.3.6.1.2.1.25.2        # Host Resources Storage
-            - 1.3.6.1.2.1.25.3        # Host Resources Device
-            - 1.3.6.1.4.1.6574.1      # Synology System (temps, status)
-            - 1.3.6.1.4.1.6574.2      # Synology Disk (SMART, temps)
-            - 1.3.6.1.4.1.6574.3      # Synology RAID (status, degraded)
-            - 1.3.6.1.4.1.6574.4      # Synology UPS
-            - 1.3.6.1.4.1.6574.5      # Synology SHA
-            - 1.3.6.1.4.1.6574.6      # Synology SAS/Expansion
-            - 1.3.6.1.4.1.6574.101    # Synology Services
-            - 1.3.6.1.4.1.6574.102    # Synology GPU info
-            - 1.3.6.1.4.1.6574.104    # Synology FlashCache
-          metrics:
-            - name: synoDisk_Temperature
-              oid: 1.3.6.1.4.1.6574.2.1.1.6
-              type: gauge
-              help: Disk temperature in Celsius
-            - name: synoRAID_Status
-              oid: 1.3.6.1.4.1.6574.3.1.1.3
-              type: gauge
-              help: RAID status (1=Normal, 2=Repairing, 3=Migrating, 4=Expanding, 5=Deleting, 6=Creating, 7=Syncing, 8=ParityChecking, 9=Assembling, 10=Canceling, 11=Degraded, 12=Crashed)
-            - name: synoSystem_Temperature
-              oid: 1.3.6.1.4.1.6574.1.2
-              type: gauge
-              help: System temperature in Celsius
-          overrides:
-            hrStorageType:
-              type: EnumAsInfo
-        
-        unifi:
-          walk:
-            - 1.3.6.1.2.1.1           # System
-            - 1.3.6.1.2.1.2           # Interfaces
-            - 1.3.6.1.4.1.41112.1.6   # UniFi Wireless
           lookups:
             - source_indexes: [ifIndex]
               lookup: ifDescr
     serviceMonitor:
       enabled: true
       params:
-        - name: truenas
-          auth: [truenas_v3]
+        - name: unifi-basic
+          auth: [public_v2]
           module: [if_mib]
-          target: barbary.hypyr.space
-        - name: synology
-          auth: [public_v2]
-          module: [synology]
-          target: razzia.hypyr.space
-        - name: unifi
-          auth: [public_v2]
-          module: [unifi]
           target: unifi.hypyr.space
       relabelings:
         - sourceLabels: [__param_target]

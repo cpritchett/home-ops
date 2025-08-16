@@ -1,3 +1,6 @@
+# TODO: Re-enable this ScaledObject when zigbee-controller hardware is back online
+# Also uncomment the ./scaledobject.yaml line in kustomization.yaml
+# and enable the zigbee-controller.internal probe in blackbox-exporter
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
