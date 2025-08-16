@@ -607,7 +607,7 @@ tasks:
         success_count=0
         error_count=0
 
-        echo "$sample_backups" | while read -r backup_line; do
+        while read -r backup_line; do
           if [ -n "$backup_line" ]; then
             backup_id=$(echo "$backup_line" | awk '{print $1}')
             if [ -n "$backup_id" ]; then
