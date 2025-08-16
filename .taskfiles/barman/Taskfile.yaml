@@ -223,6 +223,18 @@ tasks:
           exit 1
         fi
 
+        # Get PostgreSQL version from existing cluster
+        echo "Getting PostgreSQL version from existing cluster..."
+        POSTGRESQL_IMAGE=$(kubectl get cluster {{.POSTGRES_CLUSTER}} -n {{.POSTGRES_NAMESPACE}} -o jsonpath='{.spec.imageName}' 2>/dev/null || echo "")
+
+        if [ -z "$POSTGRESQL_IMAGE" ]; then
+          echo "❌ Error: Could not retrieve PostgreSQL image from cluster '{{.POSTGRES_CLUSTER}}'"
+          echo "   Ensure the source cluster exists and is accessible"
+          exit 1
+        fi
+
+        echo "Using PostgreSQL image: $POSTGRESQL_IMAGE"
+
         # Create restore cluster manifest
         echo "Creating restore cluster manifest..."
         cat <<EOF | kubectl apply -f -
@@ -233,7 +245,7 @@ tasks:
           namespace: {{.POSTGRES_NAMESPACE}}
         spec:
           instances: 1
-          imageName: ghcr.io/cloudnative-pg/postgresql:\${POSTGRESQL_VERSION}
+          imageName: $POSTGRESQL_IMAGE
           storage:
             size: 20Gi
             storageClass: openebs-hostpath
