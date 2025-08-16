@@ -326,7 +326,9 @@ tasks:
           set -e
           
           if [[ -n "$resources" ]]; then
-            echo "$resources" | xargs -r kubectl delete "$resource_type" -n "$namespace" || echo "⚠️  Failed to delete some $resource_type"
+            while IFS= read -r res_name; do
+              kubectl delete "$resource_type" -n "$namespace" "$res_name" || echo "⚠️  Failed to delete $resource_type: $res_name"
+            done <<< "$resources"
           else
             echo "No additional $resource_type found matching '$app'"
           fi
