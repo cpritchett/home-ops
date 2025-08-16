@@ -322,7 +322,7 @@ tasks:
 
         echo "🔑 Step 3: Deleting app-related secrets..."
         kubectl delete secrets -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
-        kubectl delete secrets -n {{.NAMESPACE}} | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete secret -n {{.NAMESPACE}}
+        kubectl get secrets -n {{.NAMESPACE}} --no-headers | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete secret -n {{.NAMESPACE}}
         echo "✅ App secrets deleted"
 
         echo "📋 Step 4: Deleting app-related configmaps..."
