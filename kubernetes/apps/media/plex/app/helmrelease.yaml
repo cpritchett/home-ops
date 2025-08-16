@@ -21,6 +21,20 @@ spec:
   values:
     controllers:
       plex:
+        initContainers:
+          init-config:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - /bin/sh
+              - -c
+              - |
+                chown -R 568:568 /config
+                chmod -R 755 /config
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
         containers:
           app:
             image:
