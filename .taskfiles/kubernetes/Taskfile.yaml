@@ -296,6 +296,44 @@ tasks:
       vars: [APP, NAMESPACE]
     cmds:
       - |
+        set -euo pipefail
+
+        # Function for safer command execution with error handling
+        safe_delete() {
+          local resource_type="$1"
+          local namespace="$2"
+          local app="$3"
+          local label_selector="app.kubernetes.io/name=$app"
+          
+          echo "Deleting $resource_type with label $label_selector..."
+          kubectl delete "$resource_type" -n "$namespace" -l "$label_selector" --ignore-not-found=true || echo "⚠️  Failed to delete labeled $resource_type"
+          
+          echo "Deleting additional $resource_type matching '$app'..."
+          # Temporarily disable strict error checking for this section
+          set +e
+          local resources=""
+          resources=$(kubectl get "$resource_type" -n "$namespace" --no-headers 2>/dev/null | grep "$app" | awk '{print $1}' 2>/dev/null)
+          local raw_output
+          raw_output=$(kubectl get "$resource_type" -n "$namespace" --no-headers 2>/dev/null | grep "$app" 2>/dev/null)
+          local grep_exit_code=$?
+          if [[ "$grep_exit_code" -eq 0 ]]; then
+            resources=$(echo "$raw_output" | awk '{print $1}' 2>/dev/null)
+          else
+            resources=""
+          fi
+          set -e
+          
+          set -e
+          
+          if [[ -n "$resources" ]]; then
+            while IFS= read -r res_name; do
+              kubectl delete "$resource_type" -n "$namespace" "$res_name" || echo "⚠️  Failed to delete $resource_type: $res_name"
+            done <<< "$resources"
+          else
+            echo "No additional $resource_type found matching '$app'"
+          fi
+        }
+
         echo "🚨 NUCLEAR APP DESTRUCTION: {{.APP}} in namespace {{.NAMESPACE}}"
         echo "This will completely destroy and rebuild the application!"
         read -p "Type 'NUKE {{.APP}}' to confirm: " confirm
@@ -321,37 +359,45 @@ tasks:
         fi
 
         echo "🔑 Step 3: Deleting app-related secrets..."
-        kubectl delete secrets -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
-        kubectl get secrets -n {{.NAMESPACE}} --no-headers | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete secret -n {{.NAMESPACE}}
+        safe_delete "secrets" "{{.NAMESPACE}}" "{{.APP}}"
         echo "✅ App secrets deleted"
 
         echo "📋 Step 4: Deleting app-related configmaps..."
-        kubectl delete configmaps -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
-        kubectl get configmaps -n {{.NAMESPACE}} --no-headers | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete configmap -n {{.NAMESPACE}}
+        safe_delete "configmaps" "{{.NAMESPACE}}" "{{.APP}}"
         echo "✅ App configmaps deleted"
 
-        echo "💾 Step 5: Deleting app-related PVCs..."
-        kubectl delete pvc -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
-        kubectl get pvc -n {{.NAMESPACE}} | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete pvc -n {{.NAMESPACE}}
-        echo "✅ App PVCs deleted"
-
-        echo "☠️  Step 6: Force deleting all app resources..."
-        kubectl delete pods -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true
-        kubectl delete replicasets -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true
-        kubectl delete deployments -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true
+        echo "☠️  Step 5: Force deleting all app resources..."
+        echo "Deleting pods..."
+        kubectl delete pods -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true || echo "⚠️  Failed to delete some pods"
+        echo "Deleting replicasets..."
+        kubectl delete replicasets -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true || echo "⚠️  Failed to delete some replicasets"
+        echo "Deleting deployments..."
+        kubectl delete deployments -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --grace-period=0 --force --ignore-not-found=true || echo "⚠️  Failed to delete some deployments"
+        echo "Deleting HPAs..."
+        safe_delete "hpa" "{{.NAMESPACE}}" "{{.APP}}"
         echo "✅ All app resources deleted"
+
+        echo "⏳ Waiting for resource cleanup..."
+        sleep 10
+
+        echo "💾 Step 6: Deleting app-related PVCs..."
+        safe_delete "pvc" "{{.NAMESPACE}}" "{{.APP}}"
+        echo "✅ App PVCs deleted"
 
         echo "⏳ Step 7: Waiting for cleanup..."
         sleep 5
 
         echo "🔄 Step 8: Resuming Flux HelmRelease for clean rebuild..."
         if kubectl get helmrelease {{.APP}} -n {{.NAMESPACE}} >/dev/null 2>&1; then
-          flux resume helmrelease {{.APP}} -n {{.NAMESPACE}}
-          flux reconcile helmrelease {{.APP}} -n {{.NAMESPACE}}
+          echo "Resuming HelmRelease..."
+          flux resume helmrelease {{.APP}} -n {{.NAMESPACE}} || echo "⚠️  Failed to resume HelmRelease"
+          echo "Forcing reconciliation..."
+          flux reconcile helmrelease {{.APP}} -n {{.NAMESPACE}} || echo "⚠️  Failed to reconcile HelmRelease"
           echo "✅ Flux reconciliation resumed"
         else
           echo "⚠️  No HelmRelease to resume - check Git configuration"
         fi
 
         echo "💥 App {{.APP}} has been completely nuked and rebuild initiated"
-        echo "Monitor with: kubectl get pods -n {{.NAMESPACE}} -w"
+        echo "📋 Monitor with: kubectl get pods -n {{.NAMESPACE}} -w"
+        echo "📋 Check HelmRelease: flux get helmreleases -n {{.NAMESPACE}} {{.APP}}"
