@@ -25,7 +25,7 @@ spec:
           init-config:
             image:
               repository: busybox
-              tag: latest
+              tag: 1.36.1
             command:
               - /bin/sh
               - -c
