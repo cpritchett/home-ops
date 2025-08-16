@@ -641,7 +641,7 @@ tasks:
               fi
             fi
           fi
-        done
+        done <<< "$sample_backups"
 
         echo ""
         echo "=== VERIFICATION SUMMARY ==="
