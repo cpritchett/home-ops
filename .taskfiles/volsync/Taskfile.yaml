@@ -132,7 +132,7 @@ tasks:
         printf "%-20s %-15s %-15s %-20s %s\n" "APP" "NAMESPACE" "SNAPSHOTS" "LAST_BACKUP" "STATUS"
         printf "%-20s %-15s %-15s %-20s %s\n" "---" "---------" "---------" "-----------" "------"
 
-        echo "$sources" | while IFS=',' read -r namespace app; do
+        while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
             export RESTIC_REPOSITORY="s3:https://s3.hypyr.space/volsync/$app"
             
@@ -156,7 +156,7 @@ tasks:
             
             printf "%-20s %-15s %-15s %-20s %s\n" "$app" "$namespace" "$snapshot_count" "$last_backup" "$status"
           fi
-        done
+        done <<< "$sources"
 
         echo ""
         echo "Legend: ✅ Available | 📭 Empty Repository | ❌ Error/Missing Repository"
@@ -191,11 +191,11 @@ tasks:
         fi
 
         echo "Applications that will be affected:"
-        echo "$sources" | while IFS=',' read -r namespace app; do
+        while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
             echo "  - $app (namespace: $namespace)"
           fi
-        done
+        done <<< "$sources"
 
         echo ""
         echo "This action is IRREVERSIBLE and will affect ALL applications listed above!"
@@ -453,11 +453,11 @@ tasks:
         error_repos=0
 
         echo "Repositories to verify:"
-        echo "$sources" | while IFS=',' read -r namespace app; do
+        while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
             echo "  - $app (namespace: $namespace)"
           fi
-        done
+        done <<< "$sources"
 
         echo ""
         echo "Starting verification process..."
