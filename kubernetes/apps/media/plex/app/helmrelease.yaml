@@ -91,6 +91,7 @@ spec:
       transcode:
         # TODO: Move back to tmpfs (emptyDir) when nodes have sufficient memory for transcoding
         type: persistentVolumeClaim
+        existingClaim: "{{ .Release.Name }}-transcode"
         accessMode: ReadWriteOnce
         size: 50Gi
         storageClass: openebs-hostpath
