@@ -464,7 +464,18 @@ tasks:
         echo "Starting verification process..."
         echo ""
 
-        echo "$sources" | while IFS=',' read -r namespace app; do
+        while IFS=',' read -r namespace app; do
+          if [ -n "$namespace" ] && [ -n "$app" ]; then
+            echo "  - $app (namespace: $namespace)"
+            total_repos=$((total_repos + 1))
+          fi
+        done <<< "$sources"
+
+        echo ""
+        echo "Starting verification process..."
+        echo ""
+
+        while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
             echo "🔍 Checking $app..."
             export RESTIC_REPOSITORY="s3:https://s3.hypyr.space/volsync/$app"
