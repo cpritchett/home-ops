@@ -110,6 +110,412 @@ tasks:
       - test -f {{.VOLSYNC_RESOURCES_DIR}}/unlock.yaml.j2
       - which kubectl minijinja-cli stern
 
+  list-apps-with-backups:
+    desc: List all applications with backups available in destination repositories
+    cmds:
+      - |
+        echo "Scanning for applications with backup repositories..."
+        echo "=================================================="
+
+        # Get all ReplicationSources
+        sources=$(kubectl get replicationsources --all-namespaces --no-headers --output=jsonpath='{range .items[*]}{.metadata.namespace},{.metadata.name}{"\n"}{end}' 2>/dev/null || echo "")
+
+        if [ -z "$sources" ]; then
+          echo "No ReplicationSources found in cluster"
+          exit 0
+        fi
+
+        export RESTIC_PASSWORD="{{.RESTIC_PASSWORD}}"
+        export AWS_ACCESS_KEY_ID="{{.S3_ACCESS_KEY_ID}}"
+        export AWS_SECRET_ACCESS_KEY="{{.S3_SECRET_ACCESS_KEY}}"
+
+        printf "%-20s %-15s %-15s %-20s %s\n" "APP" "NAMESPACE" "SNAPSHOTS" "LAST_BACKUP" "STATUS"
+        printf "%-20s %-15s %-15s %-20s %s\n" "---" "---------" "---------" "-----------" "------"
+
+        while IFS=',' read -r namespace app; do
+          if [ -n "$namespace" ] && [ -n "$app" ]; then
+            export RESTIC_REPOSITORY="s3:https://s3.hypyr.space/volsync/$app"
+            
+            # Check if repository exists and get snapshot info
+            if timeout 30 restic snapshots --json >/dev/null 2>&1; then
+              snapshot_info=$(timeout 30 restic snapshots --json 2>/dev/null || echo "[]")
+              snapshot_count=$(echo "$snapshot_info" | jq '. | length' 2>/dev/null || echo "0")
+              
+              if [ "$snapshot_count" -gt 0 ]; then
+                last_backup=$(echo "$snapshot_info" | jq -r '.[0].time // "unknown"' 2>/dev/null | cut -d'T' -f1 || echo "unknown")
+                status="✅ Available"
+              else
+                last_backup="none"
+                status="📭 Empty"
+              fi
+            else
+              snapshot_count="N/A"
+              last_backup="N/A"
+              status="❌ Error/Missing"
+            fi
+            
+            printf "%-20s %-15s %-15s %-20s %s\n" "$app" "$namespace" "$snapshot_count" "$last_backup" "$status"
+          fi
+        done <<< "$sources"
+
+        echo ""
+        echo "Legend: ✅ Available | 📭 Empty Repository | ❌ Error/Missing Repository"
+    vars:
+      RESTIC_PASSWORD:
+        sh: op item get "seaweedfs" --vault homelab --fields RESTIC_PASSWORD --reveal
+      S3_ACCESS_KEY_ID:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_ACCESS_KEY_ID --reveal
+      S3_SECRET_ACCESS_KEY:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_SECRET_ACCESS_KEY --reveal
+    preconditions:
+      - which kubectl
+      - which restic
+      - which jq
+      - which op
+
+  delete-all-dest-backups:
+    desc: Delete ALL backups from ALL destination repositories (NUCLEAR OPTION)
+    cmds:
+      - |
+        echo "🚨 DANGER: NUCLEAR BACKUP DELETION 🚨"
+        echo "======================================="
+        echo "This will PERMANENTLY DELETE ALL BACKUPS from ALL applications!"
+        echo ""
+
+        # Get all ReplicationSources first
+        sources=$(kubectl get replicationsources --all-namespaces --no-headers --output=jsonpath='{range .items[*]}{.metadata.namespace},{.metadata.name}{"\n"}{end}' 2>/dev/null || echo "")
+
+        if [ -z "$sources" ]; then
+          echo "No ReplicationSources found in cluster"
+          exit 0
+        fi
+
+        echo "Applications that will be affected:"
+        while IFS=',' read -r namespace app; do
+          if [ -n "$namespace" ] && [ -n "$app" ]; then
+            echo "  - $app (namespace: $namespace)"
+          fi
+        done <<< "$sources"
+
+        echo ""
+        echo "This action is IRREVERSIBLE and will affect ALL applications listed above!"
+        read -p "Type 'DELETE ALL BACKUPS' to confirm (anything else cancels): " confirm
+
+        if [ "$confirm" != "DELETE ALL BACKUPS" ]; then
+          echo "Operation cancelled - confirmation text did not match exactly"
+          exit 1
+        fi
+
+        read -p "Are you ABSOLUTELY sure? This cannot be undone! (yes/NO): " final_confirm
+        if [[ ! "$final_confirm" =~ ^[Yy][Ee][Ss]$ ]]; then
+          echo "Operation cancelled"
+          exit 1
+        fi
+
+        export RESTIC_PASSWORD="{{.RESTIC_PASSWORD}}"
+        export AWS_ACCESS_KEY_ID="{{.S3_ACCESS_KEY_ID}}"
+        export AWS_SECRET_ACCESS_KEY="{{.S3_SECRET_ACCESS_KEY}}"
+
+        echo ""
+        echo "🗑️  Starting backup deletion process..."
+
+        success_count=0
+        error_count=0
+
+        while IFS=',' read -r namespace app; do
+          if [ -n "$namespace" ] && [ -n "$app" ]; then
+            echo ""
+            echo "Processing $app (namespace: $namespace)..."
+            export RESTIC_REPOSITORY="s3:https://s3.hypyr.space/volsync/$app"
+            
+            # Check if repository exists
+            if timeout 30 restic snapshots >/dev/null 2>&1; then
+              snapshot_ids=$(timeout 60 restic snapshots --json | jq -r '.[].id' 2>/dev/null || echo "")
+              
+              if [ -n "$snapshot_ids" ]; then
+                echo "  Found snapshots, deleting..."
+                for id in $snapshot_ids; do
+                  if timeout 120 restic forget --prune "$id" >/dev/null 2>&1; then
+                    echo "    ✅ Deleted snapshot $id"
+                  else
+                    echo "    ❌ Failed to delete snapshot $id"
+                    error_count=$((error_count + 1))
+                  fi
+                done
+                success_count=$((success_count + 1))
+              else
+                echo "  📭 No snapshots found"
+              fi
+            else
+              echo "  ⚠️  Repository not accessible or doesn't exist"
+            fi
+          fi
+        done <<< "$sources"
+
+        echo ""
+        echo "=== DELETION SUMMARY ==="
+        echo "Repositories processed successfully: $success_count"
+        echo "Errors encountered: $error_count"
+        echo "========================="
+    vars:
+      RESTIC_PASSWORD:
+        sh: op item get "seaweedfs" --vault homelab --fields RESTIC_PASSWORD --reveal
+      S3_ACCESS_KEY_ID:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_ACCESS_KEY_ID --reveal
+      S3_SECRET_ACCESS_KEY:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_SECRET_ACCESS_KEY --reveal
+    preconditions:
+      - which kubectl
+      - which restic
+      - which jq
+      - which op
+
+  list-snapshots:
+    desc: List snapshots for a specific app [APP=required] [NS={{.NS}}]
+    cmds:
+      - |
+        echo "Snapshots for {{.APP}} (namespace: {{.NS}})"
+        echo "============================================="
+
+        export RESTIC_REPOSITORY="{{.RESTIC_REPOSITORY}}"
+        export RESTIC_PASSWORD="{{.RESTIC_PASSWORD}}"
+        export AWS_ACCESS_KEY_ID="{{.S3_ACCESS_KEY_ID}}"
+        export AWS_SECRET_ACCESS_KEY="{{.S3_SECRET_ACCESS_KEY}}"
+
+        if ! timeout 30 restic snapshots >/dev/null 2>&1; then
+          echo "❌ Error: Repository not accessible or doesn't exist"
+          echo "Repository: {{.RESTIC_REPOSITORY}}"
+          exit 1
+        fi
+
+        snapshot_info=$(timeout 60 restic snapshots --json 2>/dev/null || echo "[]")
+        snapshot_count=$(echo "$snapshot_info" | jq '. | length' 2>/dev/null || echo "0")
+
+        if [ "$snapshot_count" -eq 0 ]; then
+          echo "📭 No snapshots found in repository"
+          exit 0
+        fi
+
+        echo "Found $snapshot_count snapshot(s):"
+        echo ""
+        printf "%-12s %-20s %-10s %s\n" "SNAPSHOT_ID" "DATE" "SIZE" "PATHS"
+        printf "%-12s %-20s %-10s %s\n" "-----------" "----" "----" "-----"
+
+        echo "$snapshot_info" | jq -r '.[] | "\(.id[0:8]) \(.time) \(.summary.total_size // 0) \(.paths[0] // "N/A")"' | \
+        while read -r id date size path; do
+          # Format size if it's a number
+          if [[ "$size" =~ ^[0-9]+$ ]]; then
+            if [ "$size" -gt 1073741824 ]; then
+              size="$(echo "scale=1; $size/1073741824" | bc 2>/dev/null || echo "$size")GB"
+            elif [ "$size" -gt 1048576 ]; then
+              size="$(echo "scale=1; $size/1048576" | bc 2>/dev/null || echo "$size")MB"
+            elif [ "$size" -gt 1024 ]; then
+              size="$(echo "scale=1; $size/1024" | bc 2>/dev/null || echo "$size")KB"
+            else
+              size="${size}B"
+            fi
+          fi
+          
+          # Format date
+          formatted_date=$(echo "$date" | cut -d'T' -f1,2 | tr 'T' ' ' | cut -d'.' -f1)
+          
+          printf "%-12s %-20s %-10s %s\n" "$id" "$formatted_date" "$size" "$path"
+        done
+    vars:
+      NS: '{{.NS | default "default"}}'
+      RESTIC_REPOSITORY: "s3:https://s3.hypyr.space/volsync/{{.APP}}"
+      RESTIC_PASSWORD:
+        sh: op item get "seaweedfs" --vault homelab --fields RESTIC_PASSWORD --reveal
+      S3_ACCESS_KEY_ID:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_ACCESS_KEY_ID --reveal
+      S3_SECRET_ACCESS_KEY:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_SECRET_ACCESS_KEY --reveal
+    requires:
+      vars: [APP]
+    preconditions:
+      - which restic
+      - which jq
+      - which op
+
+  repo-info:
+    desc: Show repository information and statistics [APP=required] [NS={{.NS}}]
+    cmds:
+      - |
+        echo "Repository Information for {{.APP}}"
+        echo "===================================="
+
+        export RESTIC_REPOSITORY="{{.RESTIC_REPOSITORY}}"
+        export RESTIC_PASSWORD="{{.RESTIC_PASSWORD}}"
+        export AWS_ACCESS_KEY_ID="{{.S3_ACCESS_KEY_ID}}"
+        export AWS_SECRET_ACCESS_KEY="{{.S3_SECRET_ACCESS_KEY}}"
+
+        echo "Repository: {{.RESTIC_REPOSITORY}}"
+        echo "Application: {{.APP}}"
+        echo "Namespace: {{.NS}}"
+        echo ""
+
+        # Check repository accessibility
+        if ! timeout 30 restic snapshots >/dev/null 2>&1; then
+          echo "❌ Status: Repository not accessible or doesn't exist"
+          exit 1
+        fi
+
+        echo "✅ Status: Repository accessible"
+        echo ""
+
+        # Get snapshot statistics
+        echo "📊 Snapshot Statistics:"
+        snapshot_info=$(timeout 60 restic snapshots --json 2>/dev/null || echo "[]")
+        snapshot_count=$(echo "$snapshot_info" | jq '. | length' 2>/dev/null || echo "0")
+
+        echo "  Total snapshots: $snapshot_count"
+
+        if [ "$snapshot_count" -gt 0 ]; then
+          oldest_date=$(echo "$snapshot_info" | jq -r '.[-1].time // "unknown"' | cut -d'T' -f1)
+          newest_date=$(echo "$snapshot_info" | jq -r '.[0].time // "unknown"' | cut -d'T' -f1)
+          echo "  Oldest backup: $oldest_date"
+          echo "  Newest backup: $newest_date"
+        fi
+
+        # Get repository statistics
+        echo ""
+        echo "💾 Repository Statistics:"
+        if stats=$(timeout 60 restic stats --json 2>/dev/null); then
+          total_size=$(echo "$stats" | jq -r '.total_size // 0')
+          total_file_count=$(echo "$stats" | jq -r '.total_file_count // 0')
+          
+          # Format size
+          if [[ "$total_size" =~ ^[0-9]+$ ]] && [ "$total_size" -gt 0 ]; then
+            if [ "$total_size" -gt 1073741824 ]; then
+              formatted_size="$(echo "scale=2; $total_size/1073741824" | bc 2>/dev/null || echo "$total_size")GB"
+            elif [ "$total_size" -gt 1048576 ]; then
+              formatted_size="$(echo "scale=2; $total_size/1048576" | bc 2>/dev/null || echo "$total_size")MB"
+            else
+              formatted_size="$(echo "scale=2; $total_size/1024" | bc 2>/dev/null || echo "$total_size")KB"
+            fi
+          else
+            formatted_size="Unknown"
+          fi
+          
+          echo "  Total size: $formatted_size"
+          echo "  Total files: $total_file_count"
+        else
+          echo "  ⚠️  Could not retrieve repository statistics"
+        fi
+
+        # Repository health check
+        echo ""
+        echo "🔧 Repository Health:"
+        if timeout 120 restic check --read-data-subset=5% >/dev/null 2>&1; then
+          echo "  ✅ Health check passed (5% data verification)"
+        else
+          echo "  ⚠️  Health check failed or timed out"
+          echo "     Run 'task volsync:verify-backups' for detailed check"
+        fi
+    vars:
+      NS: '{{.NS | default "default"}}'
+      RESTIC_REPOSITORY: "s3:https://s3.hypyr.space/volsync/{{.APP}}"
+      RESTIC_PASSWORD:
+        sh: op item get "seaweedfs" --vault homelab --fields RESTIC_PASSWORD --reveal
+      S3_ACCESS_KEY_ID:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_ACCESS_KEY_ID --reveal
+      S3_SECRET_ACCESS_KEY:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_SECRET_ACCESS_KEY --reveal
+    requires:
+      vars: [APP]
+    preconditions:
+      - which restic
+      - which jq
+      - which bc
+      - which op
+
+  verify-backups:
+    desc: Verify integrity of all backup repositories
+    cmds:
+      - |
+        echo "🔍 Verifying backup repository integrity..."
+        echo "==========================================="
+
+        # Get all ReplicationSources
+        sources=$(kubectl get replicationsources --all-namespaces --no-headers --output=jsonpath='{range .items[*]}{.metadata.namespace},{.metadata.name}{"\n"}{end}' 2>/dev/null || echo "")
+
+        if [ -z "$sources" ]; then
+          echo "No ReplicationSources found in cluster"
+          exit 0
+        fi
+
+        export RESTIC_PASSWORD="{{.RESTIC_PASSWORD}}"
+        export AWS_ACCESS_KEY_ID="{{.S3_ACCESS_KEY_ID}}"
+        export AWS_SECRET_ACCESS_KEY="{{.S3_SECRET_ACCESS_KEY}}"
+
+        total_repos=0
+        healthy_repos=0
+        error_repos=0
+
+        echo "Repositories to verify:"
+        while IFS=',' read -r namespace app; do
+          if [ -n "$namespace" ] && [ -n "$app" ]; then
+            echo "  - $app (namespace: $namespace)"
+          fi
+        done <<< "$sources"
+
+        echo ""
+        echo "Starting verification process..."
+        echo ""
+
+        while IFS=',' read -r namespace app; do
+          if [ -n "$namespace" ] && [ -n "$app" ]; then
+            echo "🔍 Checking $app..."
+            export RESTIC_REPOSITORY="s3:https://s3.hypyr.space/volsync/$app"
+            
+            total_repos=$((total_repos + 1))
+            
+            # Quick accessibility check
+            if ! timeout 30 restic snapshots >/dev/null 2>&1; then
+              echo "  ❌ Repository not accessible"
+              error_repos=$((error_repos + 1))
+              continue
+            fi
+            
+            # Basic integrity check
+            if timeout 300 restic check >/dev/null 2>&1; then
+              echo "  ✅ Repository integrity verified"
+              healthy_repos=$((healthy_repos + 1))
+            else
+              echo "  ⚠️  Repository integrity check failed or timed out"
+              error_repos=$((error_repos + 1))
+            fi
+          fi
+        done <<< "$sources"
+
+        echo ""
+        echo "=== VERIFICATION SUMMARY ==="
+        echo "Total repositories: $total_repos"
+        echo "Healthy repositories: $healthy_repos"
+        echo "Repositories with errors: $error_repos"
+        echo "============================"
+
+        if [ "$error_repos" -gt 0 ]; then
+          echo ""
+          echo "⚠️  Some repositories have integrity issues."
+          echo "   Consider running individual checks with 'task volsync:repo-info APP=<app>'"
+          exit 1
+        else
+          echo ""
+          echo "✅ All repositories passed integrity verification!"
+        fi
+    vars:
+      RESTIC_PASSWORD:
+        sh: op item get "seaweedfs" --vault homelab --fields RESTIC_PASSWORD --reveal
+      S3_ACCESS_KEY_ID:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_ACCESS_KEY_ID --reveal
+      S3_SECRET_ACCESS_KEY:
+        sh: op item get "seaweedfs" --vault homelab --fields S3_SECRET_ACCESS_KEY --reveal
+    preconditions:
+      - which kubectl
+      - which restic
+      - which op
+
   delete-backups:
     desc: Delete ALL backups for an app using restic [APP=required]
     cmds:
