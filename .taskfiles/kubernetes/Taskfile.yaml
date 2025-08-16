@@ -316,7 +316,9 @@ tasks:
           local grep_exit_code=$?
           set -e
           
-          if [[ -n "$resources" && "$grep_exit_code" -eq 0 ]]; then
+          set -e
+          
+          if [[ -n "$resources" ]]; then
             echo "$resources" | xargs -r kubectl delete "$resource_type" -n "$namespace" || echo "⚠️  Failed to delete some $resource_type"
           else
             echo "No additional $resource_type found matching '$app'"
