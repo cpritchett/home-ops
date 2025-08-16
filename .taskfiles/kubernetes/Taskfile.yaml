@@ -309,9 +309,14 @@ tasks:
           kubectl delete "$resource_type" -n "$namespace" -l "$label_selector" --ignore-not-found=true || echo "⚠️  Failed to delete labeled $resource_type"
           
           echo "Deleting additional $resource_type matching '$app'..."
-          local resources
-          resources=$(kubectl get "$resource_type" -n "$namespace" --no-headers 2>/dev/null | grep "$app" | awk '{print $1}' || true)
-          if [[ -n "$resources" ]]; then
+          # Temporarily disable strict error checking for this section
+          set +e
+          local resources=""
+          resources=$(kubectl get "$resource_type" -n "$namespace" --no-headers 2>/dev/null | grep "$app" | awk '{print $1}' 2>/dev/null)
+          local grep_exit_code=$?
+          set -e
+          
+          if [[ -n "$resources" && "$grep_exit_code" -eq 0 ]]; then
             echo "$resources" | xargs -r kubectl delete "$resource_type" -n "$namespace" || echo "⚠️  Failed to delete some $resource_type"
           else
             echo "No additional $resource_type found matching '$app'"
