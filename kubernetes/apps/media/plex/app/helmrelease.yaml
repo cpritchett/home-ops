@@ -10,11 +10,9 @@ spec:
     name: app-template
     namespace: flux-system
   install:
-    timeout: 15m
     remediation:
       retries: -1
   upgrade:
-    timeout: 15m
     cleanupOnFail: true
     remediation:
       retries: 3
@@ -73,7 +71,7 @@ spec:
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [1702, 44, 65536]
+        supplementalGroups: [1702, 65536]
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
