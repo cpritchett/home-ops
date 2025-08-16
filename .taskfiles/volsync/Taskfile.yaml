@@ -250,7 +250,7 @@ tasks:
               echo "  ⚠️  Repository not accessible or doesn't exist"
             fi
           fi
-        done
+        done <<< "$sources"
 
         echo ""
         echo "=== DELETION SUMMARY ==="
@@ -456,7 +456,6 @@ tasks:
         echo "$sources" | while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
             echo "  - $app (namespace: $namespace)"
-            total_repos=$((total_repos + 1))
           fi
         done
 
@@ -466,19 +465,10 @@ tasks:
 
         while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
-            echo "  - $app (namespace: $namespace)"
-            total_repos=$((total_repos + 1))
-          fi
-        done <<< "$sources"
-
-        echo ""
-        echo "Starting verification process..."
-        echo ""
-
-        while IFS=',' read -r namespace app; do
-          if [ -n "$namespace" ] && [ -n "$app" ]; then
             echo "🔍 Checking $app..."
             export RESTIC_REPOSITORY="s3:https://s3.hypyr.space/volsync/$app"
+            
+            total_repos=$((total_repos + 1))
             
             # Quick accessibility check
             if ! timeout 30 restic snapshots >/dev/null 2>&1; then
@@ -496,7 +486,7 @@ tasks:
               error_repos=$((error_repos + 1))
             fi
           fi
-        done
+        done <<< "$sources"
 
         echo ""
         echo "=== VERIFICATION SUMMARY ==="
