@@ -313,7 +313,14 @@ tasks:
           set +e
           local resources=""
           resources=$(kubectl get "$resource_type" -n "$namespace" --no-headers 2>/dev/null | grep "$app" | awk '{print $1}' 2>/dev/null)
+          local raw_output
+          raw_output=$(kubectl get "$resource_type" -n "$namespace" --no-headers 2>/dev/null | grep "$app" 2>/dev/null)
           local grep_exit_code=$?
+          if [[ "$grep_exit_code" -eq 0 ]]; then
+            resources=$(echo "$raw_output" | awk '{print $1}' 2>/dev/null)
+          else
+            resources=""
+          fi
           set -e
           
           set -e
