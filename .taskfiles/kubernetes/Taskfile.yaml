@@ -327,7 +327,7 @@ tasks:
 
         echo "📋 Step 4: Deleting app-related configmaps..."
         kubectl delete configmaps -n {{.NAMESPACE}} -l app.kubernetes.io/name={{.APP}} --ignore-not-found=true
-        kubectl delete configmaps -n {{.NAMESPACE}} | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete configmap -n {{.NAMESPACE}}
+        kubectl get configmaps -n {{.NAMESPACE}} --no-headers | grep {{.APP}} | awk '{print $1}' | xargs -r kubectl delete configmap -n {{.NAMESPACE}}
         echo "✅ App configmaps deleted"
 
         echo "💾 Step 5: Deleting app-related PVCs..."
