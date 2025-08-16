@@ -31,7 +31,8 @@ spec:
               - -c
               - |
                 chown -R 568:568 /config
-                chmod -R 755 /config
+                find /config -type d -exec chmod 755 {} \;
+                find /config -type f -exec chmod 644 {} \;
             securityContext:
               runAsUser: 0
               runAsGroup: 0
