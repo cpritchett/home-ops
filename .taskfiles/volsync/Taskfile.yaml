@@ -222,7 +222,7 @@ tasks:
         success_count=0
         error_count=0
 
-        echo "$sources" | while IFS=',' read -r namespace app; do
+        while IFS=',' read -r namespace app; do
           if [ -n "$namespace" ] && [ -n "$app" ]; then
             echo ""
             echo "Processing $app (namespace: $namespace)..."
