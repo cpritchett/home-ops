@@ -26,19 +26,19 @@ spec:
               tag: 0.0.12
             args:
               - --no-open-browser
-              - --port=8443
+              - --listen=0.0.0.0:8443
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /healthz
+                    path: /
                     port: &port 8443
-                    scheme: HTTPS
-                  initialDelaySeconds: 0
+                    scheme: HTTP
+                  initialDelaySeconds: 10
                   periodSeconds: 10
-                  timeoutSeconds: 1
+                  timeoutSeconds: 5
                   failureThreshold: 3
               readiness: *probes
             resources:
