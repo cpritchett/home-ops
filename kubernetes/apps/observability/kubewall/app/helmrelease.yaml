@@ -72,7 +72,7 @@ spec:
           kubewall:
             app:
               - path: /.kubewall
-route:
+    route:
       app:
         hostnames:
           - "{{ .Release.Name }}.hypyr.space"
