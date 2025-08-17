@@ -72,7 +72,7 @@ spec:
           kubewall:
             app:
               - path: /.kubewall
-    route:
+route:
       app:
         hostnames:
           - "{{ .Release.Name }}.hypyr.space"
@@ -80,8 +80,17 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     service:
       app:
         ports:
           https:
             port: *port
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: https
+            path: /
