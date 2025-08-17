@@ -6,7 +6,7 @@
   <h1>Task</h1>
 
   <p>
-    Task is a task runner / build tool that aims to be simpler and easier to use than, for example, <a href="https://www.gnu.org/software/make/">GNU Make<a>.
+    Task is a task runner / build tool that aims to be simpler and easier to use than, for example, <a href="https://www.gnu.org/software/make/">GNU Make</a>.
   </p>
 
   <p>
