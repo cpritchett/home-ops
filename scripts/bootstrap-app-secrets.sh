@@ -129,16 +129,7 @@ safety_check() {
 bootstrap_app_secrets() {
     log_info "Bootstrapping application service secrets..."
 
-    # Get shared postgres super password for database services
-    local POSTGRES_SUPER_PASS=""
-    if op item get "cloudnative-pg" --vault homelab &>/dev/null; then
-        POSTGRES_SUPER_PASS=$(op item get "cloudnative-pg" --vault homelab --fields POSTGRES_SUPER_PASS --reveal 2>/dev/null || echo "")
-    fi
-
-    if [[ -z ${POSTGRES_SUPER_PASS} ]]; then
-        log_warning "Could not get POSTGRES_SUPER_PASS from cloudnative-pg item"
-        log_info "Database services will need manual password setup"
-    fi
+    # NOTE: CloudNativePG removed - applications now use SQLite
 
     # Radarr (Movie management)
     if ! item_exists "radarr"; then

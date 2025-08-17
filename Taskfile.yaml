@@ -20,7 +20,6 @@ env:
   TALOSCONFIG: "{{.TALOS_DIR}}/talosconfig"
 
 includes:
-  barman: .taskfiles/barman
   bootstrap: .taskfiles/bootstrap
   k8s: .taskfiles/kubernetes
   talos: .taskfiles/talos

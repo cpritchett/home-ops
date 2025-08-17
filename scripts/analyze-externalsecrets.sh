@@ -31,7 +31,7 @@ echo "  - smtp-relay          (Email notifications)"
 
 echo
 echo "🗄️  DATABASE:"
-echo "  - cloudnative-pg      (PostgreSQL operator - auto-generated)"
+echo "  - cloudnative-pg      (PostgreSQL operator - REMOVED)"
 
 echo
 echo "📱 MEDIA STACK:"
@@ -82,7 +82,7 @@ echo "  - grafana, gatus, atuin → Admin passwords (set during install)"
 
 echo
 echo "🟢 LOW PRIORITY (Auto-Generated):"
-echo "  - cloudnative-pg  → PostgreSQL credentials (auto-generated)"
+echo "  - cloudnative-pg  → PostgreSQL credentials (REMOVED)"
 echo "  - flux            → Webhook tokens (can be generated)"
 
 echo
