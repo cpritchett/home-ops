@@ -99,7 +99,7 @@ machine:
   nodeLabels:
     topology.kubernetes.io/region: k8s
     ceph-storage: enabled
-    topology.kubernetes.io/zone: garage-smc
+    topology.kubernetes.io/zone: main-smc
     quicksync.generation: "12"
   sysctls:
     fs.inotify.max_user_watches: 1048576 # Watchdog
