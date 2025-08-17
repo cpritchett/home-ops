@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://taskfile.dev">
-    <img src="website/static/img/logo.svg" width="200px" height="200px" />
+    <img src="https://taskfile.dev/img/logo.svg" width="200px" height="200px" />
   </a>
 
   <h1>Task</h1>
