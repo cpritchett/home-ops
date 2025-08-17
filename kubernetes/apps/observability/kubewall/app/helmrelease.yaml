@@ -1,0 +1,79 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: kubewall
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: v0.0.12
+  url: oci://ghcr.io/kubewall/charts/kubewall
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app kubewall
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: kubewall
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    fullnameOverride: *app
+    replicaCount: 1
+    image:
+      repository: ghcr.io/kubewall/kubewall
+      pullPolicy: IfNotPresent
+      tag: "v0.0.12"
+    serviceAccount:
+      create: true
+      annotations: {}
+      name: ""
+    service:
+      type: ClusterIP
+      port: 8443
+    resources:
+      limits:
+        cpu: 200m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    pvc:
+      name: "{{ .Release.Name }}-data"
+      storage: 100Mi
+      accessModes: ReadWriteOnce
+      storageClass: "openebs-hostpath"
+    route:
+      main:
+        enabled: true
+        hostnames:
+          - "{{ .Release.Name }}.hypyr.space"
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+    # Security context for enhanced security
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      runAsNonRoot: true
+      runAsUser: 65534
+      capabilities:
+        drop:
+          - ALL
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      runAsGroup: 65534
+      fsGroup: 65534
