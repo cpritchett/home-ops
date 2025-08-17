@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentation
+    url: /docs
+    about: Check the docs folder for setup guides and troubleshooting
+  - name: 🚀 Taskfile Commands
+    url: /Taskfile.yaml
+    about: View available task commands for cluster management

@@ -1,0 +1,65 @@
+name: Bug Report
+description: Report a problem with the homelab infrastructure
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please provide details to help diagnose the issue.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: What part of the homelab is affected?
+      options:
+        - Cluster (Talos/Kubernetes)
+        - Application (specific app)
+        - Storage (Rook Ceph/OpenEBS)
+        - Networking (Cilium/BGP)
+        - Secrets (1Password/ExternalSecrets)
+        - GitOps (Flux)
+        - Monitoring (Gatus/Prometheus)
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: app-name
+    attributes:
+      label: Application Name
+      description: If this affects a specific app, which one?
+      placeholder: e.g., plex, home-assistant, qbittorrent
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: What's broken and how does it manifest?
+      placeholder: |
+        - What should happen vs what actually happens
+        - Error messages or symptoms
+        - When did this start?
+    validations:
+      required: true
+
+  - type: textarea
+    id: troubleshooting
+    attributes:
+      label: Troubleshooting Done
+      description: What have you tried already?
+      placeholder: |
+        - task k8s:sync-secrets
+        - kubectl logs checks
+        - Flux reconciliation status
+        - etc.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Logs, screenshots, or other relevant info
+      placeholder: |
+        kubectl logs, talosctl logs, or relevant output
