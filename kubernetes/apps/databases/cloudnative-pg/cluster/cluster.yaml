@@ -12,6 +12,27 @@ spec:
   storage:
     size: 20Gi
     storageClass: openebs-hostpath
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: postgres.priority
+            operator: In
+            values: ["preferred"]
+      - weight: 30
+        preference:
+          matchExpressions:
+          - key: postgres.priority
+            operator: In
+            values: ["fallback"]
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: postgres.priority
+            operator: NotIn
+            values: ["disabled"]
   superuserSecret:
     name: cloudnative-pg-secret
   enableSuperuserAccess: true
@@ -27,15 +48,12 @@ spec:
       memory: 2Gi
   monitoring:
     enablePodMonitor: true
-  # Temporarily disabled WAL archiving to reduce cluster pressure.
-  # Re-enable WAL archiving when cluster resource usage (CPU < 80%, memory < 80%, no frequent pod restarts, and I/O wait times normalized)
-  # has stabilized for at least 24 hours. Monitor with Prometheus/Grafana dashboards and review incident #1234 for details.
-  # plugins:
-  #   - name: barman-cloud.cloudnative-pg.io
-  #     isWALArchiver: true
-  #     parameters: &parameters
-  #       barmanObjectName: s3
-  #       serverName: "postgres-v23"
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: &parameters
+        barmanObjectName: s3
+        serverName: "postgres-v23"
   # Note: uncomment bootstrap section when recovering from an existing cluster
   # bootstrap:
   #   recovery:

@@ -104,6 +104,7 @@ machine:
     ceph-storage: disabled
     topology.kubernetes.io/zone: main-smc
     quicksync.generation: "7"
+    postgres.priority: disabled
   sysctls:
     fs.inotify.max_user_watches: 1048576 # Watchdog
     fs.inotify.max_user_instances: 8192 # Watchdog

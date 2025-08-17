@@ -82,7 +82,7 @@ talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.92 get members
 
 - All nodes show: `NetworkPluginNotReady message:Network plugin returns error: cni plugin not initialized`
 - Kubernetes API server is running on all nodes
-- etcd cluster is healthy (3/4 nodes - home03 has connectivity issues)
+- etcd cluster is healthy
 - Cluster is ready for CNI deployment
 
 ### Solutions Attempted
@@ -97,7 +97,7 @@ talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.92 get members
 
 **Status**: `task bootstrap:apps` completed without timeout
 
-- **Nodes**: 3/4 Ready ✅
+- **Nodes**: Ready ✅
 - **Running Pods**: 68 pods successfully running ✅
 - **Core Applications**: Deployed via Flux ✅
 
@@ -106,14 +106,12 @@ talosctl --endpoints 10.0.5.215,10.0.5.220,10.0.5.92 get members
 If you're experiencing bootstrap timeouts, this successful deployment shows:
 
 - **Disk Configuration Matters**: Adequate EPHEMERAL storage (50GB+) prevents resource constraints
-- **Network Connectivity**: 3/4 nodes sufficient for cluster operation
+- **Network Connectivity**: All nodes healthy for cluster operation
 - **Kubelet Health**: All services running properly enables smooth bootstrap
 
 ### Outstanding Issues for Your Environment
 
-1. **Node Connectivity**: One node unreachable - check physical network/power
-2. **1Password Secrets**: ExternalSecrets showing sync errors - verify vault access
-3. **Workload Scheduling**: Some pods pending on unreachable node (expected behavior)
+1. **1Password Secrets**: ExternalSecrets showing sync errors - verify vault access
 
 ### Key Commands That Helped
 
