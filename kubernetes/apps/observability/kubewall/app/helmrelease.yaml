@@ -83,5 +83,3 @@ spec:
         ports:
           https:
             port: *port
-    serviceAccount:
-      create: true
