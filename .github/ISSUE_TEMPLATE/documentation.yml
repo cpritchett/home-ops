@@ -1,0 +1,91 @@
+name: Documentation Update
+description: Improve or add documentation for the homelab
+title: "[DOCS] "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help improve the homelab documentation for better maintainability and knowledge sharing.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What kind of documentation work is needed?
+      options:
+        - New Guide/Tutorial
+        - Update Existing Documentation
+        - Fix Inaccuracy/Error
+        - Add Missing Information
+        - Improve Clarity
+        - Add Troubleshooting Info
+        - API/Configuration Reference
+        - Architecture Documentation
+        - README Updates
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Which file(s) or section needs work?
+      placeholder: e.g., docs/SETUP-GUIDE.md, kubernetes/apps/media/README.md
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What Needs to Be Done
+      description: Describe the documentation work needed
+      placeholder: |
+        - What information is missing or incorrect?
+        - What should be added or improved?
+        - Who is the target audience?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Current State
+      description: What's wrong with the current documentation (if applicable)?
+      placeholder: |
+        - Outdated information
+        - Missing steps
+        - Confusing explanations
+        - Broken links
+
+  - type: textarea
+    id: desired-outcome
+    attributes:
+      label: Desired Outcome
+      description: What should the documentation look like when complete?
+      placeholder: |
+        - Clear step-by-step instructions
+        - Accurate technical details
+        - Helpful examples
+        - Easy to follow for [target audience]
+
+  - type: checkboxes
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who will use this documentation?
+      options:
+        - label: Self (future reference)
+        - label: AI coding agents
+        - label: Other homelab enthusiasts
+        - label: Contributors to the project
+
+  - type: checkboxes
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this documentation update?
+      options:
+        - label: Nice to have
+        - label: Would prevent future confusion
+        - label: Critical for proper operation

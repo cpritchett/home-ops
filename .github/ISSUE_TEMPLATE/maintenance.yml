@@ -1,0 +1,88 @@
+name: Maintenance Task
+description: Track routine maintenance, updates, or housekeeping tasks
+title: "[MAINTENANCE] "
+labels: ["maintenance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for routine maintenance tasks, updates, or housekeeping work.
+
+  - type: dropdown
+    id: task-type
+    attributes:
+      label: Maintenance Type
+      description: What kind of maintenance is this?
+      options:
+        - Security Updates
+        - Application Updates
+        - Configuration Cleanup
+        - Resource Optimization
+        - Certificate Renewal
+        - Storage Cleanup
+        - Backup Validation
+        - Performance Tuning
+        - Documentation Update
+        - Dependency Updates
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: What needs to be done?
+      placeholder: |
+        Clear description of the maintenance task
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and Components
+      description: What parts of the homelab will be affected?
+      placeholder: |
+        - Specific applications or services
+        - Infrastructure components
+        - Expected downtime or impact
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Task Checklist
+      description: Break down the work into actionable steps
+      placeholder: |
+        - [ ] Step 1
+        - [ ] Step 2
+        - [ ] Step 3
+        - [ ] Validation step
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Success Criteria
+      description: How will you know the task is complete?
+      placeholder: |
+        - Tests to run
+        - Metrics to check
+        - Expected outcomes
+
+  - type: checkboxes
+    id: urgency
+    attributes:
+      label: Urgency Level
+      description: How urgent is this maintenance?
+      options:
+        - label: Routine (can be scheduled)
+        - label: Important (should be done soon)
+        - label: Urgent (security or stability concern)
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Target Completion
+      description: When should this be completed?
+      placeholder: e.g., "End of month" or "Before next security scan"
