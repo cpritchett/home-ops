@@ -53,7 +53,7 @@ spec:
       name: "{{ .Release.Name }}-data"
       storage: 100Mi
       accessModes: ReadWriteOnce
-      storageClass: "openebs-hostpath"
+      storageClass: "ceph-block"
     route:
       main:
         enabled: true
