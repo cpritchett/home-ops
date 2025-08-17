@@ -9,7 +9,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: v0.0.12
+    tag: 0.0.12
   url: oci://ghcr.io/kubewall/charts/kubewall
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -34,7 +34,7 @@ spec:
     image:
       repository: ghcr.io/kubewall/kubewall
       pullPolicy: IfNotPresent
-      tag: "v0.0.12"
+      tag: "0.0.12"
     serviceAccount:
       create: true
       annotations: {}
