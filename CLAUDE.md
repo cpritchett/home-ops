@@ -82,6 +82,18 @@ git checkout -b type/scope-description
 
 **CRITICAL GitOps Requirement**: Changes to Kubernetes resources (YAML files in `kubernetes/apps/`) will NOT be applied by Flux until they are committed to a git branch and either merged to main or pushed to origin. Flux reconciles from the git repository, not local filesystem changes. Always commit and push changes before expecting Flux to apply them.
 
+### Pull Request Management
+
+**CRITICAL PR Rules**:
+
+1. **NEVER commit to closed/merged PRs** - Create new PR for additional work
+2. **NEVER work on branches with closed PRs** - Always create fresh branches
+3. **ALL PRs must be closed/merged by humans** - Never auto-merge or force-merge
+4. **Check PR status before work** - Verify PR is open and active
+5. **One logical change per PR** - Separate concerns into different PRs
+
+**When PR is closed/merged**: Create new feature branch from updated main, do NOT continue work on the original branch.
+
 ### YAML/Helm Standards
 
 **CRITICAL**: Always quote Helm template expressions in YAML values:
