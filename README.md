@@ -19,7 +19,7 @@
     <tr>
       <td align="center" valign="middle">
         <a target="_blank" href="https://devowl.io">
-          <img src="/website/static/img/devowl.io.svg" height="100px" title="devowl.io" />
+          <img src="https://devowl.io/wp-content/uploads/2022/03/devowl-io-logo.svg" height="100px" title="devowl.io" />
         </a>
       </td>
     </tr>
