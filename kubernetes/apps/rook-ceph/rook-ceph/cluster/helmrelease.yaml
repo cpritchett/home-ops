@@ -85,18 +85,20 @@ spec:
         provider: host
         connections:
           requireMsgr2: true
+      placement:
+        osd:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: ceph-storage
+                      operator: In
+                      values:
+                        - enabled
       storage:
         useAllNodes: true
         useAllDevices: false
         deviceFilter: "^nvme[0-9]+n[0-9]+$"
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: ceph-storage
-                    operator: In
-                    values:
-                      - enabled
         config:
           osdsPerDevice: "1"
     cephBlockPools:
