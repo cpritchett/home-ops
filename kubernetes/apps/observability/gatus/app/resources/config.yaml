@@ -1,4 +1,9 @@
 ---
+# TODO: Explore DNS over HTTPS (DoH) options for enhanced privacy:
+#   - Cloudflare DoH: https://1.1.1.1:443/dns-query (already used in cert-manager)
+#   - NextDNS DoH: https://dns.nextdns.io/{config-id} (privacy-focused with filtering)
+#   - Quad9 DoH: https://dns.quad9.net:443/dns-query (security-focused)
+#   - Need to verify Gatus DoH support and optimal configuration
 connectivity:
   checker:
     target: 1.1.1.1:53

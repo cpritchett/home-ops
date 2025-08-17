@@ -15,10 +15,6 @@ spec:
       namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/observability/gatus/app
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_PATH: /health
   prune: true
   retryInterval: 2m
   sourceRef:
