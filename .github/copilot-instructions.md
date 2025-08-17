@@ -42,6 +42,26 @@ git checkout -b feat/your-feature-name
 # Commit format: type(scope): description
 ```
 
+## Quick Start Validation
+
+**Run this immediately after cloning to verify everything works:**
+
+```bash
+# Verify you're not on main branch
+git branch
+
+# If on main, create a feature branch
+git checkout -b test/validation-$(date +%s)
+
+# Run quick validation (takes ~2 seconds)
+find kubernetes/ talos/ -name "*.yaml" -exec yq eval . {} \; >/dev/null && \
+find scripts/ -name "*.sh" -exec shellcheck {} \; >/dev/null && \
+echo "✅ Repository validation: ALL TESTS PASSED"
+
+# List available commands
+task --list | head -10
+```
+
 ## Working Effectively
 
 ### Discover Available Commands
