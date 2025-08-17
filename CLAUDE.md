@@ -64,12 +64,21 @@ task bootstrap:cloudflare-tunnel        # Setup external access
 
 **NEVER WORK ON MAIN BRANCH**: All changes must be made on feature branches and submitted via pull requests.
 
+**ALWAYS START FROM UPDATED MAIN**: Before creating any new branch, ensure you're working from the latest main:
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b type/scope-description
+```
+
 1. **ALWAYS check current branch first**: `git branch`
-2. **If on main, create branch IMMEDIATELY**: `git checkout -b type/scope-description`
-3. **ABSOLUTELY NEVER commit directly to main** - this will break the GitOps workflow
-4. **NEVER push changes to main** - only merge via approved pull requests
-5. **Branch naming**: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`
-6. **Commit format**: `type(scope): description`
+2. **If not on main, switch to main FIRST**: `git checkout main && git pull origin main`
+3. **Create branch from updated main**: `git checkout -b type/scope-description`
+4. **ABSOLUTELY NEVER commit directly to main** - this will break the GitOps workflow
+5. **NEVER push changes to main** - only merge via approved pull requests
+6. **Branch naming**: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`
+7. **Commit format**: `type(scope): description`
 
 **CRITICAL GitOps Requirement**: Changes to Kubernetes resources (YAML files in `kubernetes/apps/`) will NOT be applied by Flux until they are committed to a git branch and either merged to main or pushed to origin. Flux reconciles from the git repository, not local filesystem changes. Always commit and push changes before expecting Flux to apply them.
 
