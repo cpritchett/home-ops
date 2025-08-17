@@ -80,8 +80,17 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     service:
       app:
         ports:
-          http:
+          https:
             port: *port
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: https
+            path: /
