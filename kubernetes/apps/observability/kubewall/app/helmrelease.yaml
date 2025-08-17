@@ -54,6 +54,8 @@ spec:
               runAsNonRoot: true
               runAsUser: 65534
               capabilities: { drop: [ALL] }
+        serviceAccount:
+          name: *app
     defaultPodOptions:
       hostUsers: false
       securityContext:
