@@ -112,6 +112,7 @@ machine:
     ceph-storage: enabled
     topology.kubernetes.io/zone: main-smc
     quicksync.generation: "7"
+    postgres.priority: preferred
     node.kubernetes.io/instance-type: itx
   sysctls:
     fs.inotify.max_user_watches: 1048576 # Watchdog
