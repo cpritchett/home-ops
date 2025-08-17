@@ -1,17 +1,4 @@
 ---
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: OCIRepository
-metadata:
-  name: kubewall
-spec:
-  interval: 5m
-  layerSelector:
-    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
-    operation: copy
-  ref:
-    tag: 0.0.12
-  url: oci://ghcr.io/kubewall/charts/kubewall
----
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -20,7 +7,8 @@ spec:
   interval: 1h
   chartRef:
     kind: OCIRepository
-    name: kubewall
+    name: app-template
+    namespace: flux-system
   install:
     remediation:
       retries: -1
@@ -29,51 +17,71 @@ spec:
     remediation:
       retries: 3
   values:
-    fullnameOverride: *app
-    replicaCount: 1
-    image:
-      repository: ghcr.io/kubewall/kubewall
-      pullPolicy: IfNotPresent
-      tag: "0.0.12"
-    serviceAccount:
-      create: true
-      annotations: {}
-      name: ""
-    service:
-      type: ClusterIP
-      port: 8443
-    resources:
-      limits:
-        cpu: 200m
-        memory: 512Mi
-      requests:
-        cpu: 100m
-        memory: 256Mi
-    pvc:
-      name: "{{ .Release.Name }}-data"
-      storage: 100Mi
-      accessModes: ReadWriteOnce
-      storageClass: "ceph-block"
+    controllers:
+      kubewall:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/kubewall/kubewall
+              tag: 0.0.12
+            args:
+              - --no-open-browser
+              - --port=8443
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8443
+                    scheme: HTTPS
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 200m
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 65534
+              capabilities: { drop: [ALL] }
+    defaultPodOptions:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+    persistence:
+      data:
+        size: 100Mi
+        storageClass: ceph-block
+        accessMode: ReadWriteOnce
+        advancedMounts:
+          kubewall:
+            app:
+              - path: /.kubewall
     route:
-      main:
-        enabled: true
+      app:
         hostnames:
           - "{{ .Release.Name }}.hypyr.space"
         parentRefs:
           - name: internal
             namespace: kube-system
             sectionName: https
-    # Security context for enhanced security
-    securityContext:
-      allowPrivilegeEscalation: false
-      readOnlyRootFilesystem: false
-      runAsNonRoot: true
-      runAsUser: 65534
-      capabilities:
-        drop:
-          - ALL
-    podSecurityContext:
-      runAsNonRoot: true
-      runAsUser: 65534
-      runAsGroup: 65534
-      fsGroup: 65534
+    service:
+      app:
+        ports:
+          https:
+            port: *port
+    serviceAccount:
+      create: true
