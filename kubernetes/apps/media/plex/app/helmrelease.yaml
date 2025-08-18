@@ -67,11 +67,11 @@ spec:
                     values: ["7", "9", "10", "11", "12"]
       securityContext:
         runAsNonRoot: true
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
+        runAsUser: 1701
+        runAsGroup: 1702
+        fsGroup: 1702
         fsGroupChangePolicy: Always
-        supplementalGroups: [1702, 65536]
+        supplementalGroups: [568, 65536]
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
