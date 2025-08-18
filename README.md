@@ -85,20 +85,64 @@ This Git repository contains the following directories under [kubernetes](./kube
 
 ### Cluster layout
 
-This is a high-level look how Flux deploys my applications with dependencies. Below there are 3 Flux kustomizations `postgres`, `postgres-cluster`, and `atuin`. `postgres` is the first app that needs to be running and healthy before `postgres-cluster` and once `postgres-cluster` is healthy `atuin` will be deployed.
+This shows the two fundamental infrastructure workflows that enable secure, stateful applications in GitOps. These dependency chains solve the hardest problems newcomers face when building production-ready clusters: **secrets management** and **persistent storage**.
+
+#### GitOps Security Pipeline 🔒
+
+_Solves the "chicken and egg" problem of bootstrapping secrets in GitOps_
 
 ```mermaid
-graph TD;
-  id1>Kustomization: flux-system] -->|Creates| id2>Kustomization: cluster-apps];
-  id2>Kustomization: cluster-apps] -->|Creates| id3>Kustomization: postgres];
-  id2>Kustomization: cluster-apps] -->|Creates| id5>Kustomization: postgres-cluster]
-  id2>Kustomization: cluster-apps] -->|Creates| id8>Kustomization: atuin]
-  id3>Kustomization: postgres] -->|Creates| id4(HelmRelease: postgres);
-  id5>Kustomization: postgres-cluster] -->|Depends on| id3>Kustomization: postgres];
-  id5>Kustomization: postgres-cluster] -->|Creates| id10(Cluster: postgres);
-  id8>Kustomization: atuin] -->|Creates| id9(HelmRelease: atuin);
-  id8>Kustomization: atuin] -->|Depends on| id5>Kustomization: postgres-cluster];
+graph LR
+    A[1Password Vault]:::vault -->|Credentials| B[1Password Connect]:::connect
+    B -->|Creates| C[ClusterSecretStore]:::store
+    C -->|Enables| D[ExternalSecret]:::external
+    D -->|Syncs to| E[Kubernetes Secret]:::secret
+    E -->|Consumed by| F[Application Pods]:::app
+
+    classDef vault fill:#0066CC,stroke:#004499,stroke-width:2px,color:#fff;
+    classDef connect fill:#FF6B35,stroke:#CC5529,stroke-width:2px,color:#fff;
+    classDef store fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff;
+    classDef external fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff;
+    classDef secret fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff;
+    classDef app fill:#2196F3,stroke:#0D47A1,stroke-width:2px,color:#fff;
 ```
+
+#### Storage + Backup Foundation 💾
+
+_Provides persistent storage with automated backup/restore capabilities_
+
+```mermaid
+graph TD
+    A[Snapshot Controller]:::controller -->|Manages| B[VolumeSnapshots]:::snapshot
+    A -->|Enables| C[Rook Ceph Operator]:::operator
+    C -->|Creates| D[Ceph Cluster]:::cluster
+    D -->|Provides| E[StorageClasses]:::storage
+    E -->|Creates| F[PVCs]:::pvc
+    F -->|Backed up by| G[VolSync]:::volsync
+    G -->|Uses| B
+    F -->|Consumed by| H[Stateful Apps]:::app
+
+    classDef controller fill:#6A1B9A,stroke:#4A148C,stroke-width:2px,color:#fff;
+    classDef snapshot fill:#8E24AA,stroke:#6A1B9A,stroke-width:2px,color:#fff;
+    classDef operator fill:#00ACC1,stroke:#00838F,stroke-width:2px,color:#fff;
+    classDef cluster fill:#26A69A,stroke:#00695C,stroke-width:2px,color:#fff;
+    classDef storage fill:#66BB6A,stroke:#2E7D32,stroke-width:2px,color:#fff;
+    classDef pvc fill:#42A5F5,stroke:#0D47A1,stroke-width:2px,color:#fff;
+    classDef volsync fill:#FFA726,stroke:#E65100,stroke-width:2px,color:#fff;
+    classDef app fill:#EF5350,stroke:#C62828,stroke-width:2px,color:#fff;
+```
+
+**Why These Workflows Matter:**
+
+🔐 **Security Pipeline**: Traditional "secrets in git" approaches don't work for production. This 1Password Connect workflow solves the bootstrap problem by providing a secure, auditable way to inject secrets into your cluster without storing them in Git. Each ExternalSecret automatically syncs from 1Password, enabling secure GitOps practices.
+
+**Why External Secret Stores?** While SOPS (Secrets OPerationS) is popular for encrypting secrets in Git, it requires managing encryption keys, complex CI/CD integration, and manual secret rotation. External secret stores provide automatic secret rotation, centralized management, and audit trails.
+
+**Secret Store Options**: This cluster uses **1Password Connect** (self-hosted), but there are many alternatives. Popular homelab choices include HashiCorp Vault (powerful but complex), Bitwarden (familiar and self-hostable), Infisical (modern developer experience), and Doppler (simple cloud integration). 1Password also offers Service Accounts for easier cloud-based setup.
+
+Check the [Home Operations Discord](https://discord.gg/home-operations) for community experiences with different providers. Your choice depends on your security requirements, operational preferences, and existing infrastructure.
+
+💾 **Storage Foundation**: Stateful applications need reliable storage with backup/restore capabilities. This workflow shows how Rook Ceph provides distributed storage while VolSync handles automated backups using VolumeSnapshots. The Snapshot Controller enables point-in-time recovery for all your critical data.
 
 ### Networking
 
