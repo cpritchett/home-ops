@@ -83,7 +83,7 @@ spec:
         advancedMounts:
           radarr:
             app:
-              - path: /data/media/movies
+              - path: /data/media/Movies
                 subPath: media/Movies
               - path: /data/torrents
                 subPath: torrents
