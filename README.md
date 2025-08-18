@@ -135,9 +135,9 @@ graph TD
 
 🔐 **Security Pipeline**: Traditional "secrets in git" approaches don't work for production. This 1Password Connect workflow solves the bootstrap problem by providing a secure, auditable way to inject secrets into your cluster without storing them in Git. Each ExternalSecret automatically syncs from 1Password, enabling secure GitOps practices.
 
-**Why External Secret Stores?** While SOPS (Secrets OPerationS) is popular for encrypting secrets in Git, it requires managing encryption keys, complex CI/CD integration, and manual secret rotation. External secret stores provide automatic secret rotation, centralized management, and audit trails.
+**Why External Secret Stores?** While SOPS (Secrets OPerationS) is popular for encrypting secrets in GitOps homelabs, I just don't like it. I don't like dealing with the vscode plugins, and I don't like managing yet another tool. What I do like is using the secret manager where my passwords already live.
 
-**Secret Store Options**: This cluster uses **1Password Connect** (self-hosted), but there are many alternatives. Popular homelab choices include HashiCorp Vault (powerful but complex), Bitwarden (familiar and self-hostable), Infisical (modern developer experience), and Doppler (simple cloud integration). 1Password also offers Service Accounts for easier cloud-based setup.
+**Secret Store Options**: This cluster uses **1Password Connect** (self-hosted), but there are many alternatives. Popular choices include HashiCorp Vault (powerful but complex), Bitwarden (familiar and self-hostable), Infisical (modern developer experience), and Doppler (simple cloud integration). 1Password also offers Service Accounts for easier cloud-based setup.
 
 Check the [Home Operations Discord](https://discord.gg/home-operations) for community experiences with different providers. Your choice depends on your security requirements, operational preferences, and existing infrastructure.
 
