@@ -20,11 +20,13 @@ jobs:
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1
         with:
-          # Specify the exact checks to run for better performance
-          check-mode: auto
-
-          # Upload results for better CI integration
-          upload-results: true
+          # Use appropriate check mode based on event type
+          check-mode: >-
+            ${{
+              github.event_name == 'push' && 'push' ||
+              github.event_name == 'merge_group' && 'trunk_merge' ||
+              'pull_request'
+            }}
 
           # Set arguments for trunk check
           arguments: --monitor=false --ci
