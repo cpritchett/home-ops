@@ -23,7 +23,7 @@ git checkout -b type/scope-description       # 3. Create feature branch
 
 ## GitOps Reality:
 
-**Changes to `kubernetes/apps/` are invisible to Flux until committed and pushed to git**
+**Flux only deploys changes from the git repository – local modifications to `kubernetes/apps/` won't take effect until committed and pushed**
 
 ## Essential Commands
 
