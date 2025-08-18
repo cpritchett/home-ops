@@ -8,6 +8,10 @@
 git branch                                    # 1. Check current branch
 git checkout main && git pull origin main    # 2. Switch to updated main
 git checkout -b type/scope-description       # 3. Create feature branch
+# Examples:
+#   feat/auth-improvements
+#   fix/storage-mount-issue
+#   docs/readme-update
 ```
 
 ## ABSOLUTE PROHIBITIONS:
