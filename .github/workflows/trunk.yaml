@@ -30,3 +30,4 @@ jobs:
 
           # Set arguments for trunk check
           arguments: --monitor=false --ci
+# Test comment to trigger workflow
