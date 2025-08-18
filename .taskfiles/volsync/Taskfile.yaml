@@ -24,8 +24,14 @@ tasks:
       - kubectl wait --for=delete pod -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --timeout=300s || true
       # Clean up stuck resources
       - kubectl delete volumesnapshot -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --ignore-not-found --timeout=60s || true
-      - kubectl patch volumesnapshot -l app.kubernetes.io/name={{.APP}} -n {{.NS}} -p '{"metadata":{"finalizers":null}}' --type=merge --ignore-not-found || true
-      - kubectl patch pvc -l app.kubernetes.io/name={{.APP}} -n {{.NS}} -p '{"metadata":{"finalizers":null}}' --type=merge --ignore-not-found || true
+      - |-
+        # Patch finalizers on any remaining volumesnapshots
+        kubectl get volumesnapshot -l app.kubernetes.io/name={{.APP}} -n {{.NS}} -o name 2>/dev/null | \
+        xargs -r -I {} kubectl patch {} -n {{.NS}} -p '{"metadata":{"finalizers":null}}' --type=merge || true
+      - |-
+        # Patch finalizers on any remaining PVCs  
+        kubectl get pvc -l app.kubernetes.io/name={{.APP}} -n {{.NS}} -o name 2>/dev/null | \
+        xargs -r -I {} kubectl patch {} -n {{.NS}} -p '{"metadata":{"finalizers":null}}' --type=merge || true
       - kubectl delete pvc -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --ignore-not-found --timeout=60s || true
       # Resume VolSync system and wait for stabilization
       - task volsync:state-resume
