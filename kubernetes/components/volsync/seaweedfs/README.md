@@ -45,8 +45,8 @@ Applications can override these values:
 - `VOLSYNC_SCHEDULE`: Backup schedule (default: "0 0 \* \* \*" - daily at midnight)
 - `VOLSYNC_SNAPSHOTCLASS`: Volume snapshot class (default: "csi-ceph-blockpool")
 - `VOLSYNC_STORAGECLASS`: Storage class (default: "ceph-block")
-- `VOLSYNC_UID`: User ID for mover pod (default: "568")
-- `VOLSYNC_GID`: Group ID for mover pod (default: "568")
+- `VOLSYNC_UID`: User ID for mover pod (default: "1701")
+- `VOLSYNC_GID`: Group ID for mover pod (default: "1")
 
 ## Monitoring
 
