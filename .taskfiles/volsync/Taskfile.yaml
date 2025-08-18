@@ -10,6 +10,38 @@ vars:
   VOLSYNC_RESOURCES_DIR: "{{.ROOT_DIR}}/.taskfiles/volsync/resources"
 
 tasks:
+  fix-stuck-app:
+    desc: Complete workflow to fix stuck VolSync apps with corrupted snapshots [APP=required] [NS={{.NS}}]
+    requires:
+      vars: [APP]
+    preconditions:
+      - which kubectl
+    cmds:
+      # Suspend VolSync system
+      - task volsync:state-suspend
+      # Scale down application and wait for pods to terminate
+      - kubectl scale deployment {{.APP}} -n {{.NS}} --replicas=0
+      - kubectl wait --for=delete pod -l {{.POD_LABEL_SELECTOR}} -n {{.NS}} --timeout=300s || true
+      # Clean up stuck resources
+      - kubectl delete volumesnapshot -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --ignore-not-found --timeout=60s || true
+      - |-
+        # Patch finalizers on any remaining volumesnapshots
+        kubectl get volumesnapshot -l app.kubernetes.io/name={{.APP}} -n {{.NS}} -o name 2>/dev/null | \
+        xargs -r -I {} kubectl patch {} -n {{.NS}} -p '{"metadata":{"finalizers":null}}' --type=merge || true
+      - |-
+        # Patch finalizers on any remaining PVCs  
+        kubectl get pvc -l app.kubernetes.io/name={{.APP}} -n {{.NS}} -o name 2>/dev/null | \
+        xargs -r -I {} kubectl patch {} -n {{.NS}} -p '{"metadata":{"finalizers":null}}' --type=merge || true
+      - kubectl delete pvc -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --ignore-not-found --timeout=60s || true
+      # Resume VolSync system and wait for stabilization
+      - task volsync:state-resume
+      - kubectl wait --namespace volsync-system --for=condition=Available deployment/volsync --timeout=120s || true
+      # Scale application back up
+      - kubectl scale deployment {{.APP}} -n {{.NS}} --replicas=1
+      - echo "Workflow complete! Monitor app with kubectl get pods -n {{.NS}}"
+    vars:
+      NS: '{{.NS | default "default"}}'
+
   state-*:
     desc: Suspend or resume Volsync
     cmds:

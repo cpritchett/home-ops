@@ -40,7 +40,12 @@ task bootstrap:cloudflare-tunnel        # Setup external access
 1. **Secret issues**: Always run `task k8s:sync-secrets` first (auto-fixes 1Password Connect)
 2. **Storage issues**: Use `task k8s:browse-pvc CLAIM=<name>` to debug PVCs
 3. **Certificate mismatches**: Run `task talos:pull-secrets` to sync from 1Password
-4. **Full documentation**: See `docs/CLUSTER-TROUBLESHOOTING.md`
+4. **Stuck VolSync apps**: Fix corrupted snapshots and stuck PVCs automatically:
+   ```bash
+   task volsync:fix-stuck-app APP=<app> NS=<namespace>
+   ```
+   _Automates the complete workflow: suspend → scale down → clean snapshots/PVCs → resume → scale up_
+5. **Full documentation**: See `docs/CLUSTER-TROUBLESHOOTING.md`
 
 ## Key Configuration Details
 
@@ -59,6 +64,26 @@ task bootstrap:cloudflare-tunnel        # Setup external access
 - **GitOps**: Flux CD manages all applications
 
 ## Development Workflow Rules
+
+### GitOps Automation Principles (CRITICAL)
+
+**NEVER MANUALLY CREATE OR PATCH RESOURCES AS WORKAROUNDS**: PVCs created by VolSync, ExternalSecrets, or other automation tools must NEVER be manually created or modified as "quick fixes". We fix the automation itself to reach eventual consistency, not bypass it with patches or hacks.
+
+**ALWAYS FIX THE ROOT CAUSE**: When GitOps automation fails (VolSync, Flux, ExternalSecrets), troubleshoot and fix the automation system itself. Examples:
+
+- VolSync restore failures → Trigger new restore operations, check snapshots, fix VolSync configuration
+- ExternalSecret failures → Fix 1Password Connect, check secret references, sync secrets properly
+- Flux reconciliation issues → Fix git repository state, check Flux controllers, resolve conflicts
+
+**GitOps WORKFLOW INTEGRITY**: Maintain the integrity of automated systems. Manual interventions should only be diagnostic (describe, logs, events) or corrective to the automation (patch ReplicationDestination triggers, restart controllers), never replacement of automated processes.
+
+**EXCEPTION - STUCK RESOURCES**: Stuck volumes and finalizers that prevent Flux and automation from functioning can be removed to enable GitOps to do its job. This includes:
+
+- Removing finalizers from stuck PVCs that prevent deletion/recreation
+- Deleting stuck pods that hold volume locks and prevent automation
+- Clearing resource locks that block automated reconciliation
+- Removing old/stale VolumeSnapshots that block new PVC creation from VolSync
+- These interventions clear the path for automation, they don't replace it
 
 ### Git Branch Safety (CRITICAL)
 
