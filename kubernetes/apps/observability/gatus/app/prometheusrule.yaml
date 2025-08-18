@@ -14,5 +14,23 @@ spec:
           annotations:
             summary: >-
               The {{ $labels.name }} endpoint is down
+            description: >-
+              Service endpoint {{ $labels.name }} ({{ $labels.instance }}) has been
+              failing health checks for more than 5 minutes. This indicates the service
+              is unavailable or experiencing connectivity issues that prevent successful
+              responses to monitoring probes.
+              
+              Troubleshooting steps:
+              1. Check service pod status: `kubectl get pods -n {{ $labels.namespace }} -l app={{ $labels.name }}`
+              2. Describe the service pods: `kubectl describe pod <pod-name> -n {{ $labels.namespace }}`
+              3. Check service logs: `kubectl logs <pod-name> -n {{ $labels.namespace }} --tail=100`
+              4. Verify service connectivity: `kubectl exec -it <debug-pod> -- curl -I {{ $labels.instance }}`
+              5. Check service definition: `kubectl get svc -n {{ $labels.namespace }}`
+              6. Verify network policies and ingress routes are not blocking traffic
+              7. Check if the service is properly exposed through ingress controllers
+              8. Monitor Gatus dashboard for additional endpoint details and response codes
+              
+              Current status: Service {{ $labels.name }} is not responding to health checks
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#service-connectivity"
           labels:
             severity: critical
