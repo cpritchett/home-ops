@@ -70,7 +70,6 @@ spec:
         runAsGroup: 1702
         fsGroup: 1702
         fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [568, 65536]
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
