@@ -92,7 +92,7 @@ tasks:
     summary: |
       Suspend all Flux Kustomizations in a namespace to stop reconciliation.
 
-      Usage: task kubernetes:suspend-namespace NAMESPACE=media
+      Usage: task k8s:suspend-namespace NAMESPACE=media
 
       Note: This only prevents future reconciliation - existing pods remain until manually deleted.
     requires:
@@ -169,7 +169,7 @@ tasks:
         echo "🚨 NUCLEAR OPTION: This will suspend all Kustomizations AND delete all pods in: {{.NAMESPACE}}"
         read -p "Are you absolutely sure? (type 'NUKE' to confirm): " confirm
         if [[ $confirm == "NUKE" ]]; then
-          if ! task kubernetes:suspend-namespace NAMESPACE={{.NAMESPACE}}; then
+          if ! task k8s:suspend-namespace NAMESPACE={{.NAMESPACE}}; then
             echo "❌ Failed to suspend namespace"
             exit 1
           fi
@@ -277,7 +277,7 @@ tasks:
   nuke-app:
     desc: Nuclear option - completely purge an app and let Flux rebuild [APP=required NAMESPACE=required]
     summary: |
-      Nuclear option: Completely destroy an app including Helm releases, secrets, 
+      Nuclear option: Completely destroy an app including Helm releases, secrets,
       configmaps, volumes, and all Kubernetes resources, then let Flux rebuild.
 
       Usage: task k8s:nuke-app APP=cloudflared NAMESPACE=networking
@@ -304,10 +304,10 @@ tasks:
           local namespace="$2"
           local app="$3"
           local label_selector="app.kubernetes.io/name=$app"
-          
+
           echo "Deleting $resource_type with label $label_selector..."
           kubectl delete "$resource_type" -n "$namespace" -l "$label_selector" --ignore-not-found=true || echo "⚠️  Failed to delete labeled $resource_type"
-          
+
           echo "Deleting additional $resource_type matching '$app'..."
           # Temporarily disable strict error checking for this section
           set +e
@@ -322,9 +322,9 @@ tasks:
             resources=""
           fi
           set -e
-          
+
           set -e
-          
+
           if [[ -n "$resources" ]]; then
             while IFS= read -r res_name; do
               kubectl delete "$resource_type" -n "$namespace" "$res_name" || echo "⚠️  Failed to delete $resource_type: $res_name"
