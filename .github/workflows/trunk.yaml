@@ -1,0 +1,30 @@
+---
+name: Trunk Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+
+jobs:
+  trunk-check:
+    name: Trunk Check Runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+        with:
+          # Specify the exact checks to run for better performance
+          check-mode: auto
+
+          # Upload results for better CI integration
+          upload-results: true
+
+          # Set arguments for trunk check
+          arguments: --monitor=false --ci
