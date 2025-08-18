@@ -21,7 +21,7 @@ tasks:
       - task volsync:state-suspend
       # Scale down application and wait for pods to terminate
       - kubectl scale deployment {{.APP}} -n {{.NS}} --replicas=0
-      - kubectl wait --for=delete pod -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --timeout=300s || true
+      - kubectl wait --for=delete pod -l {{.POD_LABEL_SELECTOR}} -n {{.NS}} --timeout=300s || true
       # Clean up stuck resources
       - kubectl delete volumesnapshot -l app.kubernetes.io/name={{.APP}} -n {{.NS}} --ignore-not-found --timeout=60s || true
       - |-
