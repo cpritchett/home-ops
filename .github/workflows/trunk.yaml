@@ -1,33 +1,21 @@
----
-name: Trunk Check
-
+name: Trunk Code Quality
 on:
   push:
-    branches: [main]
+    branches: main
   pull_request:
-    branches: [main]
-  merge_group:
+    branches: main
 
+permissions:
+  contents: read
+  pull-requests: write 
+  issues: write
+  
 jobs:
-  trunk-check:
-    name: Trunk Check Runner
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Trunk Check
+      - uses: actions/checkout@v4
+      - name: Trunk Code Quality
         uses: trunk-io/trunk-action@v1
         with:
-          # Use appropriate check mode based on event type
-          check-mode: >-
-            ${{
-              github.event_name == 'push' && 'push' ||
-              (github.event_name == 'push' && 'push') ||
-              (github.event_name == 'merge_group' && 'trunk_merge') ||
-              'pull_request'
-          check-mode: ${{ github.event_name == 'push' && 'push' || github.event_name == 'merge_group' && 'trunk_merge' || 'pull_request' }}
-
-          # Set arguments for trunk check
-          arguments: --monitor=false --ci
+          post-annotations: true
