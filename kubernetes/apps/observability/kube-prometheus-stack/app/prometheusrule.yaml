@@ -22,5 +22,8 @@ spec:
           annotations:
             summary: >-
               Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{ $labels.pod }} has been OOMKilled {{ $value }} times in the last 10 minutes.
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#memory-issues"
+            description: >-
+              Container ran out of memory. Check resource limits with `kubectl describe pod {{ $labels.pod }} -n {{ $labels.namespace }}` and consider increasing memory limits or investigate memory leaks.
           labels:
             severity: critical

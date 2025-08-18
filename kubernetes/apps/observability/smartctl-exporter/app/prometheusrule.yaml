@@ -9,11 +9,14 @@ spec:
       rules:
         - alert: SmartDeviceHighTemperature
           expr: |
-            smartctl_device_temperature > 65
+            smartctl_device_temperature > 70
           for: 5m
           annotations:
             summary: >-
               Mounted drive {{ $labels.device }} on device {{ $labels.instance }} has a temperature higher than {{ $value }}°C
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-temperature"
+            description: >-
+              Drive temperature is critically high (>70°C). Check system cooling and airflow. Monitor with `smartctl -a {{ $labels.device }}` and consider increasing case fans or checking for dust buildup.
           labels:
             severity: critical
 
