@@ -27,6 +27,9 @@ spec:
           annotations:
             summary: >-
               Mounted drive {{ $labels.device }} on device {{ $labels.instance }} did not pass its SMART test
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-health"
+            description: >-
+              Drive {{ $labels.device }} has failed its SMART health check. This indicates potential disk failure. Run `smartctl -H {{ $labels.device }}` to verify status and `smartctl -a {{ $labels.device }}` for detailed diagnostics. Check disk connections, SATA/NVMe cables, and consider immediate disk replacement if SMART status continues failing.
           labels:
             severity: critical
 
@@ -37,6 +40,9 @@ spec:
           annotations:
             summary: >-
               Mounted drive {{ $labels.device }} on device {{ $labels.instance }} is in a critical state
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-health"
+            description: >-
+              Drive {{ $labels.device }} has critical warning status (value: {{ $value }}). This indicates potential hardware issues like failing sectors, wear leveling problems, or controller errors. Use `smartctl -A {{ $labels.device }}` to check SMART attributes and `smartctl -l error {{ $labels.device }}` for error logs. Verify proper temperature, power connections, and plan for disk replacement.
           labels:
             severity: critical
 
@@ -47,6 +53,9 @@ spec:
           annotations:
             summary: >-
               Mounted drive {{ $labels.device }} on device {{ $labels.instance }} has media errors
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-health"
+            description: >-
+              Drive {{ $labels.device }} has {{ $value }} media errors. Media errors indicate physical damage to the storage medium, bad sectors, or read/write failures. Run `smartctl -l xerror {{ $labels.device }}` for detailed error logs and `smartctl -t short {{ $labels.device }}` to test drive integrity. Check cables, power supply stability, and prepare for disk replacement as media errors typically worsen over time.
           labels:
             severity: critical
 
@@ -57,15 +66,21 @@ spec:
           annotations:
             summary: >-
               Device {{ $labels.device }} on instance {{ $labels.instance }} available spare is below threshold
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-health"
+            description: >-
+              SSD {{ $labels.device }} available spare blocks have fallen below the critical threshold. Current spare: {{ $labels.available_spare }}%, threshold: {{ $labels.available_spare_threshold }}%. This typically occurs on NVMe SSDs nearing end-of-life. Use `smartctl -A {{ $labels.device }}` to check wear leveling stats and `smartctl -a {{ $labels.device }}` for full diagnostics. Plan immediate SSD replacement as write performance may degrade rapidly.
           labels:
             severity: critical
 
         - alert: SmartDeviceInterfaceSlow
           expr: |
             smartctl_device_interface_speed{speed_type="current"} != on(device, instance, namespace, pod) smartctl_device_interface_speed{speed_type="max"}
+          for: 5m
           annotations:
             summary: >-
               Device {{ $labels.device }} on instance {{ $labels.instance }} interface is running slower than maximum speed
-          for: 5m
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-health"
+            description: >-
+              Drive {{ $labels.device }} interface is running at reduced speed compared to its maximum capability. This may indicate connection issues, cable degradation, or interface negotiation problems. Use `smartctl -i {{ $labels.device }}` to check interface details and connection speed. Verify SATA/NVMe cable connections, check for cable damage, and ensure motherboard interface supports full speed. Consider reseating cables or replacing them if speed issues persist.
           labels:
             severity: critical
