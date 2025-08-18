@@ -51,9 +51,15 @@ spec:
               {{- else }}
                 Alert description not available
               {{- end }}
-              {{- if .Labels.instance }}<small><b>Instance:</b> {{ .Labels.instance }}</small>{{ end }}
-              {{- if .Labels.namespace }}<small><b>Namespace:</b> {{ .Labels.namespace }}</small>{{ end }}
-              {{- if .Labels.pod }}<small><b>Pod:</b> {{ .Labels.pod }}</small>{{ end }}
+              {{- if .Labels.instance }}
+                <small><b>Instance:</b> {{ .Labels.instance }}</small>
+              {{- end }}
+              {{- if .Labels.namespace }}
+                <small><b>Namespace:</b> {{ .Labels.namespace }}</small>
+              {{- end }}
+              {{- if .Labels.pod }}
+                <small><b>Pod:</b> {{ .Labels.pod }}</small>
+              {{- end }}
             {{- end }}
           priority: |-
             {{ if eq .Status "firing" }}1{{ else }}0{{ end }}
