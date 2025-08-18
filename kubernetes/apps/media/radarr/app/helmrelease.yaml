@@ -64,11 +64,11 @@ spec:
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
+        runAsUser: 1701
+        runAsGroup: 1702
+        fsGroup: 1702
         fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [1702, 65536]
+        supplementalGroups: [568, 65536]
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
@@ -76,12 +76,24 @@ spec:
         existingClaim: "{{ .Release.Name }}-cache"
         globalMounts:
           - path: /config/MediaCover
-      media:
+      movies:
         type: nfs
         server: ${NFS_SERVER}
-        path: ${NFS_PATH}
+        path: ${NFS_PATH}/media/Movies
         globalMounts:
-          - path: /data
+          - path: /data/media/Movies
+      torrents:
+        type: nfs
+        server: ${NFS_SERVER}
+        path: ${NFS_PATH}/torrents
+        globalMounts:
+          - path: /data/torrents
+      usenet:
+        type: nfs
+        server: ${NFS_SERVER}
+        path: ${NFS_PATH}/usenet
+        globalMounts:
+          - path: /data/usenet
       tmpfs:
         type: emptyDir
         advancedMounts:
