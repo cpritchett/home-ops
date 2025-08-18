@@ -35,20 +35,46 @@ route:
 
 ### Advanced Scenarios
 
-#### Webhook-Only (No Public DNS)
+#### Tunnel-Only Access (No Public DNS)
 
-For services that need tunnel access but should not have public DNS records:
+For services that need tunnel access but should not have public DNS records created by external-dns:
+
+**Use Case**: Badge endpoints like kromgo that need to be accessible via Cloudflare tunnel for shields.io but shouldn't bypass tunnel routing with direct public DNS.
 
 ```yaml
+# Method 1: In HelmRelease route configuration
 route:
   app:
     annotations:
-      # Tunnel routing but external-dns should skip this
+      # Prevent external-dns from creating public DNS records
       external-dns.alpha.kubernetes.io/exclude: "true"
     parentRefs:
       - name: external
         namespace: kube-system
+
+# Method 2: Separate HTTPRoute resource (recommended for complex routing)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-service
+  namespace: my-namespace
+  annotations:
+    # Force tunnel-only access by excluding from external-dns
+    external-dns.alpha.kubernetes.io/exclude: "true"
+spec:
+  hostnames:
+    - my-service.hypyr.space
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  rules:
+    - backendRefs:
+        - name: my-service
+          port: 80
 ```
+
+**Why This Works**: The service routes through the external gateway (accessible via tunnel) but external-dns skips creating public DNS records that would bypass the tunnel.
 
 #### External Gateway but No Tunnel
 
@@ -113,6 +139,14 @@ kubectl logs -n networking deployment/cloudflared -c generate-config
 
 ```bash
 kubectl get httproute -A -o json | jq -r '.items[] | select(.spec.parentRefs[]?.name == "external") | "\(.metadata.namespace)/\(.metadata.name): \(.spec.hostnames[]?)"'
+```
+
+### Check Tunnel-Only Services
+
+List services using tunnel-only routing (external gateway + external-dns exclude):
+
+```bash
+kubectl get httproute -A -o json | jq -r '.items[] | select(.spec.parentRefs[]?.name == "external" and .metadata.annotations["external-dns.alpha.kubernetes.io/exclude"] == "true") | "\(.metadata.namespace)/\(.metadata.name): \(.spec.hostnames[]?) (tunnel-only)"'
 ```
 
 ## Migration Notes
