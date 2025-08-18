@@ -24,7 +24,8 @@ jobs:
           check-mode: >-
             ${{
               github.event_name == 'push' && 'push' ||
-              github.event_name == 'merge_group' && 'trunk_merge' ||
+              (github.event_name == 'push' && 'push') ||
+              (github.event_name == 'merge_group' && 'trunk_merge') ||
               'pull_request'
             }}
 
