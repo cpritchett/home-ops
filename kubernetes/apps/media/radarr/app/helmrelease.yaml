@@ -76,24 +76,12 @@ spec:
         existingClaim: "{{ .Release.Name }}-cache"
         globalMounts:
           - path: /config/MediaCover
-      movies:
+      media:
         type: nfs
         server: ${NFS_SERVER}
-        path: ${NFS_PATH}/media/Movies
+        path: ${NFS_PATH}
         globalMounts:
-          - path: /data/media/Movies
-      torrents:
-        type: nfs
-        server: ${NFS_SERVER}
-        path: ${NFS_PATH}/torrents
-        globalMounts:
-          - path: /data/torrents
-      usenet:
-        type: nfs
-        server: ${NFS_SERVER}
-        path: ${NFS_PATH}/usenet
-        globalMounts:
-          - path: /data/usenet
+          - path: /data
       tmpfs:
         type: emptyDir
         advancedMounts:
