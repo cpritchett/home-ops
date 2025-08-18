@@ -70,6 +70,8 @@ spec:
             readOnly: true
     route:
       app:
+        annotations:
+          external-dns.alpha.kubernetes.io/exclude: "true"
         hostnames:
           - "{{ .Release.Name }}.hypyr.space"
         parentRefs:
