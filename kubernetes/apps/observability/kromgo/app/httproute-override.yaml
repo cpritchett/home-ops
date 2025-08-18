@@ -4,10 +4,10 @@ kind: HTTPRoute
 metadata:
   name: kromgo
   annotations:
-    # Exclude from external-dns to prevent public DNS records
+    # Tunnel-only access: Exclude from external-dns to force tunnel routing
+    # This prevents external-dns from creating public DNS records that bypass tunnel
     external-dns.alpha.kubernetes.io/exclude: "true"
-    # Ensure tunnel routing is enabled (this is the default, but being explicit)
-    # tunnel.cloudflare.io/exclude: "false" # Not needed - default is include
+    # tunnel.cloudflare.io/exclude: "false" # Default - include in tunnel
 spec:
   hostnames:
     - kromgo.hypyr.space

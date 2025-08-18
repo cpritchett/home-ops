@@ -68,18 +68,19 @@ spec:
           - path: /kromgo/config.yaml
             subPath: config.yaml
             readOnly: true
-    route:
-      app:
-        hostnames:
-          - "{{ .Release.Name }}.hypyr.space"
-        parentRefs:
-          - name: external
-            namespace: kube-system
-            sectionName: https
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
+    # Route disabled - using separate HTTPRoute resource with annotations
+    # route:
+    #   app:
+    #     hostnames:
+    #       - "{{ .Release.Name }}.hypyr.space"
+    #     parentRefs:
+    #       - name: external
+    #         namespace: kube-system
+    #         sectionName: https
+    #     rules:
+    #       - backendRefs:
+    #           - identifier: app
+    #             port: *port
     service:
       app:
         ports:
