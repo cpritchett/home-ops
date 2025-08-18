@@ -43,20 +43,22 @@ spec:
           message: |-
             {{- range .Alerts }}
               {{- if ne .Annotations.description "" }}
-                {{ .Annotations.description }}
+                {{ .Annotations.description | truncate 400 }}
               {{- else if ne .Annotations.summary "" }}
-                {{ .Annotations.summary }}
+                {{ .Annotations.summary | truncate 400 }}
               {{- else if ne .Annotations.message "" }}
-                {{ .Annotations.message }}
+                {{ .Annotations.message | truncate 400 }}
               {{- else }}
                 Alert description not available
               {{- end }}
-              {{- if gt (len .Labels.SortedPairs) 0 }}
-                <small>
-                {{- range .Labels.SortedPairs }}
-                  <b>{{ .Name }}:</b> {{ .Value }}
-                {{- end }}
-                </small>
+              {{- if .Labels.instance }}
+                <small><b>Instance:</b> {{ .Labels.instance }}</small>
+              {{- end }}
+              {{- if .Labels.namespace }}
+                <small><b>Namespace:</b> {{ .Labels.namespace }}</small>
+              {{- end }}
+              {{- if .Labels.pod }}
+                <small><b>Pod:</b> {{ .Labels.pod }}</small>
               {{- end }}
             {{- end }}
           priority: |-

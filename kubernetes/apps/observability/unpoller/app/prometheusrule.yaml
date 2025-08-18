@@ -19,7 +19,7 @@ spec:
 
         - alert: UDMUploadBandwidthLow
           expr: |
-            unpoller_device_speedtest_upload < 100
+            unpoller_device_speedtest_upload < 25
           for: 5m
           annotations:
             summary: >-

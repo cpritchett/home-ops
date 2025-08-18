@@ -9,11 +9,14 @@ spec:
       rules:
         - alert: SmartDeviceHighTemperature
           expr: |
-            smartctl_device_temperature > 65
+            smartctl_device_temperature > 70
           for: 5m
           annotations:
             summary: >-
               Mounted drive {{ $labels.device }} on device {{ $labels.instance }} has a temperature higher than {{ $value }}°C
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#disk-temperature"
+            description: >-
+              Drive temperature is critically high ({{ $value }}°C). Check system cooling and airflow. Monitor with `smartctl -a {{ $labels.device }}` and consider increasing case fans or checking for dust buildup.
           labels:
             severity: critical
 
@@ -47,13 +50,13 @@ spec:
           labels:
             severity: critical
 
-        - alert: SmartDeviceAvailableSpareUnderThreadhold
+        - alert: SmartDeviceAvailableSpareUnderThreshold
           expr: |
             smartctl_device_available_spare_threshold > smartctl_device_available_spare
           for: 5m
           annotations:
             summary: >-
-              Device {{ $labels.device }} on instance {{ $labels.instance }} is under available spare threashold
+              Device {{ $labels.device }} on instance {{ $labels.instance }} available spare is below threshold
           labels:
             severity: critical
 
@@ -62,7 +65,7 @@ spec:
             smartctl_device_interface_speed{speed_type="current"} != on(device, instance, namespace, pod) smartctl_device_interface_speed{speed_type="max"}
           annotations:
             summary: >-
-              Device {{ $labels.device }} on instance {{ $labels.instance }} interface is slower then it should be
+              Device {{ $labels.device }} on instance {{ $labels.instance }} interface is running slower than maximum speed
           for: 5m
           labels:
             severity: critical
