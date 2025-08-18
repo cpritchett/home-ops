@@ -7,22 +7,54 @@ spec:
   groups:
     - name: unpoller.rules
       rules:
-        - alert: UDMDownloadBandwithLow
+        - alert: CGMDownloadBandwidthLow
           expr: |
             unpoller_device_speedtest_download < 100
           for: 5m
           annotations:
             summary: >-
-              {{ $labels.name }} download bandwidth is below {{ $value }} Mbps
+              Cloud Gateway Max download bandwidth is below {{ $value }} Mbps
+            description: >-
+              The UniFi Cloud Gateway Max download bandwidth has been consistently
+              below {{ $value }} Mbps for more than 5 minutes. This may indicate
+              network connectivity issues that require investigation.
+              
+              Troubleshooting steps:
+              1. Check ISP status and service announcements
+              2. Verify all physical cable connections to the gateway
+              3. Restart the Cloud Gateway Max through UniFi Network Console
+              4. Run manual speed test from UniFi Network Console
+              5. Check for firmware updates on the gateway
+              6. Verify QoS settings are not limiting bandwidth
+              7. Contact ISP if issues persist after gateway troubleshooting
+              
+              Current reading: {{ $value }} Mbps (threshold: 100 Mbps)
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#network-connectivity"
           labels:
             severity: critical
 
-        - alert: UDMUploadBandwidthLow
+        - alert: CGMUploadBandwidthLow
           expr: |
             unpoller_device_speedtest_upload < 25
           for: 5m
           annotations:
             summary: >-
-              {{ $labels.name }} upload bandwidth is below {{ $value }} Mbps
+              Cloud Gateway Max upload bandwidth is below {{ $value }} Mbps
+            description: >-
+              The UniFi Cloud Gateway Max upload bandwidth has been consistently
+              below {{ $value }} Mbps for more than 5 minutes. This may indicate
+              network connectivity issues that require investigation.
+              
+              Troubleshooting steps:
+              1. Check ISP status and service announcements
+              2. Verify all physical cable connections to the gateway
+              3. Restart the Cloud Gateway Max through UniFi Network Console
+              4. Run manual speed test from UniFi Network Console
+              5. Check for firmware updates on the gateway
+              6. Verify QoS settings are not limiting upload bandwidth
+              7. Contact ISP if issues persist after gateway troubleshooting
+              
+              Current reading: {{ $value }} Mbps (threshold: 25 Mbps)
+            runbook_url: "https://github.com/cpritchett/home-ops/blob/main/docs/CLUSTER-TROUBLESHOOTING.md#network-connectivity"
           labels:
             severity: critical
