@@ -1,51 +1,41 @@
-# CLAUDE.md
+# 🚨 GITOPS WORKFLOW RULES - MANDATORY 🚨
 
-**Repository Owner**: Chad Pritchett  
-**Repository Purpose**: GitOps configuration for Chad's homelab infrastructure
+**Chad Pritchett's home-ops GitOps repository - 3-node Talos Kubernetes cluster with Flux CD**
 
-This file provides guidance to Claude Code (claude.ai/code) when working with Chad Pritchett's home-ops GitOps repository. When invoked, you should address Chad by name and acknowledge that you're working with his homelab GitOps configuration.
-
-## Repository Overview
-
-**Type**: Home-ops GitOps repository managing a 3-node Talos Linux Kubernetes cluster with Flux CD
-**Key Technologies**: Talos Linux, Kubernetes, Flux CD, 1Password secrets management
-**Documentation**: See `docs/SETUP-GUIDE.md` for complete setup instructions and `docs/` directory for user-facing documentation
-
-## Essential Task Commands
-
-**ALWAYS prefer task commands** over raw kubectl/talosctl commands when available. Use `task --list` to discover commands.
-
-### Common Operations
+## BEFORE ANY CHANGES - EXECUTE THIS SEQUENCE:
 
 ```bash
-# Cluster status and troubleshooting
-task k8s:sync-secrets                   # Force sync ExternalSecrets (fixes most issues)
-task k8s:browse-pvc CLAIM=<name>        # Debug storage by mounting PVC
-task k8s:cleanse-pods                   # Clean up failed/pending pods
-
-# Secret management workflow
-task talos:pull-secrets                 # Pull from 1Password (what nodes use)
-task talos:push-secrets                 # Push to 1Password (updates nodes)
-
-# Bootstrap operations (all under bootstrap: prefix)
-task bootstrap:talos-cluster NODE=<ip>  # Bootstrap Talos control plane
-task bootstrap:apps                     # Deploy Kubernetes apps
-task bootstrap:app-secrets              # Bootstrap API keys
-task bootstrap:postgres-users           # Bootstrap PostgreSQL users
-task bootstrap:cloudflare-tunnel        # Setup external access
+git branch                                    # 1. Check current branch
+git checkout main && git pull origin main    # 2. Switch to updated main
+git checkout -b type/scope-description       # 3. Create feature branch
+# Examples:
+#   feat/auth-improvements
+#   fix/storage-mount-issue
+#   docs/readme-update
 ```
 
-### Troubleshooting Patterns
+## ABSOLUTE PROHIBITIONS:
 
-1. **Secret issues**: Always run `task k8s:sync-secrets` first (auto-fixes 1Password Connect)
-2. **Storage issues**: Use `task k8s:browse-pvc CLAIM=<name>` to debug PVCs
-3. **Certificate mismatches**: Run `task talos:pull-secrets` to sync from 1Password
-4. **Stuck VolSync apps**: Fix corrupted snapshots and stuck PVCs automatically:
-   ```bash
-   task volsync:fix-stuck-app APP=<app> NS=<namespace>
-   ```
-   _Automates the complete workflow: suspend → scale down → clean snapshots/PVCs → resume → scale up_
-5. **Full documentation**: See `docs/CLUSTER-TROUBLESHOOTING.md`
+- 🔴 **NEVER work on main branch** - breaks GitOps workflow
+- 🔴 **NEVER commit/push to main** - only merge via approved PRs
+- 🔴 **NEVER bypass automation** - fix the automation, don't patch around it
+- 🔴 **NEVER manually create PVCs/ExternalSecrets** - let VolSync/1Password do it
+
+## GitOps Reality:
+
+**Flux only deploys changes from the git repository – local modifications to `kubernetes/apps/` won't take effect until committed and pushed**
+
+## Essential Commands
+
+**Use `task --list` to discover all commands. ALWAYS prefer task commands over raw kubectl/talosctl.**
+
+```bash
+# Most common fixes
+task k8s:sync-secrets                   # Fixes most ExternalSecret issues
+task k8s:browse-pvc CLAIM=<name>        # Debug storage issues
+task volsync:fix-stuck-app APP=<app>    # Fix stuck VolSync apps
+task talos:pull-secrets                 # Sync certificates from 1Password
+```
 
 ## Key Configuration Details
 
