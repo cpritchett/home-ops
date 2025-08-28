@@ -62,7 +62,7 @@ machine:
     modules:
       - name: nbd
   kubelet:
-    image: ghcr.io/siderolabs/kubelet:v1.33.4
+    image: ghcr.io/siderolabs/kubelet:v1.34.0
     extraConfig:
       featureGates:
         KubeletSeparateDiskGC: true
