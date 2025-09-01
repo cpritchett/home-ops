@@ -1,0 +1,131 @@
+---
+version: "3"
+
+tasks:
+  deploy:
+    desc: Deploy PXE infrastructure on TrueNAS with Incus
+    dir: "{{.PXE_DIR}}"
+    cmds:
+      - echo "Installing Ansible collections and roles..."
+      - ansible-galaxy install -r ../../infrastructure/ansible-requirements.yml
+      - echo "Deploying Matchbox PXE infrastructure..."
+      - ansible-playbook playbooks/deploy-matchbox.yml
+    env:
+      TRUENAS_IP: "{{.TRUENAS_IP}}"
+    preconditions:
+      - which ansible-playbook
+      - which ansible-galaxy
+      - test -f "{{.PXE_DIR}}/playbooks/deploy-matchbox.yml"
+
+  configure-nodes:
+    desc: Update PXE boot configurations for all nodes
+    dir: "{{.PXE_DIR}}"
+    cmds:
+      - ansible-playbook playbooks/configure-nodes.yml
+    env:
+      TRUENAS_IP: "{{.TRUENAS_IP}}"
+
+  rebuild-node:
+    desc: Rebuild a specific node via PXE boot
+    dir: "{{.PXE_DIR}}"
+    vars:
+      NODE: "{{.NODE}}"
+    cmds:
+      - |
+        if [ -z "{{.NODE}}" ]; then
+          echo "Error: NODE variable is required"
+          echo "Usage: task pxe:rebuild-node NODE=home01"
+          exit 1
+        fi
+      - ansible-playbook playbooks/rebuild-node.yml -e "target_node={{.NODE}}"
+    env:
+      TRUENAS_IP: "{{.TRUENAS_IP}}"
+
+  provision-proxmox:
+    desc: Configure Proxmox nodes after PXE installation
+    dir: "{{.PXE_DIR}}"
+    cmds:
+      - ansible-playbook playbooks/provision-proxmox.yml
+    env:
+      TRUENAS_IP: "{{.TRUENAS_IP}}"
+
+  status:
+    desc: Check PXE infrastructure status
+    cmds:
+      - echo "Checking Matchbox container status on TrueNAS..."
+      - |
+        curl -s -k -H "Authorization: Bearer $TRUENAS_API_KEY" \
+          https://{{.TRUENAS_IP}}/api/v2.0/virt/instance | \
+          jq '.[] | select(.name=="matchbox") | {name, status, type}'
+      - echo ""
+      - echo "Testing Matchbox HTTP endpoint..."
+      - curl -s http://{{.TRUENAS_IP}}:8080/health || echo "Matchbox HTTP not responding"
+      - echo ""
+      - echo "Testing TFTP port..."
+      - timeout 2 nc -zvu {{.TRUENAS_IP}} 69 2>&1 || echo "TFTP port may not be accessible"
+    env:
+      TRUENAS_API_KEY: "{{.TRUENAS_API_KEY}}"
+
+  backup:
+    desc: Create ZFS snapshot of PXE configuration
+    cmds:
+      - echo "Creating ZFS snapshot of PXE datasets..."
+      - |
+        ssh root@{{.TRUENAS_IP}} "zfs snapshot -r tank/apps/pxe-bootstrap@manual-$(date +%Y%m%d-%H%M%S)"
+      - echo "Snapshot created successfully"
+
+  restore:
+    desc: Restore PXE configuration from snapshot
+    vars:
+      SNAPSHOT: "{{.SNAPSHOT}}"
+    cmds:
+      - |
+        if [ -z "{{.SNAPSHOT}}" ]; then
+          echo "Error: SNAPSHOT variable is required"
+          echo "Available snapshots:"
+          ssh root@{{.TRUENAS_IP}} "zfs list -t snapshot -o name -H | grep pxe-bootstrap"
+          exit 1
+        fi
+      - echo "Restoring from snapshot {{.SNAPSHOT}}..."
+      - ssh root@{{.TRUENAS_IP}} "zfs rollback -r {{.SNAPSHOT}}"
+      - task: restart
+
+  restart:
+    desc: Restart Matchbox container
+    cmds:
+      - echo "Restarting Matchbox container..."
+      - |
+        curl -X POST -k -H "Authorization: Bearer $TRUENAS_API_KEY" \
+          https://{{.TRUENAS_IP}}/api/v2.0/virt/instance/matchbox/restart
+    env:
+      TRUENAS_API_KEY: "{{.TRUENAS_API_KEY}}"
+
+  logs:
+    desc: View Matchbox container logs
+    cmds:
+      - echo "Fetching Matchbox container logs..."
+      - |
+        ssh root@{{.TRUENAS_IP}} "incus exec matchbox -- journalctl -u matchbox -n 50 --no-pager"
+
+  download-assets:
+    desc: Download boot assets for Talos and iPXE
+    dir: "{{.PXE_DIR}}"
+    cmds:
+      - echo "Downloading iPXE binaries..."
+      - mkdir -p /tmp/pxe-assets/tftp
+      - wget -O /tmp/pxe-assets/tftp/ipxe.efi https://boot.ipxe.org/ipxe.efi
+      - wget -O /tmp/pxe-assets/tftp/undionly.kpxe https://boot.ipxe.org/undionly.kpxe
+      - echo "Downloading Talos assets..."
+      - mkdir -p /tmp/pxe-assets/talos
+      - wget -O /tmp/pxe-assets/talos/vmlinuz-amd64 https://github.com/siderolabs/talos/releases/download/v1.8.0/vmlinuz-amd64
+      - wget -O /tmp/pxe-assets/talos/initramfs-amd64.xz https://github.com/siderolabs/talos/releases/download/v1.8.0/initramfs-amd64.xz
+      - echo "Assets downloaded to /tmp/pxe-assets/"
+      - echo "Copy them to your TrueNAS dataset - /mnt/tank/apps/pxe-bootstrap/assets/"
+
+  test-boot:
+    desc: Test PXE boot configuration for a specific MAC
+    vars:
+      MAC: '{{.MAC | default "00:00:00:00:00:00"}}'
+    cmds:
+      - echo "Testing PXE configuration for MAC {{.MAC}}..."
+      - curl -s "http://{{.TRUENAS_IP}}:8080/ipxe?mac={{.MAC}}"

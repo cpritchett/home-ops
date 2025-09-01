@@ -1,0 +1,17 @@
+{
+  "id": "proxmox",
+  "name": "Proxmox VE",
+  "boot": {
+    "kernel": "/assets/proxmox/vmlinuz",
+    "initrd": ["/assets/proxmox/initrd.img"],
+    "args": [
+      "initrd=initrd.img",
+      "vga=791",
+      "video=vesafb:ywrap,mtrr",
+      "ramdisk_size=16777216",
+      "splash=verbose",
+      "proxmox_install=http://{{ truenas_ip }}:{{ matchbox_http_port }}/configs/proxmox-{metadata.hostname}-answer.txt",
+      "firstboot=http://{{ truenas_ip }}:{{ matchbox_http_port }}/configs/proxmox-{metadata.hostname}.sh"
+    ]
+  }
+}

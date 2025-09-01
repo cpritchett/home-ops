@@ -1,0 +1,22 @@
+{
+  "groups": [
+{% for host in groups['talos_nodes'] %}
+{% if hostvars[host].get('enabled', true) %}
+    {
+      "id": "{{ host }}",
+      "name": "{{ host }}",
+      "profile": "talos-{{ hostvars[host].role }}",
+      "selector": {
+        "mac": "{{ hostvars[host].mac_address }}"
+      },
+      "metadata": {
+        "hostname": "{{ host }}",
+        "ip_address": "{{ hostvars[host].ip_address }}",
+        "schematic": "{{ hostvars[host].schematic }}",
+        "role": "{{ hostvars[host].role }}"
+      }
+    }{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+  ]
+}

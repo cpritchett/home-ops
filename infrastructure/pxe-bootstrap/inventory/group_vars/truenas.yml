@@ -1,0 +1,50 @@
+---
+# TrueNAS API Configuration
+truenas_api_url: "https://{{ ansible_host }}/api/v2.0"
+truenas_api_key: "{{ lookup('community.general.onepassword', 'truenas-api', field='api_key', vault=op_vault) | default(lookup('env', 'TRUENAS_API_KEY'), true) }}"
+
+# Incus Instance API Endpoints (TrueNAS SCALE 25.04+)
+truenas_incus_endpoints:
+  instances: "/virt/instance" # List/create instances
+  instance: "/virt/instance/{id}" # Manage specific instance
+  exec: "/virt/instance/{id}/exec" # Execute commands
+  start: "/virt/instance/{id}/start" # Start instance
+  stop: "/virt/instance/{id}/stop" # Stop instance
+  console: "/virt/instance/{id}/console" # Console access
+
+# Instance types (LXC containers or VMs)
+instance_types:
+  container: "CONTAINER" # LXC lightweight container
+  vm: "VM" # Full QEMU/KVM virtual machine
+
+# Dataset configuration for PXE infrastructure
+datasets:
+  - name: "{{ truenas_pool }}/{{ truenas_apps_dataset }}"
+    compression: lz4
+    recordsize: 128K
+    quota: 100G
+  - name: "{{ truenas_pool }}/{{ truenas_apps_dataset }}/data"
+    compression: lz4
+  - name: "{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets"
+    compression: "off" # Boot images already compressed
+  - name: "{{ truenas_pool }}/{{ truenas_apps_dataset }}/configs"
+    compression: lz4
+
+# Snapshot configuration
+snapshot_tasks:
+  - name: "pxe-hourly"
+    dataset: "{{ truenas_pool }}/{{ truenas_apps_dataset }}"
+    recursive: true
+    lifetime_value: 24
+    lifetime_unit: "HOUR"
+    schedule:
+      minute: "0"
+      hour: "*"
+  - name: "pxe-daily"
+    dataset: "{{ truenas_pool }}/{{ truenas_apps_dataset }}"
+    recursive: true
+    lifetime_value: 30
+    lifetime_unit: "DAY"
+    schedule:
+      minute: "0"
+      hour: "0"

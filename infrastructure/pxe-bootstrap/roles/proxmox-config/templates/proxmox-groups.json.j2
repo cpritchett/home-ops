@@ -1,0 +1,19 @@
+{
+  "groups": [
+{% for host in groups['proxmox_nodes'] %}
+    {
+      "id": "{{ host }}",
+      "name": "{{ host }}",
+      "profile": "proxmox",
+      "selector": {
+        "mac": "{{ hostvars[host].mac_address }}"
+      },
+      "metadata": {
+        "hostname": "{{ host }}",
+        "ip_address": "{{ hostvars[host].ip_address }}",
+        "install_disk": "{{ hostvars[host].install_disk }}"
+      }
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}

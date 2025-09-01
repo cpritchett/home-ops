@@ -1,0 +1,62 @@
+---
+- name: Rebuild a node via PXE boot
+  hosts: truenas
+  gather_facts: no
+  vars_prompt:
+    - name: target_node
+      prompt: "Which node to rebuild?"
+      private: no
+
+  tasks:
+    - name: Validate node exists
+      assert:
+        that:
+          - target_node in groups['talos_nodes'] or target_node in groups['proxmox_nodes']
+        fail_msg: "Node {{ target_node }} not found in inventory"
+
+    - name: Get node information
+      set_fact:
+        node_info: "{{ hostvars[target_node] }}"
+
+    - name: Display node information
+      debug:
+        msg:
+          - "Rebuilding node: {{ target_node }}"
+          - "IP Address: {{ node_info.ip_address }}"
+          - "MAC Address: {{ node_info.mac_address }}"
+
+    - name: Check if IPMI is available
+      wait_for:
+        host: "{{ target_node }}-ipmi"
+        port: 623
+        timeout: 5
+      register: ipmi_available
+      ignore_errors: yes
+
+    - name: Power cycle via IPMI if available
+      block:
+        - name: Power off node
+          command: ipmitool -H {{ target_node }}-ipmi -U admin -P {{ ipmi_password }} power off
+          vars:
+            ipmi_password: "{{ lookup('community.general.onepassword', 'ipmi-' + target_node, field='password', vault=op_vault) | default('admin', true) }}"
+
+        - name: Set boot to PXE
+          command: ipmitool -H {{ target_node }}-ipmi -U admin -P {{ ipmi_password }} chassis bootdev pxe
+          vars:
+            ipmi_password: "{{ lookup('community.general.onepassword', 'ipmi-' + target_node, field='password', vault=op_vault) | default('admin', true) }}"
+
+        - name: Power on node
+          command: ipmitool -H {{ target_node }}-ipmi -U admin -P {{ ipmi_password }} power on
+          vars:
+            ipmi_password: "{{ lookup('community.general.onepassword', 'ipmi-' + target_node, field='password', vault=op_vault) | default('admin', true) }}"
+      when: ipmi_available is succeeded
+
+    - name: Manual intervention required if no IPMI
+      debug:
+        msg:
+          - "IPMI not available for {{ target_node }}"
+          - "Please manually:"
+          - "1. Power off the node"
+          - "2. Configure BIOS to boot from network/PXE"
+          - "3. Power on the node"
+      when: ipmi_available is failed

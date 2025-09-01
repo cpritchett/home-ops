@@ -8,11 +8,14 @@ vars:
   BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
   TALOS_DIR: "{{.ROOT_DIR}}/talos"
+  INFRASTRUCTURE_DIR: "{{.ROOT_DIR}}/infrastructure"
+  PXE_DIR: "{{.ROOT_DIR}}/infrastructure/pxe-bootstrap"
   CONTROL_PLANE_ENDPOINT: "https://homeops.hypyr.space:6443"
   OP_VAULT: "homelab"
   TALOS_ENDPOINTS: "10.0.5.215,10.0.5.220,10.0.5.100"
   TALOS_NODES:
     sh: yq '.nodes | keys | join(",")' {{.TALOS_DIR}}/node-mapping.yaml
+  TRUENAS_IP: "10.0.5.10"
 
 env:
   KUBECONFIG: "{{.KUBERNETES_DIR}}/kubeconfig"
@@ -25,6 +28,7 @@ includes:
   talos: .taskfiles/talos
   volsync: .taskfiles/volsync
   workstation: .taskfiles/workstation
+  pxe: .taskfiles/pxe
 
 tasks:
   default:

@@ -1,0 +1,72 @@
+---
+# Using our custom Incus module (to be contributed to fork)
+- name: Create Matchbox LXC container via custom module
+  truenas_incus_instance:
+    name: "matchbox"
+    state: present
+    type: "CONTAINER"
+    source:
+      type: "IMAGE"
+      alias: "debian/12"
+      server: "https://images.linuxcontainers.org"
+    config:
+      limits.cpu: "2"
+      limits.memory: "2GB"
+      boot.autostart: "true"
+      boot.autostart.priority: "100"
+      security.privileged: "false"
+      security.nesting: "true"
+    devices:
+      eth0:
+        type: "nic"
+        network: "incusbr0"
+        name: "eth0"
+      root:
+        type: "disk"
+        path: "/"
+        pool: "default"
+        size: "20GB"
+      matchbox-data:
+        type: "disk"
+        source: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/data"
+        path: "/var/lib/matchbox"
+      matchbox-assets:
+        type: "disk"
+        source: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets"
+        path: "/assets"
+      matchbox-configs:
+        type: "disk"
+        source: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/configs"
+        path: "/configs"
+      # Port proxying for unprivileged container
+      http-proxy:
+        type: "proxy"
+        listen: "tcp:0.0.0.0:{{ matchbox_http_port }}"
+        connect: "tcp:127.0.0.1:8080"
+      grpc-proxy:
+        type: "proxy"
+        listen: "tcp:0.0.0.0:{{ matchbox_grpc_port }}"
+        connect: "tcp:127.0.0.1:8081"
+      tftp-proxy:
+        type: "proxy"
+        listen: "udp:0.0.0.0:69"
+        connect: "udp:127.0.0.1:69"
+    api_url: "{{ truenas_api_url }}"
+    api_key: "{{ truenas_api_key }}"
+    timeout: 120
+  delegate_to: localhost
+  register: matchbox_container
+
+- name: Ensure container is started
+  truenas_incus_instance:
+    name: "matchbox"
+    state: started
+    api_url: "{{ truenas_api_url }}"
+    api_key: "{{ truenas_api_key }}"
+  delegate_to: localhost
+  when: matchbox_container.changed
+
+- name: Wait for container network to be ready
+  pause:
+    seconds: 10
+  when: matchbox_container.changed

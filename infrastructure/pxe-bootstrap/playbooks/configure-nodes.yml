@@ -1,0 +1,24 @@
+---
+- name: Update PXE boot configurations for all nodes
+  hosts: truenas
+  gather_facts: no
+
+  tasks:
+    - name: Update Talos configurations
+      include_role:
+        name: talos-config
+        tasks_from: update
+
+    - name: Update Proxmox configurations
+      include_role:
+        name: proxmox-config
+        tasks_from: update
+
+    - name: Refresh Matchbox cache
+      uri:
+        url: "http://{{ truenas_ip }}:{{ matchbox_http_port }}/refresh"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        validate_certs: no
+      ignore_errors: yes

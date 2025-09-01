@@ -1,0 +1,56 @@
+---
+- name: List all Incus instances
+  uri:
+    url: "{{ truenas_api_url }}{{ truenas_incus_endpoints.instances }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ truenas_api_key }}"
+    validate_certs: no
+  register: instances
+
+- name: Verify Matchbox container exists
+  assert:
+    that:
+      - instances.json | selectattr('name', 'equalto', 'matchbox') | list | length > 0
+    fail_msg: "Matchbox container not found in Incus instances"
+
+- name: Check Matchbox container status
+  uri:
+    url: "{{ truenas_api_url }}{{ truenas_incus_endpoints.instance | replace('{id}', matchbox_instance_id) }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ truenas_api_key }}"
+    validate_certs: no
+  vars:
+    matchbox_instance_id: "{{ instances.json | selectattr('name', 'equalto', 'matchbox') | map(attribute='id') | first }}"
+  register: matchbox_status
+
+- name: Display container info
+  debug:
+    msg:
+      - "Container: {{ matchbox_status.json.name }}"
+      - "Status: {{ matchbox_status.json.status }}"
+      - "Type: {{ matchbox_status.json.type }}"
+      - "Created: {{ matchbox_status.json.created_at | default('N/A') }}"
+
+- name: Test Matchbox HTTP endpoint
+  uri:
+    url: "http://{{ truenas_ip }}:{{ matchbox_http_port }}/"
+    method: GET
+    status_code: [200, 404]
+  register: http_test
+
+- name: Test TFTP port
+  wait_for:
+    host: "{{ truenas_ip }}"
+    port: 69
+    timeout: 5
+    msg: "TFTP port 69 is not accessible"
+  ignore_errors: yes
+  register: tftp_test
+
+- name: Display service status
+  debug:
+    msg:
+      - "Matchbox HTTP: {{ 'OK' if http_test.status in [200, 404] else 'FAILED' }}"
+      - "TFTP Server: {{ 'OK' if tftp_test is succeeded else 'FAILED (may need manual verification)' }}"

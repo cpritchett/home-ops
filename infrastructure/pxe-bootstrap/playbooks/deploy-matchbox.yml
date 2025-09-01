@@ -1,0 +1,49 @@
+---
+- name: Deploy PXE Infrastructure on TrueNAS with Incus
+  hosts: truenas
+  gather_facts: yes
+
+  pre_tasks:
+    - name: Verify TrueNAS SCALE version supports Incus
+      uri:
+        url: "{{ truenas_api_url }}/system/info"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ truenas_api_key }}"
+        validate_certs: no
+      register: truenas_info
+
+    - name: Check for Incus support (25.04+)
+      assert:
+        that:
+          - truenas_info.json.version is version('25.04', '>=')
+        fail_msg: "TrueNAS SCALE 25.04 or later required for Incus support"
+
+  tasks:
+    - name: Setup TrueNAS datasets
+      include_role:
+        name: truenas-setup
+
+    - name: Deploy Matchbox in Incus container
+      include_role:
+        name: matchbox
+
+    - name: Configure Talos node profiles
+      include_role:
+        name: talos-config
+
+    - name: Setup Proxmox node profiles
+      include_role:
+        name: proxmox-config
+
+  post_tasks:
+    - name: Display deployment information
+      debug:
+        msg:
+          - "PXE Infrastructure deployed successfully!"
+          - "Matchbox URL: http://{{ truenas_ip }}:{{ matchbox_http_port }}"
+          - "TFTP Server: {{ truenas_ip }}:69"
+          - ""
+          - "Configure your DHCP server with:"
+          - "  next-server: {{ truenas_ip }}"
+          - "  filename: ipxe.efi"

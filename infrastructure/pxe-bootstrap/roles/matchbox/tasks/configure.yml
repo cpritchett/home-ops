@@ -1,0 +1,121 @@
+---
+# Using our custom exec module for container commands
+- name: Install Matchbox inside container
+  truenas_incus_exec:
+    name: matchbox
+    api_url: "{{ truenas_api_url }}"
+    api_key: "{{ truenas_api_key }}"
+    command: |
+      set -e
+
+      # Update system
+      apt-get update
+      apt-get install -y wget systemd curl dnsmasq
+
+      # Download and install Matchbox
+      cd /tmp
+      wget -q https://github.com/poseidon/matchbox/releases/download/v{{ matchbox_version }}/matchbox-v{{ matchbox_version }}-linux-amd64.tar.gz
+      tar xzf matchbox-v{{ matchbox_version }}-linux-amd64.tar.gz
+      mv matchbox-v{{ matchbox_version }}-linux-amd64/matchbox /usr/local/bin/
+      chmod +x /usr/local/bin/matchbox
+
+      # Create user
+      useradd -r -d /var/lib/matchbox matchbox || true
+
+      # Set permissions
+      chown -R matchbox:matchbox {{ matchbox_data_path }} || true
+      chown -R matchbox:matchbox {{ matchbox_assets_path }} || true
+
+      echo "Matchbox binary installed"
+    creates: /usr/local/bin/matchbox
+    timeout: 120
+  delegate_to: localhost
+  register: install_result
+
+- name: Create Matchbox systemd service
+  truenas_incus_exec:
+    name: matchbox
+    api_url: "{{ truenas_api_url }}"
+    api_key: "{{ truenas_api_key }}"
+    command: |
+      cat > /etc/systemd/system/matchbox.service <<'EOF'
+      [Unit]
+      Description=Matchbox Server
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=matchbox
+      Group=matchbox
+      ExecStart=/usr/local/bin/matchbox \
+        -address=0.0.0.0:8080 \
+        -rpc-address=0.0.0.0:8081 \
+        -data-path={{ matchbox_data_path }} \
+        -assets-path={{ matchbox_assets_path }}
+      Restart=on-failure
+      RestartSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+      EOF
+
+      systemctl daemon-reload
+      systemctl enable matchbox
+      systemctl restart matchbox
+    creates: /etc/systemd/system/matchbox.service
+  delegate_to: localhost
+  register: service_result
+
+- name: Configure TFTP server
+  truenas_incus_exec:
+    name: matchbox
+    api_url: "{{ truenas_api_url }}"
+    api_key: "{{ truenas_api_key }}"
+    command: |
+      # Configure dnsmasq for TFTP only
+      cat > /etc/dnsmasq.d/tftp.conf <<'EOF'
+      # Disable DNS
+      port=0
+
+      # Enable TFTP
+      enable-tftp
+      tftp-root={{ matchbox_assets_path }}/tftp
+      tftp-port-range=69,69
+      tftp-no-fail
+
+      # Logging
+      log-facility=/var/log/dnsmasq.log
+      log-dhcp
+      EOF
+
+      # Create TFTP directory
+      mkdir -p {{ matchbox_assets_path }}/tftp
+
+      # Restart dnsmasq
+      systemctl restart dnsmasq
+      systemctl enable dnsmasq
+    creates: /etc/dnsmasq.d/tftp.conf
+  delegate_to: localhost
+  register: tftp_result
+
+- name: Check Matchbox service status
+  truenas_incus_exec:
+    name: matchbox
+    api_url: "{{ truenas_api_url }}"
+    api_key: "{{ truenas_api_key }}"
+    command: systemctl is-active matchbox
+  delegate_to: localhost
+  register: service_status
+  ignore_errors: yes
+
+- name: Wait for Matchbox to be accessible
+  uri:
+    url: "http://{{ truenas_ip }}:{{ matchbox_http_port }}/"
+    method: GET
+    status_code: [200, 404]
+    validate_certs: no
+  register: health_check
+  until: health_check.status in [200, 404]
+  retries: 30
+  delay: 2
+  delegate_to: localhost

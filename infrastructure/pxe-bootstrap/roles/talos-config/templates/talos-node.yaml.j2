@@ -1,0 +1,63 @@
+---
+# Talos configuration for {{ item }}
+{% set node = hostvars[item] %}
+version: v1alpha1
+debug: false
+persist: true
+machine:
+  type: {{ node.role }}
+  token: {{ talos_secrets.machine_token }}
+  ca:
+    crt: {{ talos_secrets.machine_ca_crt }}
+    key: {{ talos_secrets.machine_ca_key }}
+  certSANs:
+    - "{{ cluster_endpoint | regex_replace('https?://', '') | regex_replace(':.*', '') }}"
+    - "{{ item }}.{{ cluster_name }}"
+    - "{{ item }}"
+    - "{{ node.ip_address }}"
+  features:
+    rbac: true
+    stableHostname: true
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles: ["os:admin"]
+      allowedKubernetesNamespaces: ["actions-runner-system", "system-upgrade"]
+  network:
+    hostname: "{{ item }}"
+    interfaces:
+      - interface: eth0
+        dhcp: false
+        addresses:
+          - "{{ node.ip_address }}/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "{{ gateway_ip }}"
+        mtu: 1500
+    nameservers: {{ dns_servers }}
+  install:
+    disk: /dev/sda
+    image: ghcr.io/siderolabs/installer:v{{ talos_version }}
+    schematic: {{ node.schematic }}
+    wipe: false
+  kubelet:
+    image: ghcr.io/siderolabs/kubelet:v1.31.0
+    extraArgs:
+      rotate-server-certificates: true
+{% if node.role == 'controlplane' %}
+cluster:
+  clusterName: {{ cluster_name }}
+  controlPlane:
+    endpoint: {{ cluster_endpoint }}
+  network:
+    cni:
+      name: cilium
+    dnsDomain: cluster.local
+    podSubnets:
+      - 10.244.0.0/16
+    serviceSubnets:
+      - 10.96.0.0/12
+  apiServer:
+    certSANs:
+      - "{{ cluster_endpoint | regex_replace('https?://', '') | regex_replace(':.*', '') }}"
+    admissionControl: []
+{% endif %}

@@ -1,0 +1,58 @@
+---
+- name: Download iPXE binaries
+  get_url:
+    url: "{{ item.url }}"
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/tftp/{{ item.name }}"
+    mode: "0644"
+  loop:
+    - name: ipxe.efi
+      url: https://boot.ipxe.org/ipxe.efi
+    - name: undionly.kpxe
+      url: https://boot.ipxe.org/undionly.kpxe
+    - name: ipxe.iso
+      url: https://boot.ipxe.org/ipxe.iso
+  delegate_to: localhost
+  become: no
+
+- name: Create iPXE chain script
+  copy:
+    content: |
+      #!ipxe
+      chain http://{{ truenas_ip }}:{{ matchbox_http_port }}/boot.ipxe?mac=${mac}
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/tftp/chain.ipxe"
+    mode: "0644"
+  delegate_to: localhost
+  become: no
+
+- name: Download Talos boot assets
+  get_url:
+    url: "https://github.com/siderolabs/talos/releases/download/v{{ talos_version }}/{{ item }}"
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/talos/{{ item }}"
+    mode: "0644"
+  loop:
+    - vmlinuz-amd64
+    - initramfs-amd64.xz
+  delegate_to: localhost
+  become: no
+
+- name: Create directory for Proxmox assets
+  file:
+    path: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/proxmox"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: no
+
+- name: Display manual steps for Proxmox assets
+  debug:
+    msg:
+      - "Manual step required: Download Proxmox ISO and extract kernel/initrd"
+      - "1. Download Proxmox VE ISO from https://www.proxmox.com/downloads"
+      - "2. Extract vmlinuz and initrd.img from the ISO"
+      - "3. Place them in /mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/proxmox/"
+      - ""
+      - "Commands:"
+      - "  wget https://enterprise.proxmox.com/iso/proxmox-ve_8.2-2.iso"
+      - "  7z x proxmox-ve_8.2-2.iso -o/tmp/pve"
+      - "  cp /tmp/pve/boot/linux26 /mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/proxmox/vmlinuz"
+      - "  cp /tmp/pve/boot/initrd.img /mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/proxmox/"

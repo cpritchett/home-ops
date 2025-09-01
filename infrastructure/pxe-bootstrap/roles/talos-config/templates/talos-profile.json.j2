@@ -1,0 +1,16 @@
+{
+  "id": "talos-{{ item }}",
+  "name": "Talos {{ item | title }}",
+  "boot": {
+    "kernel": "/assets/talos/vmlinuz-amd64",
+    "initrd": ["/assets/talos/initramfs-amd64.xz"],
+    "args": [
+      "initrd=initramfs-amd64.xz",
+      "init_on_alloc=1",
+      "slab_nomerge",
+      "pti=on",
+      "talos.platform=metal",
+      "talos.config=http://{{ truenas_ip }}:{{ matchbox_http_port }}/configs/talos-{metadata.hostname}.yaml"
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+---
+- name: Configure Proxmox nodes after PXE installation
+  hosts: proxmox_nodes
+  gather_facts: no
+  serial: 1 # Configure one node at a time
+
+  vars:
+    proxmox_root_password: "{{ lookup('community.general.onepassword', 'proxmox-root', field='password', vault=op_vault) }}"
+
+  tasks:
+    - name: Wait for Proxmox to come online
+      wait_for:
+        host: "{{ ip_address }}"
+        port: 8006
+        delay: 30
+        timeout: 600
+
+    - name: Initial Proxmox configuration
+      uri:
+        url: "https://{{ ip_address }}:8006/api2/json/nodes/localhost/network"
+        method: PUT
+        headers:
+          Cookie: "PVEAuthCookie={{ auth_cookie }}"
+        body_format: json
+        body:
+          iface: vmbr0
+          type: bridge
+          autostart: 1
+          bridge_ports: "{{ ansible_default_ipv4.interface | default('eth0') }}"
+          address: "{{ ip_address }}"
+          netmask: "{{ subnet_mask }}"
+          gateway: "{{ gateway_ip }}"
+        validate_certs: no
+      vars:
+        auth_cookie: "{{ lookup('password', '/tmp/pve_auth_' + inventory_hostname + ' length=32') }}"
+      when: inventory_hostname == 'pve01'
+
+    - name: Configure storage
+      uri:
+        url: "https://{{ ip_address }}:8006/api2/json/storage"
+        method: POST
+        headers:
+          Cookie: "PVEAuthCookie={{ auth_cookie }}"
+        body_format: json
+        body:
+          storage: local-zfs
+          type: zfspool
+          pool: rpool/data
+          content: "images,rootdir"
+        validate_certs: no
+      vars:
+        auth_cookie: "{{ lookup('password', '/tmp/pve_auth_' + inventory_hostname + ' length=32') }}"
+
+    - name: Join cluster (non-primary nodes)
+      command: |
+        pvecm add {{ hostvars['pve01'].ip_address }} --force
+      when: inventory_hostname != 'pve01'
+      ignore_errors: yes
+
+    - name: Configure HA
+      uri:
+        url: "https://{{ hostvars['pve01'].ip_address }}:8006/api2/json/cluster/ha/groups"
+        method: POST
+        headers:
+          Cookie: "PVEAuthCookie={{ auth_cookie }}"
+        body_format: json
+        body:
+          group: ha-group-1
+          nodes: "{{ groups['proxmox_nodes'] | join(',') }}"
+          nofailback: 0
+          restricted: 0
+        validate_certs: no
+      vars:
+        auth_cookie: "{{ lookup('password', '/tmp/pve_auth_pve01 length=32') }}"
+      when: inventory_hostname == 'pve01'
+      run_once: true

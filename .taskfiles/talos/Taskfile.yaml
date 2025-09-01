@@ -241,7 +241,7 @@ tasks:
     preconditions:
       - talosctl config info
       - talosctl --nodes {{.NODE}} get machineconfig
-      - which minijinja-cli talosctl yq
+      - which talosctl yq
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the whole cluster

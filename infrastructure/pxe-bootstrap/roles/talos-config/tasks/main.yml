@@ -1,0 +1,45 @@
+---
+- name: Get Talos secrets from 1Password
+  set_fact:
+    talos_secrets:
+      machine_token: "{{ lookup('community.general.onepassword', 'talos', field='MACHINE_TOKEN', vault=op_vault) | default('', true) }}"
+      machine_ca_crt: "{{ lookup('community.general.onepassword', 'talos', field='MACHINE_CA_CRT', vault=op_vault) | default('', true) }}"
+      machine_ca_key: "{{ lookup('community.general.onepassword', 'talos', field='MACHINE_CA_KEY', vault=op_vault) | default('', true) }}"
+  no_log: true
+
+- name: Generate Talos configs for each node
+  template:
+    src: "talos-node.yaml.j2"
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/configs/talos-{{ item }}.yaml"
+    mode: "0644"
+  loop: "{{ groups['talos_nodes'] }}"
+  when: hostvars[item].get('enabled', true)
+  delegate_to: localhost
+  become: no
+
+- name: Generate Matchbox profiles for Talos
+  template:
+    src: "talos-profile.json.j2"
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/data/profiles/talos-{{ item }}.json"
+    mode: "0644"
+  loop:
+    - controlplane
+    - worker
+  delegate_to: localhost
+  become: no
+
+- name: Generate Matchbox groups for Talos nodes
+  template:
+    src: "talos-groups.json.j2"
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/data/groups/talos.json"
+    mode: "0644"
+  delegate_to: localhost
+  become: no
+
+- name: Generate iPXE boot script
+  template:
+    src: "boot.ipxe.j2"
+    dest: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}/assets/boot.ipxe"
+    mode: "0644"
+  delegate_to: localhost
+  become: no

@@ -1,0 +1,32 @@
+---
+# Network Configuration
+gateway_ip: "10.0.5.1"
+dns_servers:
+  - "10.0.5.1"
+  - "1.1.1.1"
+subnet_mask: "255.255.255.0"
+network_cidr: "10.0.5.0/24"
+
+# Matchbox Configuration
+matchbox_version: "0.10.0"
+matchbox_http_port: 8080
+matchbox_grpc_port: 8081
+matchbox_data_path: "/var/lib/matchbox"
+matchbox_assets_path: "/assets"
+
+# TrueNAS Configuration
+truenas_ip: "{{ hostvars['truenas-scale']['ansible_host'] }}"
+truenas_pool: "tank"
+truenas_apps_dataset: "apps/pxe-bootstrap"
+
+# Cluster Configuration
+cluster_name: "homelab"
+cluster_endpoint: "https://homeops.hypyr.space:6443"
+
+# Talos Configuration
+talos_version: "1.8.0"
+talos_schematic_id: "ce4c980550dd2ab1b17bbf2b08801c7c0c82c4b0b9704b221d0e5dbc846a09ed"
+
+# 1Password Integration
+op_vault: "homelab"
+op_connect_server: "http://onepassword-connect:8080"

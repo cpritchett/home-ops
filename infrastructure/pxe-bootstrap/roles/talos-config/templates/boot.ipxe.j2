@@ -1,0 +1,14 @@
+#!ipxe
+# Dynamic iPXE boot script for PXE infrastructure
+
+# Get MAC address
+set mac ${net0/mac}
+echo Booting system with MAC: ${mac}
+
+# Try to fetch node-specific configuration
+chain http://{{ truenas_ip }}:{{ matchbox_http_port }}/ipxe?mac=${mac} ||
+
+# Fallback to default boot
+echo No PXE configuration found for MAC ${mac}
+echo Booting from local disk...
+exit

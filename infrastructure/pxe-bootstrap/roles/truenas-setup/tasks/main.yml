@@ -1,0 +1,52 @@
+---
+# Using arensb.truenas collection modules
+
+- name: Gather TrueNAS facts
+  arensb.truenas.truenas_facts:
+    gather_subset:
+      - pool
+      - system
+  delegate_to: "{{ inventory_hostname }}"
+  register: truenas_facts
+
+- name: Create ZFS datasets for PXE infrastructure
+  arensb.truenas.filesystem:
+    name: "{{ item.name }}"
+    type: FILESYSTEM
+    compression: "{{ item.compression | default('lz4') }}"
+    atime: "off"
+    recordsize: "{{ item.recordsize | default('128K') }}"
+    quota: "{{ item.quota | default(omit) }}"
+  loop: "{{ datasets }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Setup automatic snapshots
+  arensb.truenas.pool_snapshot_task:
+    dataset: "{{ item.dataset }}"
+    recursive: "{{ item.recursive | default(true) }}"
+    lifetime_value: "{{ item.lifetime_value }}"
+    lifetime_unit: "{{ item.lifetime_unit }}"
+    naming_schema: "auto-%Y%m%d-%H%M%S"
+    schedule:
+      minute: "{{ item.schedule.minute }}"
+      hour: "{{ item.schedule.hour }}"
+    enabled: true
+  loop: "{{ snapshot_tasks }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+# Permission setting still needs API call as module doesn't exist yet
+- name: Set dataset permissions for Incus
+  uri:
+    url: "{{ truenas_api_url }}/filesystem/setperm"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ truenas_api_key }}"
+    body_format: json
+    body:
+      path: "/mnt/{{ truenas_pool }}/{{ truenas_apps_dataset }}"
+      uid: 100000 # Incus container UID namespace
+      gid: 100000 # Incus container GID namespace
+      mode: "0755"
+      recursive: true
+    validate_certs: no
+  delegate_to: localhost

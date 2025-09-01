@@ -1,0 +1,28 @@
+# Proxmox VE automated installation answer file for {{ item }}
+{% set node = hostvars[item] %}
+
+# Installation target
+target={{ node.install_disk }}
+
+# Filesystem
+filesystem=zfs
+zfs-compress=on
+zfs-checksum=on
+zfs-copies=1
+
+# Country and timezone
+country=US
+timezone=America/New_York
+keymap=en-us
+
+# Network configuration
+hostname={{ item }}.{{ cluster_name }}
+domain={{ cluster_name }}
+ip={{ node.ip_address }}
+netmask={{ subnet_mask }}
+gateway={{ gateway_ip }}
+dns={{ dns_servers[0] }}
+
+# Admin email and root password (temporary, will be changed)
+email=admin@{{ cluster_name }}
+password=ChangeMeImmediately123!

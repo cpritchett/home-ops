@@ -1,0 +1,59 @@
+#!/bin/bash
+# Proxmox firstboot configuration script for {{ item }}
+{% set node = hostvars[item] %}
+
+set -e
+
+echo "Starting firstboot configuration for {{ item }}"
+
+# Update system
+apt-get update
+apt-get upgrade -y
+
+# Configure network interfaces
+cat > /etc/network/interfaces <<EOF
+auto lo
+iface lo inet loopback
+
+auto vmbr0
+iface vmbr0 inet static
+    address {{ node.ip_address }}
+    netmask {{ subnet_mask }}
+    gateway {{ gateway_ip }}
+    bridge-ports eth0
+    bridge-stp off
+    bridge-fd 0
+EOF
+
+# Configure DNS
+cat > /etc/resolv.conf <<EOF
+{% for dns in dns_servers %}
+nameserver {{ dns }}
+{% endfor %}
+search {{ cluster_name }}
+EOF
+
+# Configure hosts file
+cat >> /etc/hosts <<EOF
+{{ node.ip_address }} {{ item }}.{{ cluster_name }} {{ item }}
+{% for host in groups['proxmox_nodes'] %}
+{% if host != item %}
+{{ hostvars[host].ip_address }} {{ host }}.{{ cluster_name }} {{ host }}
+{% endif %}
+{% endfor %}
+EOF
+
+# Enable SSH
+systemctl enable ssh
+systemctl start ssh
+
+# Configure storage
+pvesm set local --content iso,vztmpl,backup
+
+# Signal completion
+curl -X POST http://{{ truenas_ip }}:{{ matchbox_http_port }}/callback \
+  -H "Content-Type: application/json" \
+  -d '{"node":"{{ item }}","status":"complete","ip":"{{ node.ip_address }}"}' || true
+
+echo "Firstboot configuration complete. Please run ansible playbook for full configuration."
+echo "ansible-playbook playbooks/provision-proxmox.yml -l {{ item }}"

@@ -1,0 +1,26 @@
+---
+# Check TrueNAS system information using collection
+- name: Gather TrueNAS system facts
+  arensb.truenas.truenas_facts:
+    gather_subset:
+      - system
+  delegate_to: "{{ inventory_hostname }}"
+  register: truenas_info
+
+- name: Verify TrueNAS SCALE 25.04+ for Incus support
+  assert:
+    that:
+      - truenas_info.ansible_facts.ansible_truenas_system.version is version('25.04', '>=')
+    fail_msg: "TrueNAS SCALE 25.04 or later required for Incus support. Current: {{ truenas_info.ansible_facts.ansible_truenas_system.version | default('unknown') }}"
+
+- name: Deploy Matchbox as Incus LXC container
+  include_tasks: incus-lxc.yml
+
+- name: Configure Matchbox
+  include_tasks: configure.yml
+
+- name: Download boot assets
+  include_tasks: assets.yml
+
+- name: Verify deployment
+  include_tasks: verify.yml
