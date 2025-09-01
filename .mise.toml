@@ -2,7 +2,7 @@
 KUBECONFIG = '{{config_root}}/kubernetes/kubeconfig'
 MINIJINJA_CONFIG_FILE = '{{config_root}}/.minijinja.toml'
 TALOSCONFIG = '{{config_root}}/talos/talosconfig'
-TALOS_VERSION = "v1.11.0-beta.2"
+TALOS_VERSION = "v1.11.0-rc.0"
 KUBERNETES_VERSION = "v1.33.4"
 MACHINE_TYPE = "controlplane"
 TALOS_SCHEMATIC = "b4e204a2932be8827ddf98a9329269723407f77b36a758400506bca4abebc602"

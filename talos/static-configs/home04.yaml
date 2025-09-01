@@ -54,7 +54,7 @@ machine:
         rsize=1048576
         wsize=1048576
   install:
-    image: factory.talos.dev/metal-installer/d38be64a0b19b7e98c10e4374e55ea1720b4edea1b95d45c3dc170986ad33082:v1.11.0-beta.2
+    image: factory.talos.dev/metal-installer/d38be64a0b19b7e98c10e4374e55ea1720b4edea1b95d45c3dc170986ad33082:v1.11.0-rc.0
     disk: /dev/disk/by-id/ata-WDC_WDS500G2B0A_20096X468305
   kernel:
     modules:
