@@ -8,7 +8,7 @@ MACHINE_TYPE = "controlplane"
 TALOS_SCHEMATIC = "b4e204a2932be8827ddf98a9329269723407f77b36a758400506bca4abebc602"
 
 [tools]
-helmfile = "1.1.5"
+helmfile = "1.1.6"
 kubectl = "1.34.0"
 talosctl = "1.11.0-beta.2"
 task = "3.44.0"
