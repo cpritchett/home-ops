@@ -18,7 +18,7 @@ yq = "4.47.2"
 rust = "1.89.0"
 helm = "latest"
 cargo = "0.89.0"
-flux2 = "2.6.4"
+flux2 = "2.7.2"
 "ubi:kubernetes-sigs/krew" = "latest"
 
 # Additional CLI tools (migrated from Brewfile)
