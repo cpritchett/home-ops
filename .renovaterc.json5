@@ -22,7 +22,7 @@
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
   vulnerabilityAlerts: {
-    enabled: true,
+    enabled: true
   },
   ignorePaths: ["**/resources/**"],
   flux: {

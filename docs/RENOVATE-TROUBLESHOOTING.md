@@ -21,7 +21,9 @@ This error occurs when the GitHub App used by Renovate lacks the necessary permi
 
 2. **Repository Security Settings** must be enabled:
    - Security & analysis → Dependency graph ✅
-   - Security & analysis → Dependabot alerts ✅
+   - Security & analysis → GitHub vulnerability alerts ✅
+   
+   **Note:** These are GitHub platform features (not Dependabot-specific) that Renovate uses to detect vulnerabilities.
 
 3. **Renovate Configuration** should include:
    ```json
@@ -59,9 +61,10 @@ This error typically occurs when Renovate cannot access package registries due t
 
 1. Go to repository Settings → Security & analysis
 2. Ensure these are enabled:
-   - [ ] Dependency graph
-   - [ ] Dependabot alerts
-   - [ ] Dependabot security updates (optional but recommended)
+   - [ ] Dependency graph (required for Renovate)
+   - [ ] GitHub vulnerability alerts (required for Renovate)
+   
+   **Note:** These are GitHub platform features that Renovate uses to detect security issues. This is separate from Dependabot, which is GitHub's native dependency update tool.
 
 ### Step 3: Verify Bot Secrets Configuration
 
@@ -102,9 +105,10 @@ Examine `.renovaterc.json5` for proper vulnerability alert configuration:
 ### Fix 2: Enable Repository Security Features
 
 1. Navigate to Repository Settings → Security & analysis
-2. Enable "Dependency graph"
-3. Enable "Dependabot alerts"
-4. Optionally enable "Dependabot security updates"
+2. Enable "Dependency graph" (required for Renovate vulnerability detection)
+3. Enable "GitHub vulnerability alerts" (required for Renovate vulnerability detection)
+
+**Note:** These are GitHub platform features that Renovate uses, separate from Dependabot which is GitHub's native dependency update tool.
 
 ### Fix 3: Verify Secrets are Current
 
@@ -136,7 +140,9 @@ After applying fixes, verify the issues are resolved:
 
 - [Renovate Security and Permissions](https://docs.renovatebot.com/security-and-permissions/)
 - [GitHub App Permissions](https://docs.github.com/en/developers/apps/managing-github-apps/editing-a-github-apps-permissions)
-- [Dependabot Configuration](https://docs.github.com/en/code-security/dependabot)
+- [GitHub Vulnerability Alerts](https://docs.github.com/en/code-security/dependabot/dependabot-alerts/about-dependabot-alerts)
+
+**Note:** While the last link references Dependabot alerts, Renovate uses the same GitHub vulnerability detection infrastructure. These are platform features, not tool-specific.
 
 ## Common Mistakes to Avoid
 

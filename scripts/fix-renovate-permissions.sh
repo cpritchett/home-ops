@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Repository configuration
+REPO="cpritchett/home-ops"
+
 echo "🔧 RENOVATE PERMISSION DIAGNOSTICS & FIX TOOL"
 echo "============================================="
 echo
@@ -57,11 +60,11 @@ check_repository_security() {
     # We'll provide instructions for manual verification
     echo
     log_warning "Please manually verify these repository settings:"
-    echo "1. Go to: https://github.com/cpritchett/home-ops/settings/security_analysis"
+    echo "1. Go to: https://github.com/${REPO}/settings/security_analysis"
     echo "2. Ensure the following are ENABLED:"
-    echo "   ✓ Dependency graph"
-    echo "   ✓ Dependabot alerts"
-    echo "   ✓ Dependabot security updates (recommended)"
+    echo "   ✓ Dependency graph (required for Renovate vulnerability detection)"
+    echo "   ✓ GitHub vulnerability alerts (required for Renovate vulnerability detection)"
+    echo "   Note: These are GitHub platform features that Renovate uses, not Dependabot"
     echo
     read -p "Have you verified these settings are enabled? (y/N): " -n 1 -r
     echo
@@ -104,7 +107,7 @@ check_repository_secrets() {
     log_info "Checking repository secrets..."
     
     # Get list of repository secrets
-    secrets=$(gh secret list --repo cpritchett/home-ops 2>/dev/null || echo "")
+    secrets=$(gh secret list --repo ${REPO} 2>/dev/null || echo "")
     
     if echo "$secrets" | grep -q "BOT_APP_ID"; then
         log_success "BOT_APP_ID secret exists"
@@ -155,7 +158,7 @@ test_renovate_workflow() {
     log_info "Testing Renovate workflow..."
     echo
     log_warning "To test the Renovate workflow manually:"
-    echo "1. Go to: https://github.com/cpritchett/home-ops/actions/workflows/renovate.yaml"
+    echo "1. Go to: https://github.com/${REPO}/actions/workflows/renovate.yaml"
     echo "2. Click 'Run workflow'"
     echo "3. Set 'Log Level' to 'debug' for detailed output"
     echo "4. Monitor the logs for any remaining permission errors"
@@ -164,7 +167,7 @@ test_renovate_workflow() {
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log_info "Triggering Renovate workflow..."
-        gh workflow run renovate.yaml --repo cpritchett/home-ops --field logLevel=debug
+        gh workflow run renovate.yaml --repo ${REPO} --field logLevel=debug
         log_success "Workflow triggered. Check the Actions tab for results."
     fi
     echo

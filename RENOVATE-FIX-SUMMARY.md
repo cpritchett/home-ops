@@ -35,9 +35,10 @@
 
 1. Go to your repository Settings → Security & analysis
 2. Enable these if not already enabled:
-   - **Dependency graph** ✅
-   - **Dependabot alerts** ✅
-   - **Dependabot security updates** (recommended)
+   - **Dependency graph** ✅ (required for Renovate vulnerability detection)
+   - **GitHub vulnerability alerts** ✅ (required for Renovate vulnerability detection)
+
+**Important Note:** These are GitHub platform features that Renovate uses to detect security issues. This is **not** the same as Dependabot, which is GitHub's native dependency update tool. You're using Renovate for dependency updates, but Renovate leverages GitHub's built-in vulnerability detection infrastructure.
 
 ### 3. 🧪 Test the Fixes
 
