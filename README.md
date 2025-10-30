@@ -178,6 +178,29 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
 | UniFi USW Pro 8            | 1     | -             | -                 | -     | UniFi OS         | Garage PoE Switch       |
 | Lenovo Thinkstation P520   | 1     | -             | Many Mixed NVME's | 128GB | UnRAID           | Secondary/Flash NAS     |
 
+---
+
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f527/512.gif" alt="🔧" width="20" height="20"> Troubleshooting
+
+### Common Issues
+
+- **Renovate Permission Issues**: If you see "Cannot access vulnerability alerts" or "Package lookup failures", see [`docs/RENOVATE-TROUBLESHOOTING.md`](./docs/RENOVATE-TROUBLESHOOTING.md)
+- **Cluster Issues**: For node, storage, or networking problems, see [`docs/CLUSTER-TROUBLESHOOTING.md`](./docs/CLUSTER-TROUBLESHOOTING.md)
+- **Setup Issues**: For initial setup problems, see [`docs/SETUP-GUIDE.md`](./docs/SETUP-GUIDE.md)
+
+### Quick Fixes
+
+```bash
+# Fix secret sync issues
+task k8s:sync-secrets
+
+# Fix Renovate permissions
+./scripts/fix-renovate-permissions.sh
+
+# Browse storage issues
+task k8s:browse-pvc CLAIM=<pvc-name>
+```
+
 ## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f31f/512.gif" alt="🌟" width="20" height="20"> Stargazers
 
 <div align="center">

@@ -1,15 +1,19 @@
+# trunk-ignore(checkov/CKV2_GHA_1): GitHub Actions workflow requires write permissions for automation
+---
 name: Trunk Code Quality
+
 on:
   push:
-    branches: main
+    branches: ["main"]
   pull_request:
-    branches: main
+    branches: ["main"]
 
 permissions:
   contents: read
-  pull-requests: write 
+  pull-requests: write
   issues: write
-  
+  checks: write
+
 jobs:
   test:
     runs-on: ubuntu-24.04

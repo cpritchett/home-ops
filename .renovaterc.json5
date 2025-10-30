@@ -21,6 +21,9 @@
   ],
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
+  vulnerabilityAlerts: {
+    enabled: true
+  },
   ignorePaths: ["**/resources/**"],
   flux: {
     managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"],
