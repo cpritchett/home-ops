@@ -1,0 +1,88 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      description: "Require approval for major updates",
+      matchUpdateTypes: ["major"],
+      dependencyDashboardApproval: true,
+      minimumReleaseAge: "7 days",
+    },
+    {
+      description: "Stable release age for minor updates",
+      matchUpdateTypes: ["minor"],
+      minimumReleaseAge: "3 days",
+    },
+    {
+      description: "Quick patch updates",
+      matchUpdateTypes: ["patch"],
+      minimumReleaseAge: "1 day",
+    },
+    {
+      description: "Container image digest updates",
+      matchDatasources: ["docker"],
+      matchUpdateTypes: ["digest"],
+      enabled: true,
+      pinDigests: true,
+      automerge: false,
+    },
+    {
+      description: "Helm chart updates",
+      matchDatasources: ["helm"],
+      commitMessageTopic: "Helm chart {{depName}}",
+      separateMinorPatch: true,
+    },
+    {
+      description: "GitHub Actions updates",
+      matchManagers: ["github-actions"],
+      pinDigests: true,
+      commitMessageTopic: "GitHub Action {{depName}}",
+    },
+    {
+      description: "GitHub Releases - follow semantic versioning",
+      matchDatasources: ["github-releases"],
+      separateMinorPatch: true,
+      extractVersion: "^v?(?<version>.*)$",
+    },
+    {
+      description: "Docker images - enable digest pinning",
+      matchDatasources: ["docker"],
+      pinDigests: true,
+      separateMinorPatch: false,
+    },
+    {
+      description: "Development dependencies - lower priority",
+      matchDepTypes: ["devDependencies"],
+      prPriority: -1,
+      automerge: true,
+      automergeType: "branch",
+    },
+    {
+      description: "Production dependencies - higher priority",
+      matchDepTypes: ["dependencies"],
+      prPriority: 5,
+    },
+    {
+      description: "Tool binaries from mise.toml",
+      matchFileNames: [".mise.toml"],
+      commitMessageTopic: "tool {{depName}}",
+      semanticCommitScope: "tools",
+    },
+    {
+      description: "Disable updates for local dependencies",
+      matchPackageNames: ["/^file:/"],
+      enabled: false,
+    },
+    {
+      description: "Increase stability period for critical infrastructure",
+      matchPackageNames: [
+        "/cilium/",
+        "/rook-ceph/",
+        "/cert-manager/",
+        "/external-secrets/",
+      ],
+      matchUpdateTypes: ["major"],
+      minimumReleaseAge: "14 days",
+      dependencyDashboardApproval: true,
+    },
+  ],
+}

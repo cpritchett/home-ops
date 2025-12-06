@@ -23,7 +23,7 @@
         "/ghcr.io/siderolabs/installer/"
       ],
       enabled: false,
-      prTitle: "chore(talos): update installer image in {{{depName}}} to {{{newVersion}}}"
+      commitMessageTopic: "update installer image in {{{depName}}} to {{{newVersion}}}"
     }
   ]
 }
