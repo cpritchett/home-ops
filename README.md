@@ -185,6 +185,7 @@ In my cluster there are two instances of [ExternalDNS](https://github.com/kubern
 ### Common Issues
 
 - **Renovate Permission Issues**: If you see "Cannot access vulnerability alerts" or "Package lookup failures", see [`docs/RENOVATE-TROUBLESHOOTING.md`](./docs/RENOVATE-TROUBLESHOOTING.md)
+- **Renovate Configuration**: For details on how Renovate is configured and best practices, see [`docs/RENOVATE-CONFIG-GUIDE.md`](./docs/RENOVATE-CONFIG-GUIDE.md)
 - **Cluster Issues**: For node, storage, or networking problems, see [`docs/CLUSTER-TROUBLESHOOTING.md`](./docs/CLUSTER-TROUBLESHOOTING.md)
 - **Setup Issues**: For initial setup problems, see [`docs/SETUP-GUIDE.md`](./docs/SETUP-GUIDE.md)
 
