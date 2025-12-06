@@ -33,5 +33,36 @@
       matchDatasources: ["github-releases"],
       addLabels: ["renovate/github-release"],
     },
+    {
+      matchPackageNames: [
+        "siderolabs/talos",
+        "kubernetes/kubernetes",
+      ],
+      addLabels: ["renovate/kubernetes"],
+    },
+    {
+      matchFileNames: [".mise.toml"],
+      addLabels: ["renovate/tooling"],
+    },
+    {
+      matchPackageNames: [
+        "/cilium/",
+        "/rook-ceph/",
+        "/cert-manager/",
+        "/external-secrets/",
+        "/flux/",
+      ],
+      addLabels: ["renovate/infrastructure"],
+    },
+    {
+      description: "Add datasource-specific labels",
+      matchDatasources: ["npm"],
+      addLabels: ["renovate/npm"],
+    },
+    {
+      description: "Add datasource-specific labels",
+      matchDatasources: ["go"],
+      addLabels: ["renovate/go"],
+    },
   ],
 }

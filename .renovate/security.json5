@@ -1,0 +1,13 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      description: "Security updates - prioritize and label",
+      matchUpdateTypes: ["major", "minor", "patch"],
+      matchPackagePatterns: [".*"],
+      labels: ["security"],
+      prPriority: 10,
+      minimumReleaseAge: null,
+    },
+  ],
+}
