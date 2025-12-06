@@ -14,7 +14,6 @@
     "github>cpritchett/home-ops//.renovate/talosFactory.json5",
     "github>cpritchett/home-ops//.renovate/labels.json5",
     "github>cpritchett/home-ops//.renovate/semanticCommits.json5",
-    "github>cpritchett/home-ops//.renovate/security.json5",
     "github>cpritchett/home-ops//.renovate/packageRules.json5",
     ":automergeBranch",
     ":dependencyDashboard",
@@ -58,15 +57,6 @@
   postUpdateOptions: [
     "gomodTidy",
     "npmDedupe"
-  ],
-  
-  // Additional package rules
-  packageRules: [
-    {
-      description: "Docker pinDigests for all Docker images",
-      matchCategories: ["docker"],
-      pinDigests: true,
-    },
   ],
   
   // Manager-specific configurations

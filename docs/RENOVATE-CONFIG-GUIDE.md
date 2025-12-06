@@ -26,7 +26,6 @@ The configuration is modular, with separate files for different concerns:
 ├── groups.json5               # Dependency grouping rules
 ├── labels.json5               # PR labeling configuration
 ├── packageRules.json5         # General package update rules
-├── security.json5             # Security-focused rules
 ├── semanticCommits.json5      # Semantic commit message formatting
 └── talosFactory.json5         # Talos installer image handling
 ```
