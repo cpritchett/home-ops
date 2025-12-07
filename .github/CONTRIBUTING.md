@@ -20,7 +20,7 @@ This is a personal homelab repository managed by Chad Pritchett. Most contributi
 
 3. **Use repository automation:**
    - Prefer `task` commands over raw kubectl/talosctl
-   - Common: `task k8s:sync-secrets`, `task flux:reconcile`, `task volsync:fix-stuck-app`
+   - Common: `task k8s:sync-secrets`, `task k8s:reconcile`, `task volsync:fix-stuck-app`
 
 4. **Validate changes:**
    - Run relevant `task` commands to test

@@ -26,7 +26,7 @@
 ## Validation Steps
 
 <!-- What commands were run to verify this works? -->
-<!-- Example: task k8s:sync-secrets, task flux:reconcile, kubectl logs, etc. -->
+<!-- Example: task k8s:sync-secrets, task k8s:reconcile, kubectl logs, etc. -->
 
 ## Related Issues
 

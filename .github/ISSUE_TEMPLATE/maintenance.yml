@@ -63,7 +63,7 @@ body:
         - [ ] Run: task talos:pull-secrets
         - [ ] Update YAML in kubernetes/apps/
         - [ ] Commit and push changes
-        - [ ] Verify: task flux:reconcile
+        - [ ] Verify: task k8s:reconcile
         - [ ] Check: kubectl get <resource> -n <namespace>
         - [ ] Monitor: task k8s:logs APP=<name>
 

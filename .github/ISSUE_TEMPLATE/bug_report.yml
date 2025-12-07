@@ -56,7 +56,7 @@ body:
       placeholder: |
         Common diagnostic commands (see Taskfile.yaml):
         - task k8s:sync-secrets
-        - task flux:reconcile
+        - task k8s:reconcile
         - kubectl describe/logs <resource>
         - task k8s:browse-pvc CLAIM=<name>
         - talosctl logs (for node issues)
