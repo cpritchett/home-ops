@@ -1,18 +1,36 @@
 # Security Policy
 
-🛡️ Found a security issue in a [home-ops](https://github.com/cpritchett/home-ops) project? Read on.
+## Reporting Security Issues
 
-## Reporting a Vulnerability
+This is a personal homelab repository. If you discover a security vulnerability in:
 
-Maintainers will attempt to respond to/confirm reports within 2-3 days, but if you believe your report to be "critical" to user safety and security, please note as such in the subject. We have tens of thousands of users using our software, and take security vulnerabilities seriously.
+- **Infrastructure configurations** (Kubernetes, Talos, networking)
+- **Application deployments**
+- **Secret management practices**
+- **Exposed credentials or sensitive data**
 
-When reporting an issue, where possible, please provide at least:
+Please report it by:
 
-- The project and commit version the issue was identified at
-- A proof of concept (plaintext; no binaries)
-- Steps to reproduce
-- Your recommended remediation(s), if any
+1. **Opening a GitHub issue** with the `security` label
+2. **Emailing** [@cpritchett](https://github.com/cpritchett) directly for critical issues
 
-### Report using GitHub issues
+## What to Include
 
-To report a vulnerability via GitHub issues, click on the `Issues` tab at the top of any repository and then click on the `New issue` button.
+When reporting a security issue, please provide:
+
+- The affected component or file
+- Description of the vulnerability
+- Potential impact
+- Suggested remediation (if known)
+- Steps to reproduce (if applicable)
+
+## Response
+
+Security issues will be addressed as quickly as possible, prioritizing those that could:
+
+- Expose sensitive data (secrets, credentials, personal information)
+- Compromise cluster security
+- Allow unauthorized access to services
+- Create risk to the home network
+
+Thank you for helping keep this homelab secure!

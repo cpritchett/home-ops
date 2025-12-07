@@ -1,12 +1,12 @@
 name: Feature Request
-description: Suggest new functionality or improvements for the homelab
+description: Track new functionality or improvements for the homelab
 title: "[FEATURE] "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Got an idea to improve the homelab? Let's discuss it!
+        Document the feature idea for planning and implementation.
 
   - type: dropdown
     id: category
@@ -46,7 +46,6 @@ body:
       placeholder: |
         - What pain point does this address?
         - How would this improve the homelab?
-        - Who would benefit from this?
 
   - type: textarea
     id: implementation

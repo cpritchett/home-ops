@@ -1,12 +1,12 @@
 name: Bug Report
-description: Report a problem with the homelab infrastructure
+description: Track a problem with the homelab infrastructure
 title: "[BUG] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug! Please provide details to help diagnose the issue.
+        Document the issue for troubleshooting and future reference.
 
   - type: dropdown
     id: component

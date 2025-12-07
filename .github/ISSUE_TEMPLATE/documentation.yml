@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Help improve the homelab documentation for better maintainability and knowledge sharing.
+        Track documentation improvements for better maintainability.
 
   - type: dropdown
     id: doc-type
@@ -77,8 +77,6 @@ body:
       options:
         - label: Self (future reference)
         - label: AI coding agents
-        - label: Other homelab enthusiasts
-        - label: Contributors to the project
 
   - type: checkboxes
     id: priority

@@ -1,44 +1,57 @@
-# Contribution guidelines
+# Contributing to home-ops
 
-Welcome to [home-ops](https://github.com/cpritchett/home-ops)! We're thrilled that you'd like to contribute. Your help is essential for making it better.
+This is a personal homelab repository managed by Chad Pritchett. While external contributions are not expected, this guide documents the development workflow.
 
-## Getting Started
+## Development Workflow
 
-Before you start contributing, please make sure you have read and understood our [Code of Conduct](CODE_OF_CONDUCT.md).
-
-1. Fork the Repository
-
-First, fork the [repository](https://github.com/cpritchett/home-ops) to your own GitHub account. This will create a copy of the project under your account.
-
-2. Clone the Repository
+1. **Always work on a feature branch** - Never commit directly to main
 
    ```sh
-   git clone https://github.com/cpritchett/home-ops
+   git checkout main
+   git pull origin main
+   git checkout -b type/scope-description
    ```
 
-3. Navigate to the project directory 📁
+   Branch naming examples:
+   - `feat/auth-improvements`
+   - `fix/storage-mount-issue`
+   - `docs/readme-update`
+   - `chore/dependency-updates`
 
-   ```sh
-   cd home-ops
-   ```
+2. **Make your changes** following the repository guidelines in `.github/copilot-instructions.md`
 
-4. Create a new branch for your feature or bug fix:
-
-   ```sh
-   git checkout -b feature-branch
-   ```
-
-5. Make your changes and commit them:
+3. **Commit with conventional commit format:**
 
    ```sh
    git add .
-   git commit -m "Description of your changes"
+   git commit -m "type(scope): description"
    ```
 
-6. Push your changes to your fork:
+   Examples:
+   - `feat(media): add plex gpu transcoding`
+   - `fix(storage): resolve PVC mount issues`
+   - `docs(setup): update 1password configuration`
+
+4. **Push to origin and create a PR:**
 
    ```sh
    git push origin feature-branch
    ```
 
-7. Finally Click on Create Pull request to contribute on this repository.
+5. **Merge via GitHub** after any CI checks pass
+
+## Key Guidelines
+
+- Follow GitOps principles - changes to `kubernetes/apps/` only take effect after git commit/push
+- Use `task --list` to discover available automation commands
+- Check `docs/` directory for detailed procedures before making infrastructure changes
+- Never commit secrets directly - use 1Password ExternalSecrets
+- Test changes with Flux reconciliation before merging
+
+## Repository Structure
+
+- `kubernetes/apps/` - Application deployments by namespace
+- `talos/` - Talos node configurations  
+- `bootstrap/` - Cluster initialization scripts
+- `docs/` - Documentation and guides
+- `.taskfiles/` - Task automation definitions
