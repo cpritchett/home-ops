@@ -42,7 +42,7 @@ This is a personal homelab repository managed by Chad Pritchett. While external 
 
 ## Key Guidelines
 
-- Follow GitOps principles - changes to `kubernetes/apps/` only take effect after git commit/push
+- Follow GitOps principles: **Flux only reconciles from the git repository** – local filesystem changes to `kubernetes/apps/` will NOT be applied until they are committed and pushed. Always commit and push changes before expecting Flux to apply them.
 - Use `task --list` to discover available automation commands
 - Check `docs/` directory for detailed procedures before making infrastructure changes
 - Never commit secrets directly - use 1Password ExternalSecrets
