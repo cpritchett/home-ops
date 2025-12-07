@@ -30,8 +30,6 @@
   // Security and vulnerability detection
   vulnerabilityAlerts: {
     enabled: true,
-    labels: ["security"],
-    addLabels: ["security/vulnerability"]
   },
   osvVulnerabilityAlerts: true,
   

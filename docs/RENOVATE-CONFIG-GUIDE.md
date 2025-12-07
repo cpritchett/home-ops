@@ -57,7 +57,7 @@ pinDigests: true
 - **OSV Database**: Enabled via `osvVulnerabilityAlerts`
 - **OpenSSF Scorecard**: Enabled via `security:openssf-scorecard` preset
 
-**Security Labels**: Updates with security vulnerabilities are automatically labeled with `security` and `security/vulnerability`.
+**Security Labels**: Renovate automatically labels PRs with vulnerability fixes using its built-in detection system.
 
 ### 3. Intelligent Grouping
 
