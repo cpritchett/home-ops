@@ -63,7 +63,7 @@
     {
       description: "Auto-merge Docker patch updates from trusted registries",
       matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/**", "quay.io/**"],
+      matchPackageNames: ["/^ghcr\\.io\\//", "/^quay\\.io\\//"],
       matchUpdateTypes: ["patch"],
       automerge: true,
       automergeType: "branch",
