@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template for routine maintenance tasks, updates, or housekeeping work.
+        Track maintenance tasks and housekeeping work.
 
   - type: dropdown
     id: task-type
@@ -85,4 +85,4 @@ body:
     attributes:
       label: Target Completion
       description: When should this be completed?
-      placeholder: e.g., "End of month" or "Before next security scan"
+      placeholder: e.g., "End of month" or specific date
