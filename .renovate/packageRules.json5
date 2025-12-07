@@ -84,5 +84,10 @@
       minimumReleaseAge: "14 days",
       dependencyDashboardApproval: true,
     },
+    {
+      description: "Disable updates for qbr - repository not publicly accessible",
+      matchPackageNames: ["ghcr.io/buroa/qbr"],
+      enabled: false,
+    },
   ],
 }
