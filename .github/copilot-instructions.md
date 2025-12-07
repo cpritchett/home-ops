@@ -34,7 +34,7 @@ git checkout -b type/scope-description       # 3. Create feature branch
 task k8s:sync-secrets                   # Fixes most ExternalSecret issues
 task k8s:browse-pvc CLAIM=<name>        # Debug storage issues
 task volsync:fix-stuck-app APP=<app>    # Fix stuck VolSync apps
-task talos:pull-secrets                 # Sync certificates from 1Password
+task talos:pull-secrets                 # Pull secrets from 1Password
 ```
 
 ## Key Configuration Details
@@ -139,7 +139,6 @@ scripts/                # Automation scripts
 - **Setup Guide**: `docs/SETUP-GUIDE.md`
 - **1Password Setup**: `docs/1PASSWORD-SETUP.md`
 - **Troubleshooting**: `docs/CLUSTER-TROUBLESHOOTING.md`
-- **PostgreSQL Bootstrap**: `docs/POSTGRESQL-BOOTSTRAP.md`
 - **YAML Guidelines**: `docs/YAML-HELM-TEMPLATING-GUIDE.md`
 
 ## When Working on This Repository
