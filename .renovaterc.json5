@@ -1,69 +1,69 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    "config:recommended",
-    "docker:enableMajor",
-    "helpers:pinGitHubActionDigests",
-    "security:openssf-scorecard",
-    "github>cpritchett/home-ops//.renovate/allowedVersions.json5",
-    "github>cpritchett/home-ops//.renovate/autoMerge.json5",
-    "github>cpritchett/home-ops//.renovate/customManagers.json5",
-    "github>cpritchett/home-ops//.renovate/grafanaDashboards.json5",
-    "github>cpritchett/home-ops//.renovate/groups.json5",
-    "github>cpritchett/home-ops//.renovate/talosFactory.json5",
-    "github>cpritchett/home-ops//.renovate/labels.json5",
-    "github>cpritchett/home-ops//.renovate/semanticCommits.json5",
-    "github>cpritchett/home-ops//.renovate/packageRules.json5",
-    ":automergeBranch",
-    ":dependencyDashboard",
-    ":disableRateLimiting",
-    ":gitSignOff",
-    ":semanticCommits",
-    ":timezone(America/Chicago)",
+    'config:recommended',
+    'docker:enableMajor',
+    'helpers:pinGitHubActionDigests',
+    'security:openssf-scorecard',
+    'github>cpritchett/home-ops//.renovate/allowedVersions.json5',
+    'github>cpritchett/home-ops//.renovate/autoMerge.json5',
+    'github>cpritchett/home-ops//.renovate/customManagers.json5',
+    'github>cpritchett/home-ops//.renovate/grafanaDashboards.json5',
+    'github>cpritchett/home-ops//.renovate/groups.json5',
+    'github>cpritchett/home-ops//.renovate/talosFactory.json5',
+    'github>cpritchett/home-ops//.renovate/labels.json5',
+    'github>cpritchett/home-ops//.renovate/semanticCommits.json5',
+    'github>cpritchett/home-ops//.renovate/packageRules.json5',
+    ':automergeBranch',
+    ':dependencyDashboard',
+    ':disableRateLimiting',
+    ':gitSignOff',
+    ':semanticCommits',
+    ':timezone(America/Chicago)',
   ],
-  dependencyDashboardTitle: "Renovate Dashboard 🤖",
-  dependencyDashboardHeader: "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.",
-  dependencyDashboardLabels: ["renovate/dashboard"],
-  suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
-  
-  // Security and vulnerability detection
+  dependencyDashboardTitle: 'Renovate Dashboard 🤖',
+  dependencyDashboardHeader: 'This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.',
+  dependencyDashboardLabels: [
+    'renovate/dashboard',
+  ],
+  suppressNotifications: [
+    'prEditedNotification',
+    'prIgnoreNotification',
+  ],
   vulnerabilityAlerts: {
     enabled: true,
   },
   osvVulnerabilityAlerts: true,
-  
-  // Pin dependencies and digests
   separateMinorPatch: true,
   pinDigests: true,
-  
-  // PR description enhancements
-  prCreation: "immediate",
+  prCreation: 'immediate',
   prConcurrentLimit: 10,
   prHourlyLimit: 0,
-  
-  // Enhanced PR descriptions with release notes and changelogs
-  fetchChangeLogs: "pr",
-  
-  // Ignore paths
-  ignorePaths: ["**/resources/**"],
-  
-  // Customize commit messages with more details
-  commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
-  
-  // Post-update options
-  postUpdateOptions: [
-    "gomodTidy",
-    "npmDedupe"
+  fetchChangeLogs: 'pr',
+  ignorePaths: [
+    '**/resources/**',
   ],
-  
-  // Manager-specific configurations
+  commitBody: 'Signed-off-by: Renovate Bot <bot@renovateapp.com>',
+  postUpdateOptions: [
+    'gomodTidy',
+    'npmDedupe',
+  ],
   flux: {
-    fileMatch: ["\\.yaml$", "\\.yaml\\.j2$"],
+    managerFilePatterns: [
+      '/\\.yaml$/',
+      '/\\.yaml\\.j2$/',
+    ],
   },
-  "helm-values": {
-    fileMatch: ["\\.yaml$", "\\.yaml\\.j2$"],
+  'helm-values': {
+    managerFilePatterns: [
+      '/\\.yaml$/',
+      '/\\.yaml\\.j2$/',
+    ],
   },
   kubernetes: {
-    fileMatch: ["\\.yaml$", "\\.yaml\\.j2$"],
+    managerFilePatterns: [
+      '/\\.yaml$/',
+      '/\\.yaml\\.j2$/',
+    ],
   },
 }
