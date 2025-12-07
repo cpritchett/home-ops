@@ -1,8 +1,42 @@
 # Contributing to home-ops
 
-This is a personal homelab repository managed by Chad Pritchett. While external contributions are not expected, this guide documents the development workflow.
+This is a personal homelab repository managed by Chad Pritchett. Most contributions come from AI agents (GitHub Copilot, Sentry/Seer, etc.) that create PRs based on issues and prompts.
 
-## Development Workflow
+## For AI Agents
+
+**Required Reading:** `.github/copilot-instructions.md` contains mandatory workflow rules and architectural context.
+
+### Quick Start Checklist
+
+1. **Read context first:**
+   - `.github/copilot-instructions.md` - GitOps workflow rules (MANDATORY)
+   - `docs/` - Component-specific guides and troubleshooting
+   - `Taskfile.yaml` - Available automation commands (`task --list`)
+
+2. **Follow GitOps workflow:**
+   - Always create feature branch (`type/scope-description`)
+   - Never work on or commit to `main` branch
+   - Changes to `kubernetes/apps/` only apply after commit+push (Flux reconciles from git)
+
+3. **Use repository automation:**
+   - Prefer `task` commands over raw kubectl/talosctl
+   - Common: `task k8s:sync-secrets`, `task flux:reconcile`, `task volsync:fix-stuck-app`
+
+4. **Validate changes:**
+   - Run relevant `task` commands to test
+   - Verify Flux reconciliation for Kubernetes changes
+   - Check for secrets leakage (use ExternalSecrets)
+
+### Architecture Quick Reference
+
+- **GitOps:** Flux CD manages all deployments from git
+- **Cluster:** 3-node Talos Kubernetes (v1.31+)
+- **CNI:** Cilium with eBPF
+- **Storage:** Rook Ceph (distributed) + OpenEBS (local)
+- **Secrets:** 1Password Connect + ExternalSecrets Operator
+- **Backup:** VolSync for PVC snapshots
+
+## Human Workflow
 
 1. **Always work on a feature branch** - Never commit directly to main
 
@@ -55,3 +89,4 @@ This is a personal homelab repository managed by Chad Pritchett. While external 
 - `bootstrap/` - Cluster initialization scripts
 - `docs/` - Documentation and guides
 - `.taskfiles/` - Task automation definitions
+- `.github/copilot-instructions.md` - **AI agent workflow rules** (mandatory reading)

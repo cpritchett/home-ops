@@ -6,7 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Document the feature idea for planning and implementation.
+        **AI Agent Guidance:** Document feature ideas for implementation planning.
+        - Check `docs/` for existing architectural patterns
+        - Review `.github/copilot-instructions.md` for GitOps constraints
+        - Consider VolSync, ExternalSecrets, and Flux CD integration points
+        - Use `task --list` to understand available automation
 
   - type: dropdown
     id: category
@@ -51,11 +55,15 @@ body:
     id: implementation
     attributes:
       label: Implementation Ideas
-      description: Any thoughts on how this could be implemented?
+      description: Technical approach and integration points
       placeholder: |
-        - Specific tools or technologies to consider
-        - Configuration changes needed
-        - Integration points with existing infrastructure
+        Consider:
+        - Helm chart or raw manifests (in kubernetes/apps/)
+        - Storage needs (Rook Ceph or OpenEBS local-storage)
+        - Secrets management (1Password ExternalSecrets)
+        - Network requirements (Cilium CNI, BGP)
+        - GitOps automation (Flux Kustomization/HelmRelease)
+        - Backup strategy (VolSync integration)
 
   - type: textarea
     id: alternatives
