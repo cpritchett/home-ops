@@ -6,8 +6,8 @@
       groupName: "Talos Factory",
       matchDatasources: ["docker"],
       matchPackageNames: [
-        "/factory.talos.dev\\/(?:.*-)?installer\\//",
-        "/ghcr.io/siderolabs/installer/"
+        "/factory\\.talos\\.dev\\/(?:.*-)?installer\\//",
+        "/ghcr\\.io\\/siderolabs\\/installer/"
       ],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
@@ -19,8 +19,8 @@
       description: "Override for Talos machine configs with static image references",
       matchFileNames: ["talos/static-configs/**"],
       matchPackageNames: [
-        "/factory.talos.dev\\/(?:.*-)?installer\\//",
-        "/ghcr.io/siderolabs/installer/"
+        "/factory\\.talos\\.dev\\/(?:.*-)?installer\\//",
+        "/ghcr\\.io\\/siderolabs\\/installer/"
       ],
       enabled: false,
       commitMessageTopic: "update installer image in {{{depName}}} to {{{newVersion}}}"
