@@ -3,7 +3,9 @@
   extends: [
     "config:recommended",
     "docker:enableMajor",
+    ":pinAllExceptDigests",
     "helpers:pinGitHubActionDigests",
+    "security:openssf-scorecard",
     "github>cpritchett/home-ops//.renovate/allowedVersions.json5",
     "github>cpritchett/home-ops//.renovate/autoMerge.json5",
     "github>cpritchett/home-ops//.renovate/customManagers.json5",
@@ -12,6 +14,7 @@
     "github>cpritchett/home-ops//.renovate/talosFactory.json5",
     "github>cpritchett/home-ops//.renovate/labels.json5",
     "github>cpritchett/home-ops//.renovate/semanticCommits.json5",
+    "github>cpritchett/home-ops//.renovate/packageRules.json5",
     ":automergeBranch",
     ":dependencyDashboard",
     ":disableRateLimiting",
@@ -20,18 +23,48 @@
     ":timezone(America/Chicago)",
   ],
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  dependencyDashboardHeader: "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.",
+  dependencyDashboardLabels: ["renovate/dashboard"],
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
+  
+  // Security and vulnerability detection
   vulnerabilityAlerts: {
-    enabled: true
+    enabled: true,
   },
+  osvVulnerabilityAlerts: true,
+  
+  // Pin dependencies and digests
+  separateMinorPatch: true,
+  pinDigests: true,
+  
+  // PR description enhancements
+  prCreation: "immediate",
+  prConcurrentLimit: 10,
+  prHourlyLimit: 0,
+  
+  // Enhanced PR descriptions with release notes and changelogs
+  fetchChangeLogs: "pr",
+  
+  // Ignore paths
   ignorePaths: ["**/resources/**"],
+  
+  // Customize commit messages with more details
+  commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
+  
+  // Post-update options
+  postUpdateOptions: [
+    "gomodTidy",
+    "npmDedupe"
+  ],
+  
+  // Manager-specific configurations
   flux: {
-    managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"],
+    fileMatch: ["\\.yaml$", "\\.yaml\\.j2$"],
   },
   "helm-values": {
-    managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"],
+    fileMatch: ["\\.yaml$", "\\.yaml\\.j2$"],
   },
   kubernetes: {
-    managerFilePatterns: ["/\\.yaml(?:\\.j2)?$/"]
+    fileMatch: ["\\.yaml$", "\\.yaml\\.j2$"],
   },
 }
