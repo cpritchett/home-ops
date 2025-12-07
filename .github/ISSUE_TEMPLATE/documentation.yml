@@ -6,7 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Help improve the homelab documentation for better maintainability and knowledge sharing.
+        **AI Agent Guidance:** Track documentation work for knowledge persistence.
+        - Primary audience: Self (future reference) and AI coding agents
+        - Style: Clear, actionable, with command examples
+        - Include troubleshooting steps and validation commands
+        - Reference .github/copilot-instructions.md for consistency
 
   - type: dropdown
     id: doc-type
@@ -41,9 +45,12 @@ body:
       label: What Needs to Be Done
       description: Describe the documentation work needed
       placeholder: |
-        - What information is missing or incorrect?
-        - What should be added or improved?
-        - Who is the target audience?
+        AI-friendly documentation should include:
+        - Clear step-by-step commands (copy-pasteable)
+        - Expected outputs and validation steps
+        - Error scenarios and troubleshooting
+        - Links to related docs and external references
+        - Context about why (not just how)
     validations:
       required: true
 
@@ -77,8 +84,6 @@ body:
       options:
         - label: Self (future reference)
         - label: AI coding agents
-        - label: Other homelab enthusiasts
-        - label: Contributors to the project
 
   - type: checkboxes
     id: priority

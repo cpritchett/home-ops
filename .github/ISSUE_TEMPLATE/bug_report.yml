@@ -1,12 +1,15 @@
 name: Bug Report
-description: Report a problem with the homelab infrastructure
+description: Track a problem with the homelab infrastructure
 title: "[BUG] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug! Please provide details to help diagnose the issue.
+        **AI Agent Guidance:** Document the issue for troubleshooting. Before creating, check:
+        - `.github/copilot-instructions.md` for workflow rules
+        - `docs/CLUSTER-TROUBLESHOOTING.md` for common issues
+        - `Taskfile.yaml` for diagnostic commands (`task --list`)
 
   - type: dropdown
     id: component
@@ -49,12 +52,14 @@ body:
     id: troubleshooting
     attributes:
       label: Troubleshooting Done
-      description: What have you tried already?
+      description: What diagnostic steps have been taken?
       placeholder: |
+        Common diagnostic commands (see Taskfile.yaml):
         - task k8s:sync-secrets
-        - kubectl logs checks
-        - Flux reconciliation status
-        - etc.
+        - task k8s:reconcile
+        - kubectl describe/logs <resource>
+        - task k8s:browse-pvc CLAIM=<name>
+        - talosctl logs (for node issues)
 
   - type: textarea
     id: additional

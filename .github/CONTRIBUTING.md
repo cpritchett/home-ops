@@ -1,44 +1,92 @@
-# Contribution guidelines
+# Contributing to home-ops
 
-Welcome to [home-ops](https://github.com/cpritchett/home-ops)! We're thrilled that you'd like to contribute. Your help is essential for making it better.
+This is a personal homelab repository managed by Chad Pritchett. Most contributions come from AI agents (GitHub Copilot, Sentry/Seer, etc.) that create PRs based on issues and prompts.
 
-## Getting Started
+## For AI Agents
 
-Before you start contributing, please make sure you have read and understood our [Code of Conduct](CODE_OF_CONDUCT.md).
+**Required Reading:** `.github/copilot-instructions.md` contains mandatory workflow rules and architectural context.
 
-1. Fork the Repository
+### Quick Start Checklist
 
-First, fork the [repository](https://github.com/cpritchett/home-ops) to your own GitHub account. This will create a copy of the project under your account.
+1. **Read context first:**
+   - `.github/copilot-instructions.md` - GitOps workflow rules (MANDATORY)
+   - `docs/` - Component-specific guides and troubleshooting
+   - `Taskfile.yaml` - Available automation commands (`task --list`)
 
-2. Clone the Repository
+2. **Follow GitOps workflow:**
+   - Always create feature branch (`type/scope-description`)
+   - Never work on or commit to `main` branch
+   - Changes to `kubernetes/apps/` only apply after commit+push (Flux reconciles from git)
+
+3. **Use repository automation:**
+   - Prefer `task` commands over raw kubectl/talosctl
+   - Common: `task k8s:sync-secrets`, `task k8s:reconcile`, `task volsync:fix-stuck-app`
+
+4. **Validate changes:**
+   - Run relevant `task` commands to test
+   - Verify Flux reconciliation for Kubernetes changes
+   - Check for secrets leakage (use ExternalSecrets)
+
+### Architecture Quick Reference
+
+- **GitOps:** Flux CD manages all deployments from git
+- **Cluster:** 3-node Talos Kubernetes (v1.31+)
+- **CNI:** Cilium with eBPF
+- **Storage:** Rook Ceph (distributed) + OpenEBS (local)
+- **Secrets:** 1Password Connect + ExternalSecrets Operator
+- **Backup:** VolSync for PVC snapshots
+
+## Human Workflow
+
+1. **Always work on a feature branch** - Never commit directly to main
 
    ```sh
-   git clone https://github.com/cpritchett/home-ops
+   git checkout main
+   git pull origin main
+   git checkout -b type/scope-description
    ```
 
-3. Navigate to the project directory 📁
+   Branch naming examples:
+   - `feat/auth-improvements`
+   - `fix/storage-mount-issue`
+   - `docs/readme-update`
+   - `chore/dependency-updates`
 
-   ```sh
-   cd home-ops
-   ```
+2. **Make your changes** following the repository guidelines in `.github/copilot-instructions.md`
 
-4. Create a new branch for your feature or bug fix:
-
-   ```sh
-   git checkout -b feature-branch
-   ```
-
-5. Make your changes and commit them:
+3. **Commit with conventional commit format:**
 
    ```sh
    git add .
-   git commit -m "Description of your changes"
+   git commit -m "type(scope): description"
    ```
 
-6. Push your changes to your fork:
+   Examples:
+   - `feat(media): add plex gpu transcoding`
+   - `fix(storage): resolve PVC mount issues`
+   - `docs(setup): update 1password configuration`
+
+4. **Push to origin and create a PR:**
 
    ```sh
    git push origin feature-branch
    ```
 
-7. Finally Click on Create Pull request to contribute on this repository.
+5. **Merge via GitHub** after any CI checks pass
+
+## Key Guidelines
+
+- Follow GitOps principles: **Flux only reconciles from the git repository** – local filesystem changes to `kubernetes/apps/` will NOT be applied until they are committed and pushed. Always commit and push changes before expecting Flux to apply them.
+- Use `task --list` to discover available automation commands
+- Check `docs/` directory for detailed procedures before making infrastructure changes
+- Never commit secrets directly - use 1Password ExternalSecrets
+- Test changes with Flux reconciliation before merging
+
+## Repository Structure
+
+- `kubernetes/apps/` - Application deployments by namespace
+- `talos/` - Talos node configurations  
+- `bootstrap/` - Cluster initialization scripts
+- `docs/` - Documentation and guides
+- `.taskfiles/` - Task automation definitions
+- `.github/copilot-instructions.md` - **AI agent workflow rules** (mandatory reading)

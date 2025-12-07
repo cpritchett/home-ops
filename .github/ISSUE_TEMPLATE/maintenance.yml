@@ -6,7 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template for routine maintenance tasks, updates, or housekeeping work.
+        **AI Agent Guidance:** Track maintenance work and automation.
+        - Review `.taskfiles/` for available maintenance automation
+        - Check `docs/CLUSTER-TROUBLESHOOTING.md` for procedures
+        - Consider Renovate integration for dependency updates
+        - Use `task --list` to find relevant maintenance commands
 
   - type: dropdown
     id: task-type
@@ -53,12 +57,15 @@ body:
     id: checklist
     attributes:
       label: Task Checklist
-      description: Break down the work into actionable steps
+      description: Break down into actionable steps with validation
       placeholder: |
-        - [ ] Step 1
-        - [ ] Step 2
-        - [ ] Step 3
-        - [ ] Validation step
+        Example automation-friendly checklist:
+        - [ ] Run: task talos:pull-secrets
+        - [ ] Update YAML in kubernetes/apps/
+        - [ ] Commit and push changes
+        - [ ] Verify: task k8s:reconcile
+        - [ ] Check: kubectl get <resource> -n <namespace>
+        - [ ] Monitor: task k8s:logs APP=<name>
 
   - type: textarea
     id: validation
@@ -85,4 +92,4 @@ body:
     attributes:
       label: Target Completion
       description: When should this be completed?
-      placeholder: e.g., "End of month" or "Before next security scan"
+      placeholder: e.g., "End of month" or specific date
