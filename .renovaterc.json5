@@ -3,7 +3,6 @@
   extends: [
     "config:recommended",
     "docker:enableMajor",
-    ":pinAllExceptDigests",
     "helpers:pinGitHubActionDigests",
     "security:openssf-scorecard",
     "github>cpritchett/home-ops//.renovate/allowedVersions.json5",
